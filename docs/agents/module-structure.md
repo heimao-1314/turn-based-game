@@ -1,90 +1,100 @@
 # 模块目录结构与扩展指南
 
-强制规则见 [AGENTS.md](../../AGENTS.md)。工作流见 [ai-workflow.md](./ai-workflow.md)。
+强制规则：[AGENTS.md](../../AGENTS.md)。工作流：[ai-workflow.md](./ai-workflow.md)。商用条：[commercial-bar.md](./commercial-bar.md)。
 
 ## 1. 当前布局（摘要）
 
 ```text
 ./
   AGENTS.md
-  docs/agents/          AI 规则
-  docs/git/             Git 规则
-  server.js             服务端入口（薄装配）
-  app.js                客户端入口（薄装配）
-  admin.* index.html styles.css
-  scripts/              测试与工具脚本
+  docs/agents/     AI 与商用规则
+  docs/git/        Git 与 AI 操作手册
+  server.js        服务端入口（薄装配）
+  app.js           客户端入口（薄装配）
+  scripts/         测试与工具
   联网战斗/ 全服竞技场/ 仙气修炼/ 疯狂吹牛/
   地图系统/ 宠物模块/ 职业模块/ 生活技能/
   副本模块/ 战斗/ 队伍/ 菜单UI/ 飞图小地图/
   资源/ assets/ maps/
 ```
 
-优先复制现有工厂模式：`createOnlineBattleRuntime`、`createArenaRuntime`、`地图系统/admin-map-api.js` 等。
+扩展时优先复制：`createOnlineBattleRuntime`、`createArenaRuntime`、`地图系统/*` 等**工厂 + 依赖注入**模式。
 
-## 2. 目标结构（渐进）
+## 2. 目标结构（渐进，不要求一次迁完）
 
 ```text
 src/
   server/
     config.js
-    db/
+    db/ repositories/ migrations/
     auth/
-    http/
+    http/          # router static cors
     realtime/
     routes/
     domain/
   client/
     net/ state/ ui/ systems/
-  shared/
+  shared/          # 纯函数与数值表真相源
 ```
 
-旧中文领域目录可与 `src/` 长期共存。新代码优先进清晰模块，而不是入口文件。
+中文领域目录可与 `src/` 共存。**新代码禁止因「目录还没建」而写回入口文件**——可以先建领域目录。
 
-## 3. 领域目录标准形态
+## 3. 领域标准形态
 
 ```text
 领域名/
-  README.md
-  server.js     # createXxxRuntime(deps)
-  client.js     # initXxx(ctx)
-  shared.js     # 可选
-  admin.js      # 可选
+  README.md        # 职责、鉴权、API/WS、错误码、数据表
+  server.js        # createXxxRuntime(deps)
+  client.js        # initXxx(ctx)
+  shared.js        # 可选
+  admin.js         # 可选
 ```
 
 ### 服务端工厂
 
 ```js
 function createXxxRuntime(deps) {
-  const { db, sendJson, requireAuthAccount } = deps;
+  const { db, sendJson, requireAuthAccount, config } = deps;
   function handleApi(req, res, url, body) {
-    // 已处理返回 true
+    // 认领则处理并 return true
+    return false;
   }
   return { handleApi };
 }
 module.exports = { createXxxRuntime };
 ```
 
-根 `server.js` 只：`require` + 注入 deps + 调用 `handleApi`。
+根入口只注入与分发，不写业务细节。
 
-## 4. 迁移原则（绞杀者）
+### 客户端
+
+```js
+function initXxx(ctx) {
+  const { state, api, ws } = ctx;
+  return { destroy() {} };
+}
+module.exports = { initXxx };
+// 或与项目现有全局挂载方式一致
+```
+
+## 4. 绞杀者迁移
 
 1. 新功能只进新文件  
-2. 改旧功能：先搬迁再改行为  
-3. 禁止双份真理  
-4. 一次只迁一个领域  
+2. 改旧功能：原样搬迁 → 单独 `refactor` commit → 再改行为  
+3. 删除入口旧实现，留薄委托或直接分发  
+4. 一次一个领域，保证可回滚  
 
-## 5. 数据库
+## 5. 数据与经济模块特别要求
 
-- 注入 `db`，领域不要自己乱建连接  
-- `prepare` + 占位符  
-- 背包/货币用事务  
-- 运行时库文件不入库（见 `.gitignore`）  
+- repository 层集中 SQL，便于审计  
+- 一切 grant/deduct 走服务端函数，禁止「客户端算完再存盘」  
+- 写路径打点 anomaly 的拒绝原因要稳定  
 
 ## 6. 新建系统检查表
 
-- [ ] 领域 README  
-- [ ] server/client 按需实现  
-- [ ] 根入口仅接线  
-- [ ] 更新 AGENTS §3  
-- [ ] 协议文档  
-- [ ] 无密钥入库  
+- [ ] README（职责/鉴权/接口）  
+- [ ] server/client 按需  
+- [ ] 入口仅接线  
+- [ ] AGENTS §3 更新  
+- [ ] commercial-bar 相关项  
+- [ ] Git 精确提交  
