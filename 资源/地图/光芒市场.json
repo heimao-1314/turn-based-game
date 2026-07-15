@@ -1,0 +1,8915 @@
+{
+  "id": "sgz-shangyequ",
+  "title": "sgz-shangyequ",
+  "width": 20,
+  "height": 20,
+  "tileSize": 16,
+  "layers": [
+    "base",
+    "upper"
+  ],
+  "tilesets": [
+    {
+      "id": "00",
+      "image": "assets/map_tiles/tilesets/00.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "01",
+      "image": "assets/map_tiles/tilesets/01.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "02",
+      "image": "assets/map_tiles/tilesets/02.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_101",
+      "image": "maps/jlmg/101.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_102",
+      "image": "maps/jlmg/102.png",
+      "columns": 3,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_103",
+      "image": "maps/jlmg/103.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_104",
+      "image": "maps/jlmg/104.png",
+      "columns": 11,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_202",
+      "image": "maps/jlmg/202.png",
+      "columns": 15,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_203",
+      "image": "maps/jlmg/203.png",
+      "columns": 15,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_204",
+      "image": "maps/jlmg/204.png",
+      "columns": 4,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_205",
+      "image": "maps/jlmg/205.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_206",
+      "image": "maps/jlmg/206.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_207",
+      "image": "maps/jlmg/207.png",
+      "columns": 4,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_208",
+      "image": "maps/jlmg/208.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_301",
+      "image": "maps/jlmg/301.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_302",
+      "image": "maps/jlmg/302.png",
+      "columns": 13,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_303",
+      "image": "maps/jlmg/303.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_304",
+      "image": "maps/jlmg/304.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_305",
+      "image": "maps/jlmg/305.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_306",
+      "image": "maps/jlmg/306.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_307",
+      "image": "maps/jlmg/307.png",
+      "columns": 15,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_308",
+      "image": "maps/jlmg/308.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_309",
+      "image": "maps/jlmg/309.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_310",
+      "image": "maps/jlmg/310.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_311",
+      "image": "maps/jlmg/311.png",
+      "columns": 1,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_312",
+      "image": "maps/jlmg/312.png",
+      "columns": 12,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_401",
+      "image": "maps/jlmg/401.png",
+      "columns": 9,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_402",
+      "image": "maps/jlmg/402.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_403",
+      "image": "maps/jlmg/403.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_404",
+      "image": "maps/jlmg/404.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_501",
+      "image": "maps/jlmg/501.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_502",
+      "image": "maps/jlmg/502.png",
+      "columns": 13,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_503",
+      "image": "maps/jlmg/503.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_504",
+      "image": "maps/jlmg/504.png",
+      "columns": 2,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_507",
+      "image": "maps/jlmg/507.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_508",
+      "image": "maps/jlmg/508.png",
+      "columns": 2,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_hsql",
+      "image": "maps/jlmg/hsql.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_jlmg_zshd",
+      "image": "maps/jlmg/zshd.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_mszy_104",
+      "image": "maps/mszy/104.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_aedfj",
+      "image": "maps/sgpy/aedfj.png",
+      "columns": 13,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_bxmj",
+      "image": "maps/sgpy/bxmj.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_cwxx",
+      "image": "maps/sgpy/cwxx.png",
+      "columns": 3,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_fcmj",
+      "image": "maps/sgpy/fcmj.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_gml",
+      "image": "maps/sgpy/gml.png",
+      "columns": 9,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_hjmj",
+      "image": "maps/sgpy/hjmj.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_jiazu",
+      "image": "maps/sgpy/jiazu.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_sygc",
+      "image": "maps/sgpy/sygc.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgpy_wch",
+      "image": "maps/sgpy/wch.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgz_chuansong",
+      "image": "maps/sgz/chuansong.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgz_cunzhangjia",
+      "image": "maps/sgz/cunzhangjia.png",
+      "columns": 6,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgz_xuexiao",
+      "image": "maps/sgz/xuexiao.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgz_xunlianchang3",
+      "image": "maps/sgz/xunlianchang3.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgz_yuanye",
+      "image": "maps/sgz/yuanye.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "map_sgz_zhandouqu",
+      "image": "maps/sgz/zhandouqu.png",
+      "columns": 16,
+      "tileWidth": 16,
+      "tileHeight": 16
+    }
+  ],
+  "specialTiles": [
+    {
+      "id": "0.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/0.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/0_tij_v000.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "1.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/1.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/1_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/1_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/1_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/1_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/1_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/1_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/1_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/1_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/1_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/1_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/1_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/1_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/1_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/1_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/1_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/1_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/1_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/1_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/1_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/1_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/1_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/1_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/1_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/1_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/1_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/1_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/1_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/1_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/1_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/1_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/1_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/1_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/1_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/1_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/1_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/1_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/1_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/1_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/1_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/1_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/1_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/1_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/1_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/1_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/1_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/1_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/1_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "2.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/2.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 2,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/2_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/2_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/2_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/2_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/2_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/2_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/2_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/2_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/2_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/2_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/2_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/2_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/2_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/2_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/2_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/2_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/2_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/2_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/2_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/2_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/2_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/2_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/2_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/2_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/2_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/2_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/2_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/2_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/2_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/2_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/2_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/2_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/2_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/2_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/2_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/2_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/2_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/2_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/2_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/2_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/2_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/2_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/2_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/2_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/2_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/2_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/2_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "3.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/3.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/3_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/3_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/3_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/3_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/3_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/3_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/3_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/3_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/3_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/3_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/3_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/3_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/3_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/3_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/3_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/3_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/3_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/3_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/3_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/3_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/3_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/3_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/3_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/3_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/3_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/3_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/3_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/3_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/3_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/3_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/3_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/3_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/3_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/3_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/3_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/3_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/3_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/3_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/3_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/3_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/3_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/3_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/3_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/3_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/3_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/3_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/3_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "4.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/4.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/4_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/4_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/4_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/4_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/4_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/4_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/4_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/4_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/4_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/4_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/4_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/4_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/4_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/4_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/4_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/4_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/4_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/4_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/4_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/4_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/4_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/4_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/4_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/4_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/4_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/4_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/4_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/4_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/4_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/4_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/4_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/4_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/4_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/4_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/4_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/4_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/4_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/4_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/4_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/4_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/4_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/4_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/4_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/4_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/4_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/4_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/4_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "5.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/5.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/5_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/5_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/5_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/5_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/5_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/5_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/5_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/5_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/5_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/5_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/5_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/5_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/5_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/5_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/5_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/5_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/5_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/5_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/5_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/5_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/5_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/5_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/5_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/5_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/5_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/5_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/5_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/5_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/5_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/5_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/5_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/5_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/5_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/5_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/5_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/5_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/5_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/5_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/5_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/5_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/5_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/5_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/5_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/5_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/5_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/5_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/5_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "6.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/6.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/6_tij_v000.png",
+          "alphaPixels": 256
+        }
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        0,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        4,
+        0,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        206,
+        2,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 14
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        142,
+        3,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        66,
+        4,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        132,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 54
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        66,
+        5,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 54
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        132,
+        6,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        66,
+        7,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        8,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        9,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        132,
+        10,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        198,
+        11,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        198,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        198,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        13,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        14,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        198,
+        12,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        15,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        16,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        17,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        32,
+        17,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        133,
+        19,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        20,
+        21,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        18,
+        22,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        23,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        164,
+        23,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        210,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        136,
+        24,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        200,
+        25,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        236,
+        26,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        3,
+        182,
+        27,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 14
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        254,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        28,
+        29,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        28,
+        30,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        254,
+        28,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        28,
+        31,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        28,
+        32,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        164,
+        33,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        83,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        16,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        34,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        214,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        115,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        49,
+        35,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        17,
+        10,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        180,
+        11,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        247,
+        12,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        115,
+        36,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        49,
+        37,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        49,
+        38,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        49,
+        39,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        17,
+        40,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        164,
+        41,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        82,
+        34,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        36,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        254,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        218,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        200,
+        42,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        3,
+        200,
+        26,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        3,
+        236,
+        27,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        254,
+        28,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        18,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        43,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        44,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        36,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        90,
+        45,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        64,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        33,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        49,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        49,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        49,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        181,
+        46,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        246,
+        47,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        83,
+        48,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 16
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        16,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        0,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        0,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        32,
+        49,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        165,
+        3,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        74,
+        4,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        228,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        136,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        236,
+        51,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        246,
+        52,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        218,
+        53,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        72,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 64
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        64,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        8,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        17,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        128,
+        17,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        136,
+        54,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        236,
+        21,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 15
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        255,
+        22,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        166,
+        34,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        140,
+        56,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        51,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        49,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        181,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 131
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        243,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 9
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        185,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 13
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        253,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        66,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        132,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 11
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        91,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        57,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        4,
+        57,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        251,
+        35,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        249,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        89,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        244,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        140,
+        56,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        147,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        152,
+        45,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        236,
+        44,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 14
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        222,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        59,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        60,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        164,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        83,
+        12,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        0,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        32,
+        49,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        33,
+        3,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        181,
+        3,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 7
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        247,
+        4,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        230,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        132,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        83,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        148,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        115,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        49,
+        35,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        3,
+        181,
+        43,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        243,
+        12,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        185,
+        28,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        253,
+        28,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        218,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        236,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        90,
+        28,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        17,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        128,
+        54,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        136,
+        61,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        236,
+        62,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 14
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        254,
+        22,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        182,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        82,
+        42,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        3,
+        164,
+        43,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        246,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        222,
+        28,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        5,
+        51,
+        63,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        49,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        49,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        49,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        5,
+        17,
+        64,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        57,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        4,
+        65,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        123,
+        67,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        113,
+        67,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        17,
+        45,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        180,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        164,
+        68,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 14
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        254,
+        69,
+        111
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        83,
+        70,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 16
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        16,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        0,
+        43,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        32,
+        44,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        165,
+        33,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        66,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        172,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        18,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        36,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        90,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        228,
+        71,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        0,
+        42,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        164,
+        72,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        73,
+        74,
+        79
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        82,
+        75,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        76,
+        175
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        128,
+        77,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        8,
+        78,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 68
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        228,
+        79,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        82,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        132,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        83,
+        80,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 16
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        16,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        37,
+        81,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        110,
+        34,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        218,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        200,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        3,
+        236,
+        82,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        73,
+        83,
+        95
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        82,
+        84,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        136,
+        85,
+        159
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        5,
+        72,
+        86,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        4,
+        87,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        88,
+        89,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 6
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        166,
+        90,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        82,
+        34,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        37,
+        81,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        235,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        253,
+        34,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        115,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        181,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        82,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        132,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 11
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        251,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "4.tij",
+        "variant": 9
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        4,
+        89,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 40
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        168,
+        91,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 9
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        201,
+        92,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 28
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        0,
+        252,
+        93,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        18,
+        45,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        164,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        33,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        53,
+        81,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        218,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        236,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        218,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        200,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        200,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "5.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        5,
+        236,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        247,
+        12,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 21
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        12,
+        94,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        33,
+        95,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        49,
+        95,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        17,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        144,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        172,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        18,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        8,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 64
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        64,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        37,
+        81,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        251,
+        34,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        253,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        51,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        49,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        53,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        254,
+        28,
+        80
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        28,
+        96,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        97,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        98,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        132,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        83,
+        80,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 16
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        16,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        132,
+        56,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        247,
+        45,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        66,
+        99,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        33,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        17,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 16
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        16,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 32
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        32,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        33,
+        100,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 1
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 63
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        17,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        0,
+        45,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        128,
+        34,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        172,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        18,
+        101,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 128
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        128,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        172,
+        56,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        54,
+        45,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        90,
+        99,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 64
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        64,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        100,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 63
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        0,
+        102,
+        175
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        0,
+        103,
+        175
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        132,
+        104,
+        175
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        83,
+        80,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 16
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        16,
+        105,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        106,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        132,
+        107,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        83,
+        34,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        48,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        37,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        202,
+        99,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        200,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        200,
+        108,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        200,
+        109,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 8
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 63
+      },
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        72,
+        110,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        111,
+        160
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        112,
+        224
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        36,
+        113,
+        160
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 2
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 55
+      },
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        18,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 55
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        114,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 55
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        114,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "1.tij",
+        "variant": 4
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 55
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        36,
+        114,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        18,
+        97,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        0,
+        98,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        32,
+        97,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        33,
+        98,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        53,
+        99,
+        16
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        51,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        17,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    }
+  ],
+  "imageAlign": {
+    "x": 0,
+    "y": 0,
+    "scale": 1,
+    "alpha": 0.45
+  },
+  "sourceImage": "",
+  "imageLayer": null
+}

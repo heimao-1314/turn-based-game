@@ -1,0 +1,10 @@
+﻿{
+  "name": "kdjl-map-viewer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-data.mjs",
+    "start": "node server.mjs"
+  }
+}

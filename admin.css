@@ -1,0 +1,420 @@
+﻿/* ================================================
+   管理后台 - 模块化样式
+   ================================================ */
+
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  background: #0e1514;
+  color: #f5edc8;
+  font-family: system-ui, "Microsoft YaHei", sans-serif;
+  line-height: 1.5;
+}
+.hidden { display: none !important; }
+
+/* === 登录面板 === */
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.login-card {
+  width: min(380px, 100%);
+  display: grid;
+  gap: 14px;
+  padding: 32px 28px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(20, 31, 28, .95);
+  text-align: center;
+}
+.login-card h1 { font-size: 1.5rem; }
+.login-hint { color: #c8bd86; font-size: 13px; }
+.login-card input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 6px;
+  background: rgba(0,0,0,.35);
+  color: #fff7ca;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+.login-card button {
+  width: 100%;
+  min-height: 42px;
+  border: none;
+  border-radius: 6px;
+  background: #a57d2f;
+  color: #171a14;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.login-card button:hover { background: #c49538; }
+.login-error { color: #ff8e8e; font-size: 13px; min-height: 20px; }
+
+/* === 顶栏 === */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(20, 31, 28, .92);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar h1 { font-size: 1.2rem; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-right span { color: #c8bd86; font-size: 13px; }
+
+/* === 标签导航 === */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 24px;
+  background: rgba(16, 24, 23, .8);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  overflow-x: auto;
+}
+.tab {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: #c8bd86;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab:hover { color: #f5edc8; }
+.tab.active {
+  color: #f5d46a;
+  border-bottom-color: #f5d46a;
+}
+
+/* === 搜索栏 === */
+.search-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px;
+}
+.search-bar input {
+  flex: 1;
+  min-height: 36px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 6px;
+  background: rgba(0,0,0,.3);
+  color: #fff7ca;
+  padding: 6px 12px;
+}
+
+/* === 通用表单元素 === */
+input, select, textarea {
+  min-height: 34px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 6px;
+  background: rgba(0,0,0,.3);
+  color: #fff7ca;
+  padding: 6px 10px;
+  font: inherit;
+}
+textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  line-height: 1.6;
+}
+button {
+  min-height: 34px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #a57d2f;
+  color: #171a14;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+button:hover { background: #b88d38; }
+.btn-sm { min-height: 28px; padding: 4px 12px; font-size: 12px; }
+.btn-danger { background: #a03030; }
+.btn-danger:hover { background: #b84040; }
+.btn-orange { background: #b07020; }
+.btn-orange:hover { background: #c08030; }
+.btn-green { background: #2e7d32; }
+.btn-green:hover { background: #388e3c; }
+
+/* === 标签页内容 === */
+.tab-page { display: none; padding: 0 24px 24px; }
+.tab-page.active { display: block; }
+
+/* === 布局 === */
+.two-col {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.3fr);
+  gap: 16px;
+  align-items: start;
+}
+.panel {
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 8px;
+  background: rgba(20, 31, 28, .88);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.panel h2 {
+  font-size: 1rem;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.panel-header h2 { border: none; padding: 0; }
+.single-panel { max-width: 960px; }
+
+/* === 服务器管理 === */
+.server-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(420px, 1fr);
+  gap: 16px;
+  align-items: start;
+  max-width: 1100px;
+}
+.server-create-form {
+  display: grid;
+  gap: 12px;
+}
+.server-form-grid { grid-template-columns: 1fr; }
+.server-list {
+  display: grid;
+  gap: 8px;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+}
+.server-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.05);
+}
+.server-info { min-width: 0; }
+.server-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.server-title strong {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.server-info small {
+  display: block;
+  color: #c8bd86;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.server-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 1px 7px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.server-status-enabled {
+  border-color: rgba(102, 210, 132, .45);
+  background: rgba(46, 125, 50, .22);
+  color: #8ef0a8;
+}
+.server-status-disabled {
+  border-color: rgba(255, 142, 142, .35);
+  background: rgba(160, 48, 48, .22);
+  color: #ffabab;
+}
+.server-row button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+/* === 玩家列表 === */
+.player-list {
+  display: grid;
+  gap: 6px;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+}
+.player-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: background .12s;
+}
+.player-row:hover { background: rgba(255,255,255,.09); }
+.player-row.active { outline: 2px solid #d9b84f; background: rgba(217,184,79,.08); }
+.player-row strong { font-size: 14px; }
+.player-row small { display: block; color: #c8bd86; font-size: 12px; }
+
+/* === 排行 / 异常列表 === */
+.ranking-list {
+  display: grid;
+  gap: 6px;
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+}
+.ranking-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: background .12s;
+}
+.ranking-row:hover { background: rgba(255,255,255,.09); }
+.ranking-row strong, .ranking-row small { display: block; }
+.ranking-row small { color: #c8bd86; font-size: 12px; }
+.ranking-row .rank-value { color: #f5d46a; font-weight: 700; font-size: 13px; }
+.ranking-row.banned { opacity: .65; }
+
+/* === 选中玩家 === */
+.selected-box {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.05);
+  font-size: 13px;
+  color: #f5d46a;
+}
+
+/* === 表单 === */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: #d8c987;
+}
+label input, label select, label textarea { width: 100%; }
+
+/* === 行内行 === */
+.inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.inline-row input, .inline-row select { flex: 1; min-width: 100px; }
+
+/* === Fieldset === */
+.field-group {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+.field-group legend {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d8c987;
+}
+
+/* === 复选框行 === */
+.check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #d8c987;
+  cursor: pointer;
+}
+.check-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: auto;
+  accent-color: #a57d2f;
+}
+
+/* === 消息条 === */
+.message-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 24px;
+  background: rgba(14, 21, 20, .95);
+  border-top: 1px solid rgba(255,255,255,.08);
+  font-size: 13px;
+  color: #8ef0a8;
+  text-align: center;
+  z-index: 200;
+  min-height: 20px;
+  transition: opacity .3s;
+}
+
+/* === 备注 === */
+.note { color: #c8bd86; font-size: 12px; }
+
+/* === 滚动条 === */
+.player-list::-webkit-scrollbar,
+.server-list::-webkit-scrollbar,
+.ranking-list::-webkit-scrollbar { width: 6px; }
+.player-list::-webkit-scrollbar-track,
+.server-list::-webkit-scrollbar-track,
+.ranking-list::-webkit-scrollbar-track { background: transparent; }
+.player-list::-webkit-scrollbar-thumb,
+.server-list::-webkit-scrollbar-thumb,
+.ranking-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+
+/* === 响应式 === */
+@media (max-width: 860px) {
+  .two-col { grid-template-columns: 1fr; }
+  .server-admin-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .tabs { padding: 0 12px; }
+  .search-bar, .tab-page { padding-left: 12px; padding-right: 12px; }
+  .topbar { padding: 12px 14px; }
+}
+@media (max-width: 520px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .ranking-row { grid-template-columns: 36px 1fr; }
+  .ranking-row .rank-value { grid-column: 2; }
+}

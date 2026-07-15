@@ -1,0 +1,4159 @@
+{
+  "id": "mszy-104",
+  "title": "mszy-104",
+  "width": 11,
+  "height": 13,
+  "tileSize": 16,
+  "layers": [
+    "base",
+    "upper"
+  ],
+  "tilesets": [
+    {
+      "id": "00",
+      "image": "assets/map_tiles/tilesets/00.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "01",
+      "image": "assets/map_tiles/tilesets/01.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "id": "02",
+      "image": "assets/map_tiles/tilesets/02.png",
+      "columns": 8,
+      "tileWidth": 16,
+      "tileHeight": 16
+    }
+  ],
+  "specialTiles": [
+    {
+      "id": "0.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/0.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/0_tij_v000.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "2.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/2.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 2,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/2_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/2_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/2_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/2_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/2_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/2_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/2_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/2_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/2_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/2_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/2_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/2_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/2_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/2_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/2_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/2_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/2_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/2_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/2_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/2_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/2_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/2_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/2_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/2_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/2_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/2_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/2_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/2_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/2_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/2_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/2_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/2_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/2_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/2_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/2_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/2_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/2_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/2_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/2_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/2_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/2_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/2_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/2_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/2_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/2_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/2_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/2_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    },
+    {
+      "id": "3.tij",
+      "kind": "tij",
+      "image": "assets/map_tiles/special/3.tij.png",
+      "width": 16,
+      "height": 16,
+      "anchorX": 0,
+      "anchorY": 0,
+      "frameCount": 1,
+      "variantBits": 8,
+      "variants": [
+        {
+          "variant": 0,
+          "image": "assets/map_tiles/special_variants/3_tij_v000.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 1,
+          "image": "assets/map_tiles/special_variants/3_tij_v001.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 2,
+          "image": "assets/map_tiles/special_variants/3_tij_v002.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 3,
+          "image": "assets/map_tiles/special_variants/3_tij_v003.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 4,
+          "image": "assets/map_tiles/special_variants/3_tij_v004.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 5,
+          "image": "assets/map_tiles/special_variants/3_tij_v005.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 6,
+          "image": "assets/map_tiles/special_variants/3_tij_v006.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 7,
+          "image": "assets/map_tiles/special_variants/3_tij_v007.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 8,
+          "image": "assets/map_tiles/special_variants/3_tij_v008.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 9,
+          "image": "assets/map_tiles/special_variants/3_tij_v009.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 10,
+          "image": "assets/map_tiles/special_variants/3_tij_v010.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 11,
+          "image": "assets/map_tiles/special_variants/3_tij_v011.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 12,
+          "image": "assets/map_tiles/special_variants/3_tij_v012.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 13,
+          "image": "assets/map_tiles/special_variants/3_tij_v013.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 14,
+          "image": "assets/map_tiles/special_variants/3_tij_v014.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 15,
+          "image": "assets/map_tiles/special_variants/3_tij_v015.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 16,
+          "image": "assets/map_tiles/special_variants/3_tij_v016.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 20,
+          "image": "assets/map_tiles/special_variants/3_tij_v020.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 24,
+          "image": "assets/map_tiles/special_variants/3_tij_v024.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 28,
+          "image": "assets/map_tiles/special_variants/3_tij_v028.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 32,
+          "image": "assets/map_tiles/special_variants/3_tij_v032.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 34,
+          "image": "assets/map_tiles/special_variants/3_tij_v034.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 40,
+          "image": "assets/map_tiles/special_variants/3_tij_v040.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 42,
+          "image": "assets/map_tiles/special_variants/3_tij_v042.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 48,
+          "image": "assets/map_tiles/special_variants/3_tij_v048.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 56,
+          "image": "assets/map_tiles/special_variants/3_tij_v056.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 64,
+          "image": "assets/map_tiles/special_variants/3_tij_v064.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 65,
+          "image": "assets/map_tiles/special_variants/3_tij_v065.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 68,
+          "image": "assets/map_tiles/special_variants/3_tij_v068.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 69,
+          "image": "assets/map_tiles/special_variants/3_tij_v069.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 80,
+          "image": "assets/map_tiles/special_variants/3_tij_v080.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 84,
+          "image": "assets/map_tiles/special_variants/3_tij_v084.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 96,
+          "image": "assets/map_tiles/special_variants/3_tij_v096.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 112,
+          "image": "assets/map_tiles/special_variants/3_tij_v112.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 128,
+          "image": "assets/map_tiles/special_variants/3_tij_v128.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 129,
+          "image": "assets/map_tiles/special_variants/3_tij_v129.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 130,
+          "image": "assets/map_tiles/special_variants/3_tij_v130.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 131,
+          "image": "assets/map_tiles/special_variants/3_tij_v131.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 144,
+          "image": "assets/map_tiles/special_variants/3_tij_v144.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 160,
+          "image": "assets/map_tiles/special_variants/3_tij_v160.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 162,
+          "image": "assets/map_tiles/special_variants/3_tij_v162.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 176,
+          "image": "assets/map_tiles/special_variants/3_tij_v176.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 192,
+          "image": "assets/map_tiles/special_variants/3_tij_v192.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 193,
+          "image": "assets/map_tiles/special_variants/3_tij_v193.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 208,
+          "image": "assets/map_tiles/special_variants/3_tij_v208.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 224,
+          "image": "assets/map_tiles/special_variants/3_tij_v224.png",
+          "alphaPixels": 256
+        },
+        {
+          "variant": 240,
+          "image": "assets/map_tiles/special_variants/3_tij_v240.png",
+          "alphaPixels": 256
+        }
+      ]
+    }
+  ],
+  "source": "maps/mszy/104.header.bin",
+  "scMeta": {
+    "headerOffset": 0,
+    "specialCount": 3,
+    "specialOffset": 592,
+    "specialTable": [
+      {
+        "raw": [
+          0,
+          0,
+          2,
+          0
+        ],
+        "dataOffset": 0,
+        "lengthOrExternalId": 2,
+        "tijId": "2.tij"
+      },
+      {
+        "raw": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "dataOffset": 0,
+        "lengthOrExternalId": 0,
+        "tijId": "0.tij"
+      },
+      {
+        "raw": [
+          0,
+          0,
+          3,
+          0
+        ],
+        "dataOffset": 0,
+        "lengthOrExternalId": 3,
+        "tijId": "3.tij"
+      }
+    ],
+    "overlayCount": 82,
+    "overlayOffset": 604,
+    "overlays": [
+      {
+        "frameRate": 0,
+        "coord": 192
+      },
+      {
+        "frameRate": 0,
+        "coord": 193
+      },
+      {
+        "frameRate": 0,
+        "coord": 194
+      },
+      {
+        "frameRate": 0,
+        "coord": 195
+      },
+      {
+        "frameRate": 0,
+        "coord": 196
+      },
+      {
+        "frameRate": 0,
+        "coord": 197
+      },
+      {
+        "frameRate": 0,
+        "coord": 198
+      },
+      {
+        "frameRate": 0,
+        "coord": 199
+      },
+      {
+        "frameRate": 0,
+        "coord": 200
+      },
+      {
+        "frameRate": 0,
+        "coord": 201
+      },
+      {
+        "frameRate": 0,
+        "coord": 202
+      },
+      {
+        "frameRate": 0,
+        "coord": 203
+      },
+      {
+        "frameRate": 0,
+        "coord": 204
+      },
+      {
+        "frameRate": 0,
+        "coord": 205
+      },
+      {
+        "frameRate": 0,
+        "coord": 206
+      },
+      {
+        "frameRate": 0,
+        "coord": 207
+      },
+      {
+        "frameRate": 0,
+        "coord": 208
+      },
+      {
+        "frameRate": 0,
+        "coord": 209
+      },
+      {
+        "frameRate": 0,
+        "coord": 210
+      },
+      {
+        "frameRate": 0,
+        "coord": 211
+      },
+      {
+        "frameRate": 0,
+        "coord": 212
+      },
+      {
+        "frameRate": 0,
+        "coord": 213
+      },
+      {
+        "frameRate": 0,
+        "coord": 214
+      },
+      {
+        "frameRate": 0,
+        "coord": 215
+      },
+      {
+        "frameRate": 0,
+        "coord": 216
+      },
+      {
+        "frameRate": 0,
+        "coord": 217
+      },
+      {
+        "frameRate": 0,
+        "coord": 218
+      },
+      {
+        "frameRate": 0,
+        "coord": 219
+      },
+      {
+        "frameRate": 0,
+        "coord": 220
+      },
+      {
+        "frameRate": 0,
+        "coord": 133
+      },
+      {
+        "frameRate": 0,
+        "coord": 134
+      },
+      {
+        "frameRate": 0,
+        "coord": 221
+      },
+      {
+        "frameRate": 0,
+        "coord": 222
+      },
+      {
+        "frameRate": 0,
+        "coord": 223
+      },
+      {
+        "frameRate": 0,
+        "coord": 224
+      },
+      {
+        "frameRate": 0,
+        "coord": 135
+      },
+      {
+        "frameRate": 0,
+        "coord": 225
+      },
+      {
+        "frameRate": 0,
+        "coord": 226
+      },
+      {
+        "frameRate": 0,
+        "coord": 227
+      },
+      {
+        "frameRate": 0,
+        "coord": 228
+      },
+      {
+        "frameRate": 0,
+        "coord": 141
+      },
+      {
+        "frameRate": 0,
+        "coord": 229
+      },
+      {
+        "frameRate": 0,
+        "coord": 230
+      },
+      {
+        "frameRate": 0,
+        "coord": 231
+      },
+      {
+        "frameRate": 0,
+        "coord": 182
+      },
+      {
+        "frameRate": 0,
+        "coord": 232
+      },
+      {
+        "frameRate": 0,
+        "coord": 233
+      },
+      {
+        "frameRate": 0,
+        "coord": 143
+      },
+      {
+        "frameRate": 0,
+        "coord": 103
+      },
+      {
+        "frameRate": 0,
+        "coord": 234
+      },
+      {
+        "frameRate": 0,
+        "coord": 235
+      },
+      {
+        "frameRate": 0,
+        "coord": 236
+      },
+      {
+        "frameRate": 0,
+        "coord": 237
+      },
+      {
+        "frameRate": 0,
+        "coord": 238
+      },
+      {
+        "frameRate": 0,
+        "coord": 239
+      },
+      {
+        "frameRate": 0,
+        "coord": 240
+      },
+      {
+        "frameRate": 0,
+        "coord": 241
+      },
+      {
+        "frameRate": 0,
+        "coord": 242
+      },
+      {
+        "frameRate": 0,
+        "coord": 243
+      },
+      {
+        "frameRate": 0,
+        "coord": 149
+      },
+      {
+        "frameRate": 0,
+        "coord": 150
+      },
+      {
+        "frameRate": 0,
+        "coord": 168
+      },
+      {
+        "frameRate": 0,
+        "coord": 169
+      },
+      {
+        "frameRate": 0,
+        "coord": 61
+      },
+      {
+        "frameRate": 0,
+        "coord": 151
+      },
+      {
+        "frameRate": 0,
+        "coord": 157
+      },
+      {
+        "frameRate": 0,
+        "coord": 158
+      },
+      {
+        "frameRate": 0,
+        "coord": 159
+      },
+      {
+        "frameRate": 0,
+        "coord": 94
+      },
+      {
+        "frameRate": 0,
+        "coord": 63
+      },
+      {
+        "frameRate": 0,
+        "coord": 176
+      },
+      {
+        "frameRate": 0,
+        "coord": 177
+      },
+      {
+        "frameRate": 0,
+        "coord": 102
+      },
+      {
+        "frameRate": 0,
+        "coord": 62
+      },
+      {
+        "frameRate": 0,
+        "coord": 191
+      },
+      {
+        "frameRate": 0,
+        "coord": 244
+      },
+      {
+        "frameRate": 0,
+        "coord": 245
+      },
+      {
+        "frameRate": 0,
+        "coord": 246
+      },
+      {
+        "frameRate": 0,
+        "coord": 247
+      },
+      {
+        "frameRate": 0,
+        "coord": 248
+      },
+      {
+        "frameRate": 0,
+        "coord": 249
+      },
+      {
+        "frameRate": 0,
+        "coord": 250
+      }
+    ],
+    "singleRows": [
+      {
+        "index": 0,
+        "offset": 866,
+        "length": 3074
+      },
+      {
+        "index": 1,
+        "offset": 3940,
+        "length": 2840
+      },
+      {
+        "index": 2,
+        "offset": 6780,
+        "length": 2486
+      },
+      {
+        "index": 3,
+        "offset": 9266,
+        "length": 1475
+      }
+    ],
+    "singleRowImages": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "decorationCount": 0,
+    "decorationOffset": 0,
+    "triggerCount": 12,
+    "triggerOffset": 10742
+  },
+  "cells": [
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 8
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 0,
+        "frameRate": 0,
+        "rawCoord": 192
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        136,
+        0,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 12
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 1,
+        "frameRate": 0,
+        "rawCoord": 193
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        204,
+        1,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 2,
+        "frameRate": 0,
+        "rawCoord": 194
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        130,
+        2,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 3,
+        "frameRate": 0,
+        "rawCoord": 195
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        12,
+        3,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 4,
+        "frameRate": 0,
+        "rawCoord": 196
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 5,
+        "frameRate": 0,
+        "rawCoord": 197
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        4,
+        5,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 6,
+        "frameRate": 0,
+        "rawCoord": 198
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        6,
+        6,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 7,
+        "frameRate": 0,
+        "rawCoord": 199
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 8,
+        "frameRate": 0,
+        "rawCoord": 200
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        7,
+        8,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 9,
+        "frameRate": 0,
+        "rawCoord": 201
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        9,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 10,
+        "frameRate": 0,
+        "rawCoord": 202
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        70,
+        10,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 10
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 11,
+        "frameRate": 0,
+        "rawCoord": 203
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        202,
+        11,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 8
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 12,
+        "frameRate": 0,
+        "rawCoord": 204
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        72,
+        12,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 5
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 13,
+        "frameRate": 0,
+        "rawCoord": 205
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        165,
+        13,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 14,
+        "frameRate": 0,
+        "rawCoord": 206
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        211,
+        14,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 15,
+        "frameRate": 0,
+        "rawCoord": 207
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        28,
+        15,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 0,
+        "frameRate": 0,
+        "rawCoord": 208
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 1,
+        "frameRate": 0,
+        "rawCoord": 209
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        16,
+        17,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 2,
+        "frameRate": 0,
+        "rawCoord": 210
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        3,
+        18,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 3,
+        "frameRate": 0,
+        "rawCoord": 211
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        48,
+        19,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 4,
+        "frameRate": 0,
+        "rawCoord": 212
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        37,
+        20,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 5,
+        "frameRate": 0,
+        "rawCoord": 213
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 6,
+        "frameRate": 0,
+        "rawCoord": 214
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        21,
+        22,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 7,
+        "frameRate": 0,
+        "rawCoord": 215
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        58,
+        23,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 8,
+        "frameRate": 0,
+        "rawCoord": 216
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        229,
+        24,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 9,
+        "frameRate": 0,
+        "rawCoord": 217
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        83,
+        25,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 12
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 10,
+        "frameRate": 0,
+        "rawCoord": 218
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        172,
+        26,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 11,
+        "frameRate": 0,
+        "rawCoord": 219
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        22,
+        27,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 12,
+        "frameRate": 0,
+        "rawCoord": 220
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 5,
+        "rawTile": 133,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        28,
+        29,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 6,
+        "rawTile": 134,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        139,
+        30,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 13,
+        "frameRate": 0,
+        "rawCoord": 221
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        216,
+        31,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 14,
+        "frameRate": 0,
+        "rawCoord": 222
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        200,
+        32,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 15,
+        "frameRate": 0,
+        "rawCoord": 223
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        232,
+        33,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 6,
+        "rawTile": 134,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        205,
+        30,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 0,
+        "frameRate": 0,
+        "rawCoord": 224
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 7,
+        "rawTile": 135,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        34,
+        35,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 1,
+        "frameRate": 0,
+        "rawCoord": 225
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        102,
+        36,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 2,
+        "frameRate": 0,
+        "rawCoord": 226
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        90,
+        37,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 3,
+        "frameRate": 0,
+        "rawCoord": 227
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        1,
+        38,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 4,
+        "frameRate": 0,
+        "rawCoord": 228
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        48,
+        39,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 13,
+        "rawTile": 141,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        133,
+        40,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 5,
+        "frameRate": 0,
+        "rawCoord": 229
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        115,
+        41,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 5
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 6,
+        "frameRate": 0,
+        "rawCoord": 230
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        181,
+        42,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "single-row",
+        "image": null,
+        "index": 7,
+        "frameRate": 0,
+        "rawCoord": 231
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 54,
+        "rawTile": 182,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        43,
+        44,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 8,
+        "frameRate": 0,
+        "rawCoord": 232
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        115,
+        45,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 5
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 9,
+        "frameRate": 0,
+        "rawCoord": 233
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        181,
+        46,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 15,
+        "rawTile": 143,
+        "frameRate": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 39,
+        "rawTile": 103,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        15,
+        47,
+        48,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 10,
+        "frameRate": 0,
+        "rawCoord": 234
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        50,
+        49,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 11,
+        "frameRate": 0,
+        "rawCoord": 235
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        1,
+        50,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 6,
+        "rawTile": 134,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        136,
+        30,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 6,
+        "rawTile": 134,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        72,
+        30,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 13,
+        "rawTile": 141,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        100,
+        40,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 12,
+        "frameRate": 0,
+        "rawCoord": 236
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        218,
+        51,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 12
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 13,
+        "frameRate": 0,
+        "rawCoord": 237
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        236,
+        52,
+        111
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 14,
+        "frameRate": 0,
+        "rawCoord": 238
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        55,
+        53,
+        79
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 15,
+        "frameRate": 0,
+        "rawCoord": 239
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        218,
+        54,
+        95
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 12
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 0,
+        "frameRate": 0,
+        "rawCoord": 240
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        236,
+        55,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 15,
+        "rawTile": 143,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        147,
+        47,
+        80
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 6,
+        "rawTile": 134,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        152,
+        30,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 6,
+        "rawTile": 134,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        72,
+        30,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        33,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        181,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 13,
+        "rawTile": 141,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        98,
+        40,
+        96
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        161,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 1,
+        "frameRate": 0,
+        "rawCoord": 241
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        25,
+        56,
+        79
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 2,
+        "frameRate": 0,
+        "rawCoord": 242
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        240,
+        57,
+        79
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 3,
+        "frameRate": 0,
+        "rawCoord": 243
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        41,
+        58,
+        79
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        81,
+        255,
+        63
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 15,
+        "rawTile": 143,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        148,
+        47,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        115,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        17,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 39,
+        "rawTile": 103,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        48,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 4
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        164,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 21,
+        "rawTile": 149,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        82,
+        59,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 22,
+        "rawTile": 150,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        4,
+        60,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 22,
+        "rawTile": 150,
+        "frameRate": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 40,
+        "rawTile": 168,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        60,
+        61,
+        95
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        6,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 41,
+        "rawTile": 169,
+        "frameRate": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "00",
+        "index": 61,
+        "rawTile": 61,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        15,
+        62,
+        63,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 22,
+        "rawTile": 150,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        2,
+        60,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 23,
+        "rawTile": 151,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        164,
+        64,
+        64
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 2
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        82,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 39,
+        "rawTile": 103,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        48,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 4
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 39,
+        "rawTile": 103,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        36,
+        48,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 29,
+        "rawTile": 157,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        218,
+        65,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 30,
+        "rawTile": 158,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        104,
+        66,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 13,
+        "rawTile": 141,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        65,
+        40,
+        95
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        48,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 15,
+        "rawTile": 143,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        129,
+        47,
+        111
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 30,
+        "rawTile": 158,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        152,
+        66,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 31,
+        "rawTile": 159,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        236,
+        67,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 2
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 39,
+        "rawTile": 103,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        18,
+        48,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        0,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        136,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 30,
+        "rawTile": 94,
+        "frameRate": 0
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        104,
+        68,
+        175
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "00",
+        "index": 63,
+        "rawTile": 63,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        97,
+        69,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        53,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 48,
+        "rawTile": 176,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        74,
+        70,
+        127
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        192,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 49,
+        "rawTile": 177,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        140,
+        71,
+        79
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 3
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        51,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        145,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 24
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        152,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        72,
+        255,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 5
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        165,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 38,
+        "rawTile": 102,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        1,
+        127,
+        72,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        138,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        232,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 13
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        237,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "00",
+        "index": 62,
+        "rawTile": 62,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        6,
+        73,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 11
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        219,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 8
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        216,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 12
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        204,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        51,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 63,
+        "rawTile": 191,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        17,
+        74,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 4,
+        "frameRate": 0,
+        "rawCoord": 244
+      },
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        164,
+        75,
+        128
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 7
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 5,
+        "frameRate": 0,
+        "rawCoord": 245
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        87,
+        76,
+        143
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        235,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        249,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 30,
+        "rawTile": 94,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        217,
+        68,
+        47
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        248,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        233,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "00",
+        "index": 62,
+        "rawTile": 62,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        249,
+        73,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        217,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 30,
+        "rawTile": 94,
+        "frameRate": 0
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        216,
+        68,
+        175
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "0.tij",
+        "variant": 0
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "02",
+        "index": 63,
+        "rawTile": 191,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        1,
+        72,
+        74,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 4
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 6,
+        "frameRate": 0,
+        "rawCoord": 246
+      },
+      "over": true,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        36,
+        77,
+        128
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 10
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 7,
+        "frameRate": 0,
+        "rawCoord": 247
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        250,
+        78,
+        159
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        233,
+        255,
+        15
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "00",
+        "index": 63,
+        "rawTile": 63,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        249,
+        69,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 38,
+        "rawTile": 102,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        249,
+        72,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 8,
+        "frameRate": 0,
+        "rawCoord": 248
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        249,
+        79,
+        159
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 4,
+        "frameRate": 0,
+        "rawCoord": 244
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        249,
+        75,
+        159
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 5,
+        "frameRate": 0,
+        "rawCoord": 245
+      },
+      "over": true,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        249,
+        76,
+        159
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 39,
+        "rawTile": 103,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        249,
+        48,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": {
+        "kind": "tile",
+        "tileset": "01",
+        "index": 38,
+        "rawTile": 102,
+        "frameRate": 0
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        2,
+        249,
+        72,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "3.tij",
+        "variant": 9
+      },
+      "upper": null,
+      "over": false,
+      "block": false,
+      "passability": 15,
+      "raw": [
+        2,
+        89,
+        255,
+        31
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 32
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 9,
+        "frameRate": 0,
+        "rawCoord": 249
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        32,
+        80,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        33,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 10,
+        "frameRate": 0,
+        "rawCoord": 250
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        81,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 6,
+        "frameRate": 0,
+        "rawCoord": 246
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        77,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": {
+        "kind": "single-row",
+        "image": null,
+        "index": 7,
+        "frameRate": 0,
+        "rawCoord": 247
+      },
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        78,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        49,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    },
+    {
+      "base": {
+        "kind": "tij",
+        "id": "2.tij",
+        "variant": 1
+      },
+      "upper": null,
+      "over": false,
+      "block": true,
+      "passability": 0,
+      "raw": [
+        0,
+        17,
+        255,
+        0
+      ],
+      "rawHeight": 0
+    }
+  ]
+}

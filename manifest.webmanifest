@@ -1,0 +1,25 @@
+{
+  "name": "口袋精灵",
+  "short_name": "口袋精灵",
+  "description": "口袋精灵本地缓存版",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f1713",
+  "theme_color": "#0f1713",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/资源/图片/mm1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/资源/图片/mm2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

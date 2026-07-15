@@ -1,0 +1,23 @@
+地图生成器便携版使用说明
+
+1. 解压整个文件夹，不要只拷贝单个 HTML 文件。
+2. 双击“启动地图工具.bat”。
+3. 工具会自动打开浏览器，地址类似：http://127.0.0.1:8021/index.html
+4. 关闭启动窗口即可停止本地服务。
+
+目录说明：
+
+- index.html / app.js / style.css：工具页面和逻辑。
+- assets/map_tiles/manifest.json：瓦片资源总清单。
+- assets/map_tiles/tilesets：00/01/02 基础瓦片。
+- assets/map_tiles/special：特殊地块默认图。
+- assets/map_tiles/special_variants：特殊地块变体图，地图渲染需要。
+- assets/map_tiles/special_meta：特殊地块元数据。
+- maps/converted：已转换地图 JSON 和地图浏览器清单。
+- maps/jlmg、maps/mszy、maps/sgpy、maps/sgz：新增的地图单行瓦片集。
+
+注意：
+
+- 不要用 file:// 直接打开 index.html，否则浏览器可能阻止 JSON 和图片资源加载。
+- 如果 8021 端口被占用，启动脚本会自动尝试后续端口。
+- 若 Windows 弹出安全提示，允许 PowerShell 在本机 127.0.0.1 提供本地服务即可；它不会上传文件到外网。

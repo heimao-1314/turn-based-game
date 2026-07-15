@@ -1,0 +1,37 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KDJL 地图查看器</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <aside id="side">
+    <h1>KDJL 地图查看器</h1>
+    <input id="search" placeholder="搜索 ID / 名称 / 世界" />
+    <select id="mapSelect" size="18"></select>
+    <section id="info"></section>
+  </aside>
+  <main id="main">
+    <div id="toolbar">
+      <button id="mapViewBtn">当前地图</button>
+      <button id="areaViewBtn">区域图</button>
+      <button id="worldViewBtn">世界图</button>
+      <button id="fitBtn">适应窗口</button>
+      <button id="oneBtn">100%</button>
+      <button id="resetActorBtn">重置人物</button>
+      <label><input id="grid" type="checkbox" /> 网格</label>
+      <label><input id="actorToggle" type="checkbox" checked /> 人物测试</label>
+      <label><input id="collision" type="checkbox" /> 禁行/通行</label>
+      <label><input id="occlusion" type="checkbox" /> 遮挡格</label>
+      <label><input id="anim" type="checkbox" checked /> 动态瓦片</label>
+      <span id="status"></span>
+    </div>
+    <div id="viewport">
+      <canvas id="canvas"></canvas>
+    </div>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

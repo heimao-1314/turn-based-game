@@ -1,0 +1,30 @@
+{
+  "id": "6.tij",
+  "frameCount": 1,
+  "slowAnim": false,
+  "subtileIndexFrames": [
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ]
+  ],
+  "image": "D:\\gz\\dx\\decoded_assets\\special_tiles\\6.tij.png"
+}

@@ -1,0 +1,48 @@
+﻿{
+  "version": 1,
+  "tool": "kdjl-world-point-description",
+  "coordinateSystem": "source image pixels, origin top-left",
+  "asset": {
+    "name": "世界地图",
+    "image": "assets/map-art/world.png",
+    "imageSize": {
+      "width": 176,
+      "height": 176
+    }
+  },
+  "nodes": {
+    "sgz": {
+      "name": "闪光镇",
+      "world": "sgz",
+      "x": 87.4,
+      "y": 119.4,
+      "targetArea": "sgz"
+    },
+    "sgpy": {
+      "name": "闪光平原",
+      "world": "sgpy",
+      "x": 111.4,
+      "y": 143.4,
+      "targetArea": "sgpy"
+    },
+    "jlmg": {
+      "name": "精灵迷宫",
+      "world": "jlmg",
+      "x": 135.4,
+      "y": 143.4,
+      "targetArea": "jlmg"
+    }
+  },
+  "edges": [
+    {
+      "from": "sgz",
+      "to": "sgpy",
+      "label": "闪光镇 → 闪光平原"
+    },
+    {
+      "from": "sgpy",
+      "to": "jlmg",
+      "label": "闪光平原 → 精灵迷宫"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+﻿:root { color-scheme: dark; font-family: system-ui, "Microsoft YaHei", sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; height: 100vh; display: flex; background: #12151b; color: #e8edf7; overflow: hidden; }
+#side { width: 360px; padding: 14px; border-right: 1px solid #2a3140; background: #171b23; display: flex; flex-direction: column; gap: 10px; }
+h1 { font-size: 18px; margin: 0 0 4px; }
+#search, #mapSelect { width: 100%; background: #0e1117; color: #e8edf7; border: 1px solid #30384a; border-radius: 8px; }
+#search { padding: 9px 10px; outline: none; }
+#mapSelect { flex: 1; padding: 6px; font-size: 13px; }
+#mapSelect option { padding: 3px; }
+#info { max-height: 42vh; overflow: auto; border-top: 1px solid #2a3140; padding-top: 10px; font-size: 13px; line-height: 1.55; }
+#info h2 { font-size: 16px; margin: 0 0 8px; }
+#info .muted, #status { color: #99a5b8; }
+#info a { color: #8ac7ff; cursor: pointer; text-decoration: none; }
+#info a:hover { text-decoration: underline; }
+#main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#toolbar { min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 6px 12px; border-bottom: 1px solid #2a3140; background: #171b23; }
+button { white-space: nowrap; background: #263247; color: #fff; border: 1px solid #3b4a66; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+button:hover { background: #30405c; }
+#viewport { flex: 1; overflow: auto; position: relative; background: #0a0c10; }
+#canvas { image-rendering: pixelated; transform-origin: top left; background: #000; }
+.badge { display:inline-block; padding: 1px 6px; border-radius: 999px; background: #263247; color:#cbd7ea; margin-right: 4px; }
+.tele { margin: 4px 0; padding: 6px; border: 1px solid #2a3140; border-radius: 8px; background: #111722; }

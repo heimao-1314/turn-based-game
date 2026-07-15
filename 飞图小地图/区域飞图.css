@@ -1,0 +1,68 @@
+﻿.region-fly-layer {
+  position: absolute;
+  inset: 0;
+  height: min(calc(100vw * 20 / 15), calc(430px * 20 / 15), 100vh);
+  z-index: 16;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.48);
+  pointer-events: none;
+  padding-top: max(92px, calc(env(safe-area-inset-top) + 92px));
+  overflow: auto;
+}
+.region-fly-layer.active { display: flex; }
+.region-fly-stage {
+  position: relative;
+  image-rendering: pixelated;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  background: transparent;
+}
+.region-fly-image {
+  display: block;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.region-fly-title,
+.region-fly-back { display: none; }
+.region-fly-hotspot {
+  position: absolute;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: transparent;
+}
+.region-fly-hotspot.active { background: transparent; border: 0; box-shadow: none; }
+.region-fly-selection {
+  position: absolute;
+  z-index: 4;
+  width: 28px;
+  height: 28px;
+  border: 2px solid #ffe36f;
+  box-shadow: 0 0 0 1px #2d1900, 0 0 8px rgba(255, 227, 111, 0.7);
+  pointer-events: none;
+}
+.region-fly-current {
+  position: absolute;
+  z-index: 5;
+  display: none;
+  width: 16px;
+  height: 16px;
+  background: url("../资源/图片/mp.png") 0 0 / auto 16px no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.region-fly-current.active { display: block; }
+.region-fly-edges { display: none; }
+
+
+
+

@@ -1,0 +1,28 @@
+﻿{
+  "name": "新版地图资源包",
+  "version": 1,
+  "source": "D:/gz/dx/kdjl/map-viewer",
+  "entry": "public/index.html",
+  "data": {
+    "maps": "public/data/maps.json",
+    "externalTiles": "public/data/external-tiles.json",
+    "areaPoints": "public/data/map-points.json",
+    "worldPoints": "public/data/world-points.json"
+  },
+  "assets": {
+    "baseTiles": "public/assets/d/",
+    "actor": "public/assets/c/53.chj",
+    "mapArt": "public/assets/map-art/"
+  },
+  "features": [
+    "map-rendering",
+    "map-search",
+    "teleport-navigation",
+    "actor-test",
+    "collision-layer",
+    "occlusion-layer",
+    "animated-tiles",
+    "calibrated-area-map",
+    "world-map"
+  ]
+}

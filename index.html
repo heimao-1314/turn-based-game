@@ -1,0 +1,395 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <title>口袋精灵 Demo</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#0f1713" />
+    <link rel="stylesheet" href="font-theme.css" />
+    <link rel="stylesheet" href="styles.css?v=20260713-camera-select-1" />
+    <link rel="stylesheet" href="菜单UI/菜单界面.css?v=20260712-11" />
+    <link rel="stylesheet" href="飞图小地图/区域飞图.css" />
+    <script>
+      if (/\bEdg\//.test(navigator.userAgent || "")) {
+        navigator.serviceWorker?.getRegistrations?.()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .catch(() => {});
+        if (window.caches?.keys) {
+          caches.keys()
+            .then((keys) => Promise.all(keys.filter((key) => key.startsWith("dw-")).map((key) => caches.delete(key))))
+            .catch(() => {});
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="app">
+      <section id="authScreen" class="screen active">
+        <div id="coverLogin" class="cover-login hidden" aria-label="登录菜单">
+          <div class="cover-stage">
+            <img class="cover-bg cover-image" src="资源/图片/登录封面.png" alt="" aria-hidden="true" draggable="false" />
+            <img id="coverArrow" class="cover-arrow" src="资源/图片/cover1.png" alt="" />
+            <button type="button" class="cover-hotspot" data-cover-index="0" aria-label="快速进入"></button>
+            <button type="button" class="cover-hotspot" data-cover-index="1" aria-label="登录游戏"></button>
+            <button type="button" class="cover-hotspot" data-cover-index="2" aria-label="帮助信息"></button>
+            <button type="button" class="cover-hotspot" data-cover-index="3" aria-label="网络设置"></button>
+            <button type="button" class="cover-hotspot" data-cover-index="4" aria-label="退出游戏"></button>
+          </div>
+          <div id="coverControlPad" class="cover-control-pad" aria-label="登录按键"></div>
+          <div id="coverMessage" class="cover-message"></div>
+        </div>
+        <div class="brand">
+          <span>口袋精灵</span>
+          <strong>移动端 Demo</strong>
+        </div>
+        <form id="authForm" class="panel">
+          <div class="tabs" role="tablist">
+            <button type="button" class="tab active" data-auth-mode="login">登录</button>
+            <button type="button" class="tab" data-auth-mode="register">注册</button>
+          </div>
+          <label>
+            <span>账号</span>
+            <input id="accountInput" autocomplete="username" maxlength="18" placeholder="输入账号" required />
+          </label>
+          <label>
+            <span>密码</span>
+            <input id="passwordInput" type="password" autocomplete="current-password" maxlength="24" placeholder="输入密码" required />
+          </label>
+          <p id="authMessage" class="message"></p>
+          <button class="primary" type="submit">进入游戏</button>
+        </form>
+        <div id="coverDialog" class="cover-dialog hidden">
+          <form id="coverLoginForm" class="cover-dialog-panel">
+            <div id="coverDialogTitle" class="cover-menu-title">登录游戏</div>
+            <div class="cover-menu-body">
+            <label>
+              <span>账号</span>
+              <input id="coverAccountInput" autocomplete="username" maxlength="18" placeholder="输入账号" />
+            </label>
+            <label>
+              <span>密码</span>
+              <input id="coverPasswordInput" type="password" autocomplete="current-password" maxlength="24" placeholder="输入密码" />
+            </label>
+            <p id="coverAuthMessage" class="message"></p>
+            </div>
+          </form>
+          <div class="cover-menu-actions">
+            <button id="coverLoginConfirm" class="menu-framed-button compact" type="submit" form="coverLoginForm">确定</button>
+            <button id="coverLoginBack" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="coverInfoDialog" class="cover-dialog hidden">
+          <div class="cover-dialog-panel">
+            <div id="coverInfoTitle" class="cover-menu-title">帮助信息</div>
+            <div class="cover-menu-body">
+              <p id="coverInfoContent" class="cover-info-content"></p>
+              <div class="cover-network-options hidden" id="coverNetworkOptions">
+                <button class="main-menu-item submenu-item active" type="button" data-network-index="0" data-network-mode="高速"><small>1</small><span><em class="menu-marquee">高速</em></span></button>
+                <button class="main-menu-item submenu-item" type="button" data-network-index="1" data-network-mode="普通 A"><small>2</small><span><em class="menu-marquee">普通 A</em></span></button>
+                <button class="main-menu-item submenu-item" type="button" data-network-index="2" data-network-mode="普通 B"><small>3</small><span><em class="menu-marquee">普通 B</em></span></button>
+              </div>
+            </div>
+          </div>
+          <div class="cover-menu-actions">
+            <button id="coverInfoConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="coverInfoBack" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="serverScreen" class="screen gateway-screen">
+        <header class="topbar gateway-topbar">
+          <button id="serverRefresh" class="ghost" type="button">刷新</button>
+          <div>
+            <span>企鹅专区</span>
+            <strong>选择服务器</strong>
+          </div>
+        </header>
+        <div class="gateway-menu">
+          <div class="gateway-menu-title">选择服务器:</div>
+          <div id="serverList" class="gateway-menu-list" role="listbox" aria-label="服务器列表" aria-orientation="vertical"></div>
+        </div>
+        <p id="serverMessage" class="message gateway-message"></p>
+        <div class="gateway-actions">
+          <button id="serverConfirm" class="menu-framed-button" type="button">确定</button>
+          <button id="serverBack" class="menu-framed-button" type="button">返回</button>
+        </div>
+      </section>
+
+      <section id="lineScreen" class="screen gateway-screen">
+        <header class="topbar gateway-topbar">
+          <button id="lineRefresh" class="ghost" type="button">刷新</button>
+          <div>
+            <span id="lineServerName">企鹅村</span>
+            <strong>选择线路</strong>
+          </div>
+        </header>
+        <div class="gateway-menu">
+          <div id="lineMenuTitle" class="gateway-menu-title">企鹅村:线路</div>
+          <div id="lineList" class="gateway-menu-list" role="listbox" aria-label="线路列表" aria-orientation="vertical"></div>
+        </div>
+        <p id="lineMessage" class="message gateway-message"></p>
+        <div class="gateway-actions">
+          <button id="lineConfirm" class="menu-framed-button" type="button">确定</button>
+          <button id="lineBack" class="menu-framed-button" type="button">返回</button>
+        </div>
+      </section>
+
+      <section id="characterScreen" class="screen gateway-screen character-screen">
+        <header class="topbar gateway-topbar">
+          <button id="characterRefresh" class="ghost" type="button">刷新</button>
+          <div>
+            <span id="characterServerMeta">企鹅村 · 1线</span>
+            <strong>选择人物</strong>
+          </div>
+        </header>
+        <div class="gateway-menu selection-panel character-menu">
+          <div class="gateway-menu-title">选择人物</div>
+          <div id="characterSlots" class="character-slots selection-stage" role="listbox" aria-label="角色列表" aria-orientation="horizontal"></div>
+        </div>
+        <p id="characterMessage" class="message gateway-message"></p>
+        <div class="gateway-actions">
+          <button id="characterConfirm" class="menu-framed-button" type="button">进入游戏</button>
+          <button id="characterBack" class="menu-framed-button" type="button">返回</button>
+        </div>
+      </section>
+
+      <section id="createScreen" class="screen gateway-screen creator-screen">
+        <header class="topbar gateway-topbar">
+          <button id="backToLogin" class="ghost" type="button">返回角色</button>
+          <div>
+            <span>创建角色</span>
+            <strong id="createStepTitle">选择角色性别</strong>
+          </div>
+        </header>
+
+        <div id="jobStep" class="creator active">
+          <label class="character-name-field">
+            <span>角色名</span>
+            <input id="characterNameInput" maxlength="12" autocomplete="off" placeholder="输入角色名" />
+          </label>
+          <div class="gateway-menu selection-panel gender-selector">
+            <div class="gateway-menu-title">选择角色性别</div>
+            <div class="gender-choices selection-stage" id="genderGroup" role="listbox" aria-label="角色性别" aria-orientation="horizontal"></div>
+          </div>
+          <div class="gateway-actions creator-actions">
+            <button id="startGame" class="menu-framed-button" type="button">创建并进入</button>
+          </div>
+        </div>
+        <p id="createMessage" class="message"></p>
+      </section>
+
+      <div id="gatewayControlPad" class="gateway-control-pad" aria-label="选择按键"></div>
+
+      <section id="gameScreen" class="screen game">
+        <canvas id="gameCanvas"></canvas>
+        <div id="chatFeed" class="chat-feed"></div>
+        <div id="emojiPanel" class="emoji-panel"></div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatInput" maxlength="160" placeholder="输入聊天内容" />
+          <button id="emojiBtn" class="emoji-toggle" type="button">表情</button>
+          <button type="submit">发送</button>
+        </form>
+        <div id="controlPad" class="control-pad" aria-label="游戏按键"></div>
+  <div class="pad-softkeys">
+    <button data-key="confirm" class="softkey" type="button">状态</button>
+    <button data-key="back" class="softkey" type="button">背包</button>
+  </div>
+  <div class="pad-grid">
+    <button data-key="nearby" class="pkey" type="button">附近</button>
+    <button data-key="chat" class="pkey" type="button">聊天</button>
+    <button data-key="task" class="pkey" type="button">任务</button>
+    <button data-key="channel" class="pkey" type="button">频道</button>
+    <button data-key="name" class="pkey" type="button">隐藏</button>
+    <button data-key="system" class="pkey" type="button">系统</button>
+  </div>
+</div>
+        <div id="nearbyPanel" class="nearby-panel">
+          <strong>附近角色</strong>
+          <div id="nearbyList"></div>
+        </div>
+        <div id="chatHistoryPanel" class="chat-history-panel">
+          <div class="stats-head">
+            <strong>聊天记录</strong>
+            <button id="chatHistoryClose" class="menu-framed-button compact" type="button">关闭</button>
+          </div>
+          <div id="chatHistoryList"></div>
+        </div>
+        <div id="statsPanel" class="stats-panel">
+          <div class="stats-head">
+            <strong>属性</strong>
+            <button id="statsClose" type="button">关闭</button>
+          </div>
+          <div id="statsContent"></div>
+        </div>
+        <div id="systemPanel" class="system-panel">
+          <button id="systemStats" type="button">属性</button>
+          <button id="systemMap" type="button">地图</button>
+          <button id="systemLogout" type="button">退出</button>
+        </div>
+        <div id="mainMenu" class="main-menu">
+          <div id="mainMenuTabs" class="main-menu-tabs"></div>
+          <div id="mainMenuList" class="main-menu-list"></div>
+        </div>
+        <div class="main-menu-footer">
+          <button id="mainMenuConfirm" class="menu-framed-button" type="button">确定</button>
+          <button id="mainMenuBack" class="menu-framed-button" type="button">返回</button>
+        </div>
+        <div id="roleStatsCard" class="role-stats-card" aria-hidden="true">
+          <div id="roleStatsHead" class="role-stats-head">
+            <canvas id="roleStatsAvatar" width="36" height="36"></canvas>
+            <strong id="roleStatsName"></strong>
+            <span id="roleStatsMedal" class="role-stats-medal"></span>
+            <span id="roleStatsFlight"></span>
+            <span id="roleStatsCrystal" class="role-stats-crystal"></span>
+            <span id="roleStatsRank"></span>
+          </div>
+          <div id="roleStatsBody" class="role-stats-body"></div>
+        </div>
+        <div class="role-stats-actions">
+          <button id="roleStatsAction" class="menu-framed-button compact" type="button">操作</button>
+          <button id="roleStatsBack" class="menu-framed-button compact" type="button">返回</button>
+        </div>
+        <div id="renamePanel" class="rename-panel">
+          <strong>小企鹅</strong>
+          <span>请输入新名字，不能与其他玩家重复</span>
+          <input id="renameInput" maxlength="12" />
+          <div id="renameMessage" class="rename-message"></div>
+          <div class="rename-actions">
+            <button id="renameConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="renameCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="passwordPanel" class="rename-panel">
+          <strong>修改密码</strong>
+          <span>请输入当前密码和新密码</span>
+          <input id="oldPasswordInput" type="password" maxlength="24" autocomplete="current-password" placeholder="当前密码" />
+          <input id="newPasswordInput" type="password" maxlength="24" autocomplete="new-password" placeholder="新密码（4-24位）" />
+          <input id="confirmPasswordInput" type="password" maxlength="24" autocomplete="new-password" placeholder="再次输入新密码" />
+          <div id="passwordMessage" class="rename-message"></div>
+          <div class="rename-actions">
+            <button id="passwordConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="passwordCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="redeemPanel" class="rename-panel">
+          <strong>罗克萨斯</strong>
+          <span>请输入兑换码</span>
+          <input id="redeemInput" maxlength="24" autocomplete="off" />
+          <div id="redeemMessage" class="rename-message"></div>
+          <div class="rename-actions">
+            <button id="redeemConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="redeemCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="giveQuantityPanel" class="rename-panel">
+          <strong>赠送数量</strong>
+          <span id="giveQuantityLabel">请输入数量</span>
+          <input id="giveQuantityInput" type="number" min="1" max="999999" inputmode="numeric" />
+          <div id="giveQuantityMessage" class="rename-message"></div>
+          <div class="rename-actions">
+            <button id="giveQuantityConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="giveQuantityCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="stallPricePanel" class="rename-panel">
+          <strong>摆摊定价</strong>
+          <span id="stallPriceLabel">请输入价格</span>
+          <input id="stallPriceInput" type="number" min="1" max="999999999" inputmode="numeric" />
+          <div id="stallPriceMessage" class="rename-message"></div>
+          <div class="rename-actions">
+            <button id="stallPriceConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="stallPriceCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="stallBuyQuantityPanel" class="rename-panel">
+          <strong>购买数量</strong>
+          <span id="stallBuyQuantityLabel">请输入数量</span>
+          <input id="stallBuyQuantityInput" type="number" min="1" max="999999" inputmode="numeric" />
+          <div id="stallBuyQuantityMessage" class="rename-message"></div>
+          <div class="rename-actions">
+            <button id="stallBuyQuantityConfirm" class="menu-framed-button compact" type="button">确定</button>
+            <button id="stallBuyQuantityCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
+        </div>
+        <div id="battleRewardPanel" class="battle-reward-panel">
+          <div class="reward-dialog-title">战斗奖励</div>
+          <div class="reward-dialog-content">
+            <div id="battleRewardList" class="battle-reward-list"></div>
+            <button id="battleRewardContinue" class="reward-dialog-continue" type="button" aria-label="按5继续">
+              <span class="reward-dialog-backdrop"><img src="资源/图片/5back.png" alt="" /><span>按 5 继续</span></span>
+              <canvas class="reward-dialog-chj" width="20" height="28" aria-hidden="true"></canvas>
+            </button>
+          </div>
+        </div>
+        <div id="soulPowderRewardPanel" class="battle-reward-panel soul-powder-reward-panel">
+          <div class="reward-dialog-title">领取成功</div>
+          <div id="soulPowderRewardContent" class="reward-dialog-content">
+            <div id="soulPowderRewardList" class="battle-reward-list"></div>
+            <img id="soulPowderRewardImage" class="soul-powder-mm" src="资源/图片/mm1.png" alt="" />
+            <button id="soulPowderRewardContinue" class="reward-dialog-continue" type="button" aria-label="按5继续">
+              <span class="reward-dialog-backdrop"><img src="资源/图片/5back.png" alt="" /><span>按 5 继续</span></span>
+              <canvas class="reward-dialog-chj" width="20" height="28" aria-hidden="true"></canvas>
+            </button>
+          </div>
+        </div>
+        <div id="infoDialogPanel" class="battle-reward-panel info-dialog-panel">
+          <div id="infoDialogTitle" class="reward-dialog-title">公告</div>
+          <div class="reward-dialog-content">
+            <div id="infoDialogContent" class="info-dialog-content"></div>
+            <button id="infoDialogContinue" class="reward-dialog-continue" type="button" aria-label="按5继续">
+              <span class="reward-dialog-backdrop"><img src="资源/图片/5back.png" alt="" /><span>按 5 继续</span></span>
+              <canvas class="reward-dialog-chj" width="20" height="28" aria-hidden="true"></canvas>
+            </button>
+          </div>
+        </div>
+        <div id="battleTransition" class="battle-transition"></div>
+        <div id="battleOverlay" class="battle-overlay">
+          <img src="资源/图片/魔法阵.png" alt="" class="magic-circle" />
+          <div id="battleTimer" class="battle-timer"></div>
+          <canvas id="battleCanvas"></canvas>
+          <div id="battleResult" class="battle-result"></div>
+          <div class="battle-card">
+            <div class="battle-head">
+              <strong id="battleTitle">战斗</strong>
+              <button id="battleClose" type="button">逃跑</button>
+            </div>
+            <div id="battleTargets" class="battle-targets"></div>
+            <div id="battleStatusFeed" class="battle-status-feed"></div>
+            <div class="battle-actions">
+              <button id="attackBtn" type="button">普通攻击</button>
+              <button id="skillBtn" type="button">专属技能</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="loading" class="loading active">资源加载中...</div>
+    </main>
+    <script src="app-config.js"></script>
+    <script src="职业模块/职业树.js"></script>
+    <script src="宠物模块/宠物目录.js"></script>
+    <script src="生活技能/贴纸生产.js"></script>
+    <script src="副本模块/精灵王宝库.js"></script>
+    <script src="战斗/skills.js"></script>
+    <script src="战斗/engine.js"></script>
+    <script src="战斗/protocol.js"></script>
+    <script src="队伍/runtime.js"></script>
+    <script src="联网战斗/client.js"></script>
+    <!-- 带宽优化模块 -->
+    <script src="bandwidth-optimizer/shared/constants.js"></script>
+    <script src="bandwidth-optimizer/client/activity-detector.js"></script>
+    <script src="bandwidth-optimizer/client/ws-client.js"></script>
+    <script src="bandwidth-optimizer/client/state-merger.js"></script>
+    <script src="bandwidth-optimizer/client/local-simulator.js"></script>
+    <script src="bandwidth-optimizer/client/bandwidth-optimizer.js"></script>
+        <script src="菜单UI/菜单界面.js?v=20260712-7"></script>
+        <script src="map-admin-editor.js"></script>
+        <script src="飞图小地图/区域飞图.js"></script>
+        <script src="app.js?v=20260713-camera-select-1"></script>
+        <script src="全服竞技场/client.js"></script>
+        <script src="仙气修炼/client.js"></script>
+        <script src="疯狂吹牛/client.js"></script>
+  </body>
+</html>

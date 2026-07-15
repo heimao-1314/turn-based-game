@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "dw-pocket-spirit",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "test:online-battle": "node scripts/online-battle-routing.test.js",
+    "test:sharding": "node scripts/server-sharding.test.js"
+  }
+}

@@ -1,0 +1,170 @@
+﻿:root {
+  color-scheme: dark;
+  font-family: "Microsoft YaHei", Arial, sans-serif;
+  background: #101418;
+  color: #edf3ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 320px minmax(320px, 1fr) 820px;
+  gap: 12px;
+  min-height: 100vh;
+  padding: 12px;
+}
+
+.workspace,
+.panel {
+  border: 1px solid #2b3639;
+  background: #171d21;
+}
+
+.workspace {
+  display: grid;
+  place-items: start center;
+  overflow: auto;
+  padding: 12px;
+}
+
+#editorCanvas {
+  display: block;
+  width: min(100%, 720px);
+  height: auto;
+  image-rendering: pixelated;
+  background: #0f1417;
+  border: 1px solid #344246;
+}
+
+.panel {
+  padding: 12px;
+  overflow: auto;
+  max-height: calc(100vh - 24px);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+label {
+  color: #b8c7c2;
+  font-size: 13px;
+}
+
+.inline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+input,
+button,
+select,
+textarea {
+  border: 1px solid #344246;
+  background: #0f1417;
+  color: #edf3ef;
+  font: inherit;
+}
+
+input,
+button,
+select {
+  min-height: 34px;
+}
+
+input,
+select,
+textarea {
+  padding: 0 10px;
+}
+
+button {
+  cursor: pointer;
+  background: #23505a;
+}
+
+button:hover {
+  background: #2c6570;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.toggles label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#paletteCanvas {
+  width: 768px;
+  max-width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  border: 1px solid #344246;
+  background: #0f1417;
+}
+
+textarea {
+  min-height: 180px;
+  resize: vertical;
+  padding-top: 8px;
+  line-height: 1.45;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+
+.stats {
+  white-space: pre-line;
+  color: #d4dfdb;
+  line-height: 1.65;
+  font-size: 13px;
+  border-top: 1px solid #2b3639;
+  padding-top: 14px;
+}
+
+@media (max-width: 1180px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    max-height: none;
+  }
+}
+
+#mapList {
+  min-height: 120px;
+  font-size: 12px;
+  padding: 4px;
+}
+
+#mapList option {
+  padding: 3px 6px;
+}
+
+#mapList option:checked {
+  background: #23505a;
+  color: #edf3ef;
+}

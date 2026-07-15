@@ -1,0 +1,170 @@
+﻿/* 菜单 UI 模块：集中管理游戏菜单的外观覆盖，尽量避免把 UI 细节散落在业务代码里。 */
+
+/* 菜单选项去掉未选中的浅色横条；选中项仍保留原来的高亮横条。 */
+.main-menu-list-scroll > button.main-menu-item:not(.active),
+.main-menu-list-scroll > button.main-menu-item.submenu-item:not(.active),
+.main-menu-item:not(.active):not(.rare-fragment),
+.main-menu-item.submenu-item:not(.active):not(.rare-fragment),
+.main-menu.lucky-box-roll .main-menu-item:not(.active),
+.cover-network-options .main-menu-item:not(.active),
+.battle-submenu-row:not(.active) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.main-menu-item {
+  border-radius: 0;
+}
+
+/* 主菜单确认/返回按钮使用 ico.png 第四排的勾和叉。 */
+#mainMenuConfirm,
+#mainMenuBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 72px;
+  min-height: 30px;
+  padding: 4px 9px;
+  font-size: 13px;
+}
+
+#mainMenuConfirm::before,
+#mainMenuBack::before {
+  content: "";
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  background-image: url("../资源/图片/ico.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+#mainMenuConfirm::before {
+  background-position: -112px -48px;
+}
+
+#mainMenuBack::before {
+  background-position: -128px -48px;
+}
+
+/* 主菜单标签像扑克牌一样逐张压住前一张，内容框盖住未选中标签的底边。 */
+.main-menu.active:not(.lucky-box-roll) {
+  gap: 0;
+}
+
+.main-menu-tabs.tab-deck {
+  display: flex;
+  grid-template-columns: none;
+  gap: 0;
+  align-items: flex-end;
+  padding: 10px 0 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.main-menu-tabs.tab-deck > button {
+  position: relative;
+  z-index: var(--tab-stack-index, 1);
+  flex: 0 0 calc((100% + 40px) / 6);
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 7px 6px;
+  border-radius: 0;
+  transform-origin: center bottom;
+  overflow: visible;
+}
+
+.main-menu-tabs.tab-deck > button + button {
+  margin-left: -8px;
+}
+
+.main-menu-tabs.tab-deck > button.active {
+  z-index: 30;
+  transform: scale(1.1);
+  transform-origin: center bottom;
+  background: linear-gradient(180deg, rgba(58, 48, 22, 0.98), rgba(25, 31, 25, 0.98));
+  color: #eadfa6;
+  box-shadow: inset 0 0 0 1px rgba(238, 206, 102, 0.36), inset 0 -10px 18px rgba(0, 0, 0, 0.24);
+}
+
+.main-menu-tabs.tab-deck > button:first-child.active {
+  transform-origin: left bottom;
+}
+
+.main-menu-tabs.tab-deck > button:last-child.active {
+  transform-origin: right bottom;
+}
+
+.main-menu-tabs.tab-deck + .main-menu-list {
+  z-index: 40;
+  margin-top: -8px;
+}
+
+.main-menu-tabs.tab-deck > button.active > .menu-frame-corner,
+.main-menu-tabs.tab-deck > button.active > .menu-frame-edge {
+  z-index: 31;
+}
+
+/* 游戏内二级菜单标题：宽度随文字变化，右边缘与下方菜单框对齐。 */
+.main-menu-tabs.single-title.secondary-title {
+  display: flex;
+  grid-template-columns: none;
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding: 10px 0 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.main-menu-tabs.single-title.secondary-title > button.single-title-button {
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
+  margin: 0;
+  padding: 5px 14px 6px;
+  justify-self: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  background: linear-gradient(180deg, rgba(58, 48, 22, 0.98), rgba(25, 31, 25, 0.98)) !important;
+  box-shadow: inset 0 0 0 1px rgba(238, 206, 102, 0.36), inset 0 -10px 18px rgba(0, 0, 0, 0.24) !important;
+}
+
+.main-menu-tabs.single-title {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+}
+
+.main-menu-tabs.single-title:not(.secondary-title) button,
+.main-menu-tabs > button.single-title-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-height: 36px;
+  margin: 0 auto;
+  padding: 4px 10px;
+  justify-self: center;
+  text-align: center;
+  letter-spacing: 0.06em;
+  font-size: 15px;
+  font-weight: 900;
+  transform: none !important;
+  background: transparent !important;
+  color: #f3d874 !important;
+  box-shadow: none !important;
+  text-shadow: 0 1px 0 #000, 0 0 6px rgba(243, 216, 116, 0.28);
+}
+
+.main-menu-tabs.single-title.secondary-title > button.single-title-button {
+  width: fit-content;
+  margin: 0;
+  justify-self: auto;
+}

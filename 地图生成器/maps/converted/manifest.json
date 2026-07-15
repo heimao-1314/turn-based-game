@@ -1,0 +1,540 @@
+{
+  "categories": {
+    "jlmg": [
+      {
+        "id": "jlmg-101",
+        "title": "jlmg-101",
+        "width": 13,
+        "height": 13,
+        "cells": 169,
+        "path": "maps/converted/jlmg-101.json"
+      },
+      {
+        "id": "jlmg-102",
+        "title": "jlmg-102",
+        "width": 14,
+        "height": 13,
+        "cells": 182,
+        "path": "maps/converted/jlmg-102.json"
+      },
+      {
+        "id": "jlmg-103",
+        "title": "jlmg-103",
+        "width": 17,
+        "height": 13,
+        "cells": 221,
+        "path": "maps/converted/jlmg-103.json"
+      },
+      {
+        "id": "jlmg-104",
+        "title": "jlmg-104",
+        "width": 14,
+        "height": 13,
+        "cells": 182,
+        "path": "maps/converted/jlmg-104.json"
+      },
+      {
+        "id": "jlmg-201",
+        "title": "jlmg-201",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-201.json"
+      },
+      {
+        "id": "jlmg-202",
+        "title": "jlmg-202",
+        "width": 15,
+        "height": 13,
+        "cells": 195,
+        "path": "maps/converted/jlmg-202.json"
+      },
+      {
+        "id": "jlmg-203",
+        "title": "jlmg-203",
+        "width": 13,
+        "height": 17,
+        "cells": 221,
+        "path": "maps/converted/jlmg-203.json"
+      },
+      {
+        "id": "jlmg-204",
+        "title": "jlmg-204",
+        "width": 15,
+        "height": 20,
+        "cells": 300,
+        "path": "maps/converted/jlmg-204.json"
+      },
+      {
+        "id": "jlmg-205",
+        "title": "jlmg-205",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-205.json"
+      },
+      {
+        "id": "jlmg-206",
+        "title": "jlmg-206",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-206.json"
+      },
+      {
+        "id": "jlmg-207",
+        "title": "jlmg-207",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-207.json"
+      },
+      {
+        "id": "jlmg-208",
+        "title": "jlmg-208",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-208.json"
+      },
+      {
+        "id": "jlmg-301",
+        "title": "jlmg-301",
+        "width": 11,
+        "height": 14,
+        "cells": 154,
+        "path": "maps/converted/jlmg-301.json"
+      },
+      {
+        "id": "jlmg-302",
+        "title": "jlmg-302",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-302.json"
+      },
+      {
+        "id": "jlmg-303",
+        "title": "jlmg-303",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-303.json"
+      },
+      {
+        "id": "jlmg-304",
+        "title": "jlmg-304",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-304.json"
+      },
+      {
+        "id": "jlmg-305",
+        "title": "jlmg-305",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-305.json"
+      },
+      {
+        "id": "jlmg-306",
+        "title": "jlmg-306",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-306.json"
+      },
+      {
+        "id": "jlmg-307",
+        "title": "jlmg-307",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-307.json"
+      },
+      {
+        "id": "jlmg-308",
+        "title": "jlmg-308",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-308.json"
+      },
+      {
+        "id": "jlmg-309",
+        "title": "jlmg-309",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-309.json"
+      },
+      {
+        "id": "jlmg-310",
+        "title": "jlmg-310",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-310.json"
+      },
+      {
+        "id": "jlmg-311",
+        "title": "jlmg-311",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-311.json"
+      },
+      {
+        "id": "jlmg-312",
+        "title": "jlmg-312",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-312.json"
+      },
+      {
+        "id": "jlmg-401",
+        "title": "jlmg-401",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-401.json"
+      },
+      {
+        "id": "jlmg-402",
+        "title": "jlmg-402",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-402.json"
+      },
+      {
+        "id": "jlmg-403",
+        "title": "jlmg-403",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-403.json"
+      },
+      {
+        "id": "jlmg-404",
+        "title": "jlmg-404",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-404.json"
+      },
+      {
+        "id": "jlmg-501",
+        "title": "jlmg-501",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-501.json"
+      },
+      {
+        "id": "jlmg-502",
+        "title": "jlmg-502",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-502.json"
+      },
+      {
+        "id": "jlmg-503",
+        "title": "jlmg-503",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-503.json"
+      },
+      {
+        "id": "jlmg-504",
+        "title": "jlmg-504",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-504.json"
+      },
+      {
+        "id": "jlmg-505",
+        "title": "jlmg-505",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-505.json"
+      },
+      {
+        "id": "jlmg-507",
+        "title": "jlmg-507",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-507.json"
+      },
+      {
+        "id": "jlmg-508",
+        "title": "jlmg-508",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/jlmg-508.json"
+      },
+      {
+        "id": "jlmg-hsql",
+        "title": "jlmg-hsql",
+        "width": 13,
+        "height": 18,
+        "cells": 234,
+        "path": "maps/converted/jlmg-hsql.json"
+      },
+      {
+        "id": "jlmg-hssm",
+        "title": "jlmg-hssm",
+        "width": 13,
+        "height": 15,
+        "cells": 195,
+        "path": "maps/converted/jlmg-hssm.json"
+      },
+      {
+        "id": "jlmg-lszz",
+        "title": "jlmg-lszz",
+        "width": 13,
+        "height": 15,
+        "cells": 195,
+        "path": "maps/converted/jlmg-lszz.json"
+      },
+      {
+        "id": "jlmg-zshd",
+        "title": "jlmg-zshd",
+        "width": 13,
+        "height": 15,
+        "cells": 195,
+        "path": "maps/converted/jlmg-zshd.json"
+      }
+    ],
+    "mszy": [
+      {
+        "id": "mszy-104",
+        "title": "mszy-104",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/mszy-104.json"
+      }
+    ],
+    "sgpy": [
+      {
+        "id": "sgpy-aedfj",
+        "title": "sgpy-aedfj",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-aedfj.json"
+      },
+      {
+        "id": "sgpy-bwq",
+        "title": "sgpy-bwq",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-bwq.json"
+      },
+      {
+        "id": "sgpy-bwq2",
+        "title": "sgpy-bwq2",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-bwq2.json"
+      },
+      {
+        "id": "sgpy-bxmj",
+        "title": "sgpy-bxmj",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-bxmj.json"
+      },
+      {
+        "id": "sgpy-cs",
+        "title": "sgpy-cs",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-cs.json"
+      },
+      {
+        "id": "sgpy-cwxx",
+        "title": "sgpy-cwxx",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-cwxx.json"
+      },
+      {
+        "id": "sgpy-eczz",
+        "title": "sgpy-eczz",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-eczz.json"
+      },
+      {
+        "id": "sgpy-fcmj",
+        "title": "sgpy-fcmj",
+        "width": 13,
+        "height": 13,
+        "cells": 169,
+        "path": "maps/converted/sgpy-fcmj.json"
+      },
+      {
+        "id": "sgpy-gml",
+        "title": "sgpy-gml",
+        "width": 13,
+        "height": 14,
+        "cells": 182,
+        "path": "maps/converted/sgpy-gml.json"
+      },
+      {
+        "id": "sgpy-hd",
+        "title": "sgpy-hd",
+        "width": 12,
+        "height": 14,
+        "cells": 168,
+        "path": "maps/converted/sgpy-hd.json"
+      },
+      {
+        "id": "sgpy-hjmj",
+        "title": "sgpy-hjmj",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-hjmj.json"
+      },
+      {
+        "id": "sgpy-jiazu",
+        "title": "sgpy-jiazu",
+        "width": 15,
+        "height": 20,
+        "cells": 300,
+        "path": "maps/converted/sgpy-jiazu.json"
+      },
+      {
+        "id": "sgpy-jldt",
+        "title": "sgpy-jldt",
+        "width": 15,
+        "height": 13,
+        "cells": 195,
+        "path": "maps/converted/sgpy-jldt.json"
+      },
+      {
+        "id": "sgpy-mjxw",
+        "title": "sgpy-mjxw",
+        "width": 11,
+        "height": 18,
+        "cells": 198,
+        "path": "maps/converted/sgpy-mjxw.json"
+      },
+      {
+        "id": "sgpy-sgha",
+        "title": "sgpy-sgha",
+        "width": 13,
+        "height": 14,
+        "cells": 182,
+        "path": "maps/converted/sgpy-sgha.json"
+      },
+      {
+        "id": "sgpy-sygc",
+        "title": "sgpy-sygc",
+        "width": 24,
+        "height": 14,
+        "cells": 336,
+        "path": "maps/converted/sgpy-sygc.json"
+      },
+      {
+        "id": "sgpy-syq",
+        "title": "sgpy-syq",
+        "width": 15,
+        "height": 13,
+        "cells": 195,
+        "path": "maps/converted/sgpy-syq.json"
+      },
+      {
+        "id": "sgpy-wch",
+        "title": "sgpy-wch",
+        "width": 18,
+        "height": 13,
+        "cells": 234,
+        "path": "maps/converted/sgpy-wch.json"
+      },
+      {
+        "id": "sgpy-zzd",
+        "title": "sgpy-zzd",
+        "width": 11,
+        "height": 13,
+        "cells": 143,
+        "path": "maps/converted/sgpy-zzd.json"
+      }
+    ],
+    "sgz": [
+      {
+        "id": "sgz-chuansong",
+        "title": "sgz-chuansong",
+        "width": 11,
+        "height": 14,
+        "cells": 154,
+        "path": "maps/converted/sgz-chuansong.json"
+      },
+      {
+        "id": "sgz-cunzhangjia",
+        "title": "sgz-cunzhangjia",
+        "width": 15,
+        "height": 20,
+        "cells": 300,
+        "path": "maps/converted/sgz-cunzhangjia.json"
+      },
+      {
+        "id": "sgz-shangyequ",
+        "title": "sgz-shangyequ",
+        "width": 20,
+        "height": 20,
+        "cells": 400,
+        "path": "maps/converted/sgz-shangyequ.json"
+      },
+      {
+        "id": "sgz-xuexiao",
+        "title": "sgz-xuexiao",
+        "width": 18,
+        "height": 18,
+        "cells": 324,
+        "path": "maps/converted/sgz-xuexiao.json"
+      },
+      {
+        "id": "sgz-xunlianchang3",
+        "title": "sgz-xunlianchang3",
+        "width": 15,
+        "height": 13,
+        "cells": 195,
+        "path": "maps/converted/sgz-xunlianchang3.json"
+      },
+      {
+        "id": "sgz-yuanye",
+        "title": "sgz-yuanye",
+        "width": 13,
+        "height": 16,
+        "cells": 208,
+        "path": "maps/converted/sgz-yuanye.json"
+      },
+      {
+        "id": "sgz-zhandouqu",
+        "title": "sgz-zhandouqu",
+        "width": 13,
+        "height": 15,
+        "cells": 195,
+        "path": "maps/converted/sgz-zhandouqu.json"
+      }
+    ]
+  }
+}

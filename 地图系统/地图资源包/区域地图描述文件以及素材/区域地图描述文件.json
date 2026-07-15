@@ -1,0 +1,786 @@
+{
+  "version": 1,
+  "tool": "kdjl-map-point-adjuster",
+  "exportedAt": "2026-07-03T03:15:07.024Z",
+  "coordinateSystem": "source image pixels, origin top-left",
+  "assets": {
+    "sgz": {
+      "name": "闪光镇",
+      "image": "assets/map-art/sgz.png"
+    },
+    "sgpy": {
+      "name": "闪光平原",
+      "image": "assets/map-art/sgpy.png"
+    },
+    "jlmg": {
+      "name": "精灵迷宫",
+      "image": "assets/map-art/jlmg.png"
+    }
+  },
+  "areas": {
+    "sgz": {
+      "name": "闪光镇",
+      "imageSize": {
+        "width": 128,
+        "height": 128
+      },
+      "edges": [
+        {
+          "from": "sgz/cunzhangjia.sj",
+          "to": "sgz/xunlianchang3.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgz/shangyequ.sj",
+          "to": "sgz/xunlianchang3.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgz/shangyequ.sj",
+          "to": "sgz/yuanye.sj",
+          "dir": 50
+        },
+        {
+          "from": "sgz/shangyequ.sj",
+          "to": "sgz/xuexiao.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgz/xuexiao.sj",
+          "to": "sgz/zhandouqu.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgz/xunlianchang3.sj",
+          "to": "sgz/chuansong.sj",
+          "dir": 120
+        }
+      ],
+      "maps": {
+        "sgz/cunzhangjia.sj": {
+          "id": 110102,
+          "title": "罗克萨斯家",
+          "x": 88,
+          "y": 32
+        },
+        "sgz/shangyequ.sj": {
+          "id": 110103,
+          "title": "光芒市场",
+          "x": 40,
+          "y": 56
+        },
+        "sgz/yuanye.sj": {
+          "id": 110104,
+          "title": "闪光镇北",
+          "x": 40,
+          "y": 8
+        },
+        "sgz/xuexiao.sj": {
+          "id": 110105,
+          "title": "宠物学校",
+          "x": 16,
+          "y": 81
+        },
+        "sgz/zhandouqu.sj": {
+          "id": 110106,
+          "title": "原野怪区",
+          "x": 17,
+          "y": 104
+        },
+        "sgz/xunlianchang3.sj": {
+          "id": 110107,
+          "title": "后闪光镇东路",
+          "x": 88,
+          "y": 57
+        },
+        "sgz/chuansong.sj": {
+          "id": 110108,
+          "title": "通往闪光平原",
+          "x": 112,
+          "y": 56
+        }
+      }
+    },
+    "sgpy": {
+      "name": "闪光平原",
+      "imageSize": {
+        "width": 144,
+        "height": 160
+      },
+      "edges": [
+        {
+          "from": "sgpy/sygc.sj",
+          "to": "sgpy/cwxx.sj",
+          "dir": 51
+        },
+        {
+          "from": "sgpy/sygc.sj",
+          "to": "sgpy/mjxw.sj",
+          "dir": 50
+        },
+        {
+          "from": "sgpy/sygc.sj",
+          "to": "sgpy/syq.sj",
+          "dir": 80
+        },
+        {
+          "from": "sgpy/sygc.sj",
+          "to": "sgpy/bwq.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/sygc.sj",
+          "to": "sgpy/gml.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgpy/cwxx.sj",
+          "to": "sgpy/aedfj.sj",
+          "dir": 50
+        },
+        {
+          "from": "sgpy/bxmj.sj",
+          "to": "sgpy/mjxw.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/hjmj.sj",
+          "to": "sgpy/mjxw.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgpy/fcmj.sj",
+          "to": "sgpy/mjxw.sj",
+          "dir": 80
+        },
+        {
+          "from": "sgpy/cs.sj",
+          "to": "sgpy/syq.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/bwq.sj",
+          "to": "sgpy/bwq2.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/jiazu.sj",
+          "to": "sgpy/gml.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/gml.sj",
+          "to": "sgpy/wch.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/gml.sj",
+          "to": "sgpy/sgha.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgpy/zzd.sj",
+          "to": "sgpy/eczz.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgpy/zzd.sj",
+          "to": "sgpy/sgha.sj",
+          "dir": 120
+        },
+        {
+          "from": "sgpy/sgha.sj",
+          "to": "sgpy/hd.sj",
+          "dir": 60
+        },
+        {
+          "from": "sgpy/hd.sj",
+          "to": "sgpy/jldt.sj",
+          "dir": 120
+        }
+      ],
+      "maps": {
+        "sgpy/sygc.sj": {
+          "id": 111101,
+          "title": "闪耀广场",
+          "x": 72,
+          "y": 73
+        },
+        "sgpy/cwxx.sj": {
+          "id": 111103,
+          "title": "宠物学校",
+          "x": 96,
+          "y": 48
+        },
+        "sgpy/bxmj.sj": {
+          "id": 111111,
+          "title": "冰雪梦境",
+          "x": 23,
+          "y": 23
+        },
+        "sgpy/hjmj.sj": {
+          "id": 111112,
+          "title": "灰烬梦境",
+          "x": 49,
+          "y": 23
+        },
+        "sgpy/fcmj.sj": {
+          "id": 111113,
+          "title": "翡翠梦境",
+          "x": 72,
+          "y": 23
+        },
+        "sgpy/aedfj.sj": {
+          "id": 111124,
+          "title": "阿尔的房间",
+          "x": 97,
+          "y": 23
+        },
+        "sgpy/mjxw.sj": {
+          "id": 111107,
+          "title": "办公区",
+          "x": 48,
+          "y": 49
+        },
+        "sgpy/cs.sj": {
+          "id": 111105,
+          "title": "传送门",
+          "x": 24,
+          "y": 72
+        },
+        "sgpy/syq.sj": {
+          "id": 111102,
+          "title": "商业区",
+          "x": 48,
+          "y": 72
+        },
+        "sgpy/bwq.sj": {
+          "id": 111106,
+          "title": "报名区",
+          "x": 97,
+          "y": 73
+        },
+        "sgpy/bwq2.sj": {
+          "id": 111104,
+          "title": "比武区",
+          "x": 121,
+          "y": 73
+        },
+        "sgpy/jiazu.sj": {
+          "id": 111130,
+          "title": "家族会馆",
+          "x": 47,
+          "y": 95
+        },
+        "sgpy/gml.sj": {
+          "id": 111100,
+          "title": "闪光南路",
+          "x": 72,
+          "y": 95
+        },
+        "sgpy/wch.sj": {
+          "id": 111108,
+          "title": "五彩湖",
+          "x": 96,
+          "y": 96
+        },
+        "sgpy/zzd.sj": {
+          "id": 111110,
+          "title": "沼泽地",
+          "x": 47,
+          "y": 119
+        },
+        "sgpy/sgha.sj": {
+          "id": 111109,
+          "title": "闪光海岸",
+          "x": 72,
+          "y": 119
+        },
+        "sgpy/eczz.sj": {
+          "id": 111116,
+          "title": "沉泥之地",
+          "x": 47,
+          "y": 145
+        },
+        "sgpy/hd.sj": {
+          "id": 111114,
+          "title": "海道",
+          "x": 72,
+          "y": 144
+        },
+        "sgpy/jldt.sj": {
+          "id": 111115,
+          "title": "精灵大厅",
+          "x": 96,
+          "y": 144
+        }
+      }
+    },
+    "jlmg": {
+      "name": "精灵迷宫",
+      "imageSize": {
+        "width": 192,
+        "height": 208
+      },
+      "edges": [
+        {
+          "from": "jlmg/501.sj",
+          "to": "jlmg/501.sj",
+          "dir": 80
+        },
+        {
+          "from": "jlmg/hssm.sj",
+          "to": "jlmg/506.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/506.sj",
+          "to": "jlmg/502.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/505.sj",
+          "to": "jlmg/501.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/505.sj",
+          "to": "jlmg/lszz.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/301.sj",
+          "to": "jlmg/303.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/301.sj",
+          "to": "jlmg/302.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/303.sj",
+          "to": "jlmg/205.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/502.sj",
+          "to": "jlmg/402.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/302.sj",
+          "to": "jlmg/205.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/205.sj",
+          "to": "jlmg/101.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/202.sj",
+          "to": "jlmg/102.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/304.sj",
+          "to": "jlmg/305.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/304.sj",
+          "to": "jlmg/206.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/305.sj",
+          "to": "jlmg/306.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/305.sj",
+          "to": "jlmg/402.sj",
+          "dir": 50
+        },
+        {
+          "from": "jlmg/201.sj",
+          "to": "jlmg/101.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/101.sj",
+          "to": "jlmg/103.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/101.sj",
+          "to": "jlmg/102.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/102.sj",
+          "to": "jlmg/206.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/102.sj",
+          "to": "jlmg/104.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/206.sj",
+          "to": "jlmg/306.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/307.sj",
+          "to": "jlmg/208.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/307.sj",
+          "to": "jlmg/308.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/208.sj",
+          "to": "jlmg/103.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/208.sj",
+          "to": "jlmg/309.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/103.sj",
+          "to": "jlmg/204.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/103.sj",
+          "to": "jlmg/104.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/104.sj",
+          "to": "jlmg/207.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/104.sj",
+          "to": "jlmg/203.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/404.sj",
+          "to": "jlmg/504.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/404.sj",
+          "to": "jlmg/308.sj",
+          "dir": 50
+        },
+        {
+          "from": "jlmg/308.sj",
+          "to": "jlmg/309.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/207.sj",
+          "to": "jlmg/310.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/207.sj",
+          "to": "jlmg/311.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/310.sj",
+          "to": "jlmg/312.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/zshd.sj",
+          "to": "jlmg/507.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/504.sj",
+          "to": "jlmg/508.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/311.sj",
+          "to": "jlmg/312.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/312.sj",
+          "to": "jlmg/403.sj",
+          "dir": 51
+        },
+        {
+          "from": "jlmg/507.sj",
+          "to": "jlmg/503.sj",
+          "dir": 60
+        },
+        {
+          "from": "jlmg/508.sj",
+          "to": "jlmg/hsql.sj",
+          "dir": 120
+        },
+        {
+          "from": "jlmg/403.sj",
+          "to": "jlmg/503.sj",
+          "dir": 120
+        }
+      ],
+      "maps": {
+        "jlmg/501.sj": {
+          "id": 112501,
+          "title": "绿水瀑布",
+          "x": 41,
+          "y": 23
+        },
+        "jlmg/hssm.sj": {
+          "id": 112602,
+          "title": "黄色沙漠",
+          "x": 65,
+          "y": 191
+        },
+        "jlmg/506.sj": {
+          "id": 112506,
+          "title": "黄色禁地",
+          "x": 41,
+          "y": 191
+        },
+        "jlmg/505.sj": {
+          "id": 112505,
+          "title": "绿色禁地",
+          "x": 15,
+          "y": 47
+        },
+        "jlmg/301.sj": {
+          "id": 112301,
+          "title": "绿色通道",
+          "x": 64,
+          "y": 48
+        },
+        "jlmg/303.sj": {
+          "id": 112303,
+          "title": "苹果盆地",
+          "x": 88,
+          "y": 47
+        },
+        "jlmg/502.sj": {
+          "id": 112502,
+          "title": "黄枞猎场",
+          "x": 15,
+          "y": 168
+        },
+        "jlmg/lszz.sj": {
+          "id": 112601,
+          "title": "绿色沼泽",
+          "x": 16,
+          "y": 72
+        },
+        "jlmg/302.sj": {
+          "id": 112302,
+          "title": "苹果工地",
+          "x": 63,
+          "y": 71
+        },
+        "jlmg/205.sj": {
+          "id": 112205,
+          "title": "苹果岔路",
+          "x": 89,
+          "y": 71
+        },
+        "jlmg/202.sj": {
+          "id": 112202,
+          "title": "集会所",
+          "x": 88,
+          "y": 144
+        },
+        "jlmg/304.sj": {
+          "id": 112304,
+          "title": "香蕉河畔",
+          "x": 40,
+          "y": 120
+        },
+        "jlmg/305.sj": {
+          "id": 112305,
+          "title": "黄色通道",
+          "x": 41,
+          "y": 145
+        },
+        "jlmg/402.sj": {
+          "id": 112402,
+          "title": "黄色圣地",
+          "x": 16,
+          "y": 143
+        },
+        "jlmg/201.sj": {
+          "id": 112201,
+          "title": "行政大厅",
+          "x": 64,
+          "y": 97
+        },
+        "jlmg/101.sj": {
+          "id": 112101,
+          "title": "行政区",
+          "x": 88,
+          "y": 96
+        },
+        "jlmg/102.sj": {
+          "id": 112102,
+          "title": "商业区",
+          "x": 88,
+          "y": 120
+        },
+        "jlmg/206.sj": {
+          "id": 112206,
+          "title": "香蕉岔口",
+          "x": 64,
+          "y": 121
+        },
+        "jlmg/306.sj": {
+          "id": 112306,
+          "title": "香蕉小站",
+          "x": 65,
+          "y": 145
+        },
+        "jlmg/307.sj": {
+          "id": 112307,
+          "title": "露天酒吧",
+          "x": 136,
+          "y": 72
+        },
+        "jlmg/208.sj": {
+          "id": 112208,
+          "title": "草莓枢纽",
+          "x": 136,
+          "y": 96
+        },
+        "jlmg/103.sj": {
+          "id": 112103,
+          "title": "活动区",
+          "x": 111,
+          "y": 96
+        },
+        "jlmg/104.sj": {
+          "id": 112104,
+          "title": "居民区",
+          "x": 111,
+          "y": 120
+        },
+        "jlmg/203.sj": {
+          "id": 112203,
+          "title": "民宅小巷",
+          "x": 136,
+          "y": 120
+        },
+        "jlmg/404.sj": {
+          "id": 112404,
+          "title": "红色圣地",
+          "x": 184,
+          "y": 72
+        },
+        "jlmg/308.sj": {
+          "id": 112308,
+          "title": "红色通道",
+          "x": 160,
+          "y": 71
+        },
+        "jlmg/309.sj": {
+          "id": 112309,
+          "title": "草莓景点",
+          "x": 160,
+          "y": 96
+        },
+        "jlmg/204.sj": {
+          "id": 112204,
+          "title": "宠物学校",
+          "x": 112,
+          "y": 72
+        },
+        "jlmg/207.sj": {
+          "id": 112207,
+          "title": "葡萄路口",
+          "x": 112,
+          "y": 143
+        },
+        "jlmg/310.sj": {
+          "id": 112310,
+          "title": "葡萄捷径",
+          "x": 137,
+          "y": 144
+        },
+        "jlmg/zshd.sj": {
+          "id": 112603,
+          "title": "紫色荒地",
+          "x": 184,
+          "y": 144
+        },
+        "jlmg/504.sj": {
+          "id": 112504,
+          "title": "红土梯地",
+          "x": 184,
+          "y": 47
+        },
+        "jlmg/311.sj": {
+          "id": 112311,
+          "title": "葡萄报亭",
+          "x": 111,
+          "y": 168
+        },
+        "jlmg/312.sj": {
+          "id": 112312,
+          "title": "紫色通道",
+          "x": 136,
+          "y": 168
+        },
+        "jlmg/507.sj": {
+          "id": 112507,
+          "title": "紫色禁地",
+          "x": 185,
+          "y": 168
+        },
+        "jlmg/508.sj": {
+          "id": 112508,
+          "title": "红色禁地",
+          "x": 160,
+          "y": 23
+        },
+        "jlmg/hsql.sj": {
+          "id": 112604,
+          "title": "红色丘陵",
+          "x": 136,
+          "y": 23
+        },
+        "jlmg/403.sj": {
+          "id": 112403,
+          "title": "紫色圣地",
+          "x": 137,
+          "y": 193
+        },
+        "jlmg/503.sj": {
+          "id": 112503,
+          "title": "紫萱牧场",
+          "x": 160,
+          "y": 191
+        },
+        "jlmg/401.sj": {
+          "id": null,
+          "title": "绿色圣地",
+          "x": 64,
+          "y": 24
+        }
+      }
+    }
+  }
+}
