@@ -39,9 +39,6 @@
 const $ = (selector) => document.querySelector(selector);
 const storageKey = "pocket-spirit-demo";
 const authCacheKey = "pocket-spirit-auth-cache";
-const roxasRedeemCode = "ROXAS100000";
-const peerlessHolyWeaponRedeemCode = "ROXASWEAPON2026";
-const phantomTitleFirstRedeemCode = "PHANTOMTOP1-7D-2026";
 
 const backgroundKeepAlive = {
   enabled: true,
@@ -956,14 +953,14 @@ function loadUsers() {
 function loadAuthCache() {
   try {
     const cached = JSON.parse(localStorage.getItem(authCacheKey) || "{}");
-    return { account: cached?.account || "", password: cached?.password || "" };
+    return { account: cached?.account || "" };
   } catch {
     return {};
   }
 }
 
-function saveAuthCache(account, password = "") {
-  localStorage.setItem(authCacheKey, JSON.stringify({ account, password }));
+function saveAuthCache(account) {
+  localStorage.setItem(authCacheKey, JSON.stringify({ account }));
 }
 
 function saveUserHints() {
@@ -6221,7 +6218,7 @@ async function submitPasswordChange() {
     $("#passwordMessage").textContent = result.error === "bad_password" ? "当前密码不正确" : "密码修改失败";
     return;
   }
-  saveAuthCache(state.loginAccount || state.account, newPassword);
+  saveAuthCache(state.loginAccount || state.account);
   state.authPassword = newPassword;
   $("#passwordPanel").classList.remove("active");
   showMenuHint("密码修改成功");
@@ -7422,7 +7419,7 @@ async function claimRoxasAmumu() {
 function claimRoxasRedeemCode() {
   closeMainMenu();
   const panel = $("#redeemPanel");
-  $("#redeemInput").value = roxasRedeemCode;
+  $("#redeemInput").value = "";
   $("#redeemMessage").textContent = "";
   panel.classList.add("active");
   decorateMenuFrame(panel);
@@ -7444,25 +7441,9 @@ async function submitRoxasRedeemCode() {
   }
   try {
     const result = await postApi("/api/redeem-code/claim", { account: state.account, code });
-    if (result.reward === "peerless_pet_scroll_ticket" || result.reward === "fashion_ticket" || result.reward === "peerless_holy_weapon_ticket" || result.reward === "peerless_role_skill_ticket") {
-      await refreshBag();
-    } else if (result.reward === "phantom_title_first") {
-      await refreshPhantomStatus();
-    } else {
-      state.soulPowder = result.soulPowder || state.soulPowder;
-    }
+    await refreshBag();
     $("#redeemPanel").classList.remove("active");
-    const rewardText = result.reward === "peerless_pet_scroll_ticket"
-      ? `绝世宠物召唤券 +${result.amount}`
-      : result.reward === "fashion_ticket"
-        ? `时装兑换券 +${result.amount}`
-        : result.reward === "peerless_holy_weapon_ticket"
-          ? `绝世圣武兑换券 +${result.amount}`
-          : result.reward === "peerless_role_skill_ticket"
-            ? `绝世人物技能兑换券 +${result.amount}`
-            : result.reward === "phantom_title_first"
-              ? `${result.title}（7天）`
-              : `灵魂粉末 +${result.amount}`;
+    const rewardText = (result.rewards || []).map((reward) => `${reward.id} +${reward.amount}`).join("，") || "奖励已发放";
     showMenuHint(`兑换成功，${rewardText}`);
     openStorageMenu();
   } catch (error) {
@@ -9244,7 +9225,8 @@ async function grantWildBattleReward(monsterId, monsterCount = 1) {
   }
   const monster = wildMonsterTable[monsterId];
   if (!monster || !state.account) return;
-  const count = Math.max(1, monsterCount || 1);
+  state.pendingBattleReward = { error: "本地战斗不发放经济奖励，请使用服务器权威战斗。" };
+  return;
   try {
     const result = await postApi("/api/battle-reward", {
       account: state.account,
@@ -12800,9 +12782,7 @@ function setupGatewaySelection() {
 function setupAuth() {
   const cached = loadAuthCache();
   if (cached.account) $("#accountInput").value = cached.account;
-  if (cached.password) $("#passwordInput").value = cached.password;
   if (cached.account) $("#coverAccountInput").value = cached.account;
-  if (cached.password) $("#coverPasswordInput").value = cached.password;
   applyLoginVisualMode();
   document.querySelectorAll("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -12926,12 +12906,12 @@ async function authenticateAccount({ account, password, mode = "login", autoRegi
   state.charactersLoaded = false;
   state.creatingCharacter = false;
   if (window.MapAdminEditor) window.MapAdminEditor.setAdmin(state.isAdmin);
-  saveAuthCache(account, password);
+  saveAuthCache(account);
   saveUserHints();
   $("#accountInput").value = account;
-  $("#passwordInput").value = password;
+  $("#passwordInput").value = "";
   $("#coverAccountInput").value = account;
-  $("#coverPasswordInput").value = password;
+  $("#coverPasswordInput").value = "";
   await openServerSelection({ refresh: true });
   return true;
 }
@@ -13081,15 +13061,15 @@ async function activateCoverSelection(index) {
   $("#coverMessage").textContent = "";
   if (index === 0) {
     const cached = loadAuthCache();
-    if (!cached.account || !cached.password) {
-      $("#coverMessage").textContent = "请先登录一次，之后可使用快速进入。";
+    if (!cached.account) {
+      $("#coverMessage").textContent = "请先登录一次。";
       return;
     }
-    await authenticateAccount({ account: cached.account, password: cached.password, mode: "login", messageEl: $("#coverMessage") });
+    openCoverLoginDialog();
   } else if (index === 1) {
     openCoverLoginDialog();
   } else if (index === 2) {
-    openCoverInfoDialog("帮助信息", "上下方向键或触屏选择菜单，回车确认。\n快速进入会使用上次成功登录的账号密码。\n登录游戏可输入账号密码；账号不存在时会自动注册并进入创建角色流程。");
+    openCoverInfoDialog("帮助信息", "上下方向键或触屏选择菜单，回车确认。\n登录游戏需要输入密码；账号不存在时会自动注册并进入创建角色流程。");
   } else if (index === 3) {
     openCoverInfoDialog("网络设置", `当前网络模式：${localStorage.getItem("pocket-spirit-network-mode") || "高速"}\n请选择线路模式。`);
     $("#coverNetworkOptions").classList.remove("hidden");
@@ -13103,7 +13083,7 @@ async function activateCoverSelection(index) {
 function openCoverLoginDialog() {
   const cached = loadAuthCache();
   $("#coverAccountInput").value = cached.account || $("#accountInput").value || "";
-  $("#coverPasswordInput").value = cached.password || $("#passwordInput").value || "";
+  $("#coverPasswordInput").value = "";
   $("#coverAuthMessage").textContent = "";
   $("#coverDialog").classList.remove("hidden");
   decorateCoverDialog($("#coverDialog"));

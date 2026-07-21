@@ -1,0 +1,86 @@
+const crypto = require("crypto");
+
+function codeHash(code) {
+  return crypto.createHash("sha256").update(String(code || "").trim().toUpperCase(), "utf8").digest("hex");
+}
+
+function createRedeemCodeRuntime({ db, itemColumnForId, now = () => new Date() }) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS redeem_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code_hash TEXT NOT NULL UNIQUE,
+      rewards_json TEXT NOT NULL,
+      starts_at TEXT,
+      ends_at TEXT,
+      max_claims INTEGER NOT NULL DEFAULT 0,
+      claimed_count INTEGER NOT NULL DEFAULT 0,
+      per_account_limit INTEGER NOT NULL DEFAULT 1,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS redeem_claims (
+      code_id INTEGER NOT NULL,
+      account TEXT NOT NULL,
+      claim_count INTEGER NOT NULL DEFAULT 1,
+      claimed_at TEXT NOT NULL,
+      PRIMARY KEY (code_id, account),
+      FOREIGN KEY (code_id) REFERENCES redeem_codes(id)
+    );
+  `);
+
+  function normalizedRewards(value) {
+    const source = value && typeof value === "object" ? value : {};
+    const rewards = [];
+    for (const [id, rawAmount] of Object.entries(source)) {
+      const column = itemColumnForId(id);
+      const amount = Math.floor(Number(rawAmount) || 0);
+      if (column && amount > 0 && amount <= 999999999) rewards.push({ id, column, amount });
+    }
+    return rewards;
+  }
+
+  function claim(account, code) {
+    const timestamp = now().toISOString();
+    const hash = codeHash(code);
+    try {
+      db.exec("BEGIN IMMEDIATE");
+      const entry = db.prepare(`
+        SELECT * FROM redeem_codes
+        WHERE code_hash = ? AND enabled = 1
+          AND (starts_at IS NULL OR starts_at <= ?)
+          AND (ends_at IS NULL OR ends_at > ?)
+      `).get(hash, timestamp, timestamp);
+      if (!entry) throw new Error("bad_code");
+      if (entry.max_claims > 0 && entry.claimed_count >= entry.max_claims) throw new Error("code_exhausted");
+      const existing = db.prepare("SELECT claim_count FROM redeem_claims WHERE code_id = ? AND account = ?").get(entry.id, account);
+      if (existing && existing.claim_count >= entry.per_account_limit) throw new Error("already_claimed");
+      const rewards = normalizedRewards(JSON.parse(entry.rewards_json || "{}"));
+      if (!rewards.length) throw new Error("invalid_code_reward");
+      const assignments = rewards.map((reward) => `${reward.column} = ${reward.column} + ?`).join(", ");
+      const updated = db.prepare(`UPDATE players SET ${assignments}, updated_at = ? WHERE account = ?`).run(...rewards.map((reward) => reward.amount), timestamp, account);
+      if (!updated.changes) throw new Error("player_not_found");
+      db.prepare(`
+        INSERT INTO redeem_claims (code_id, account, claim_count, claimed_at) VALUES (?, ?, 1, ?)
+        ON CONFLICT(code_id, account) DO UPDATE SET claim_count = claim_count + 1, claimed_at = excluded.claimed_at
+      `).run(entry.id, account, timestamp);
+      const counted = db.prepare(`
+        UPDATE redeem_codes SET claimed_count = claimed_count + 1, updated_at = ?
+        WHERE id = ? AND (max_claims = 0 OR claimed_count < max_claims)
+      `).run(timestamp, entry.id);
+      if (!counted.changes) throw new Error("code_exhausted");
+      db.exec("COMMIT");
+      return { ok: true, rewards: rewards.map(({ id, amount }) => ({ id, amount })) };
+    } catch (error) {
+      try { db.exec("ROLLBACK"); } catch {}
+      const errorCode = ["bad_code", "code_exhausted", "already_claimed", "invalid_code_reward", "player_not_found"].includes(error.message)
+        ? error.message
+        : "redeem_failed";
+      return { ok: false, error: errorCode, status: errorCode === "redeem_failed" ? 500 : 409 };
+    }
+  }
+
+  return { claim };
+}
+
+module.exports = { createRedeemCodeRuntime, codeHash };

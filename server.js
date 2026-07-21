@@ -36,6 +36,8 @@ const createImmortalCultivationRuntime = require("./仙气修炼/server.js");
 const createMadBragRuntime = require("./疯狂吹牛/server.js");
 const { createMapRegistry } = require("./地图系统/map-registry.js");
 const { createAdminMapApi } = require("./地图系统/admin-map-api.js");
+const { createAuthRuntime } = require("./src/server/auth/runtime.js");
+const { createRedeemCodeRuntime } = require("./src/server/economy/redeem-code-runtime.js");
 const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
@@ -91,17 +93,6 @@ const remoteAdminAccount = configSecret("REMOTE_ADMIN_ACCOUNT", "admin", ["admin
 const remoteAdminPassword = configSecret("REMOTE_ADMIN_PASSWORD", "zhl8", ["zhl8"]);
 const gameAdminAccount = configSecret("GAME_ADMIN_ACCOUNT", "mapadmin", ["mapadmin"]);
 const gameAdminPassword = configSecret("GAME_ADMIN_PASSWORD", "mapadmin2026", ["mapadmin2026"]);
-const dailyRedeemCode = "ROXAS100000";
-const dailyRedeemSoulPowder = 100000;
-const peerlessPetScrollRedeemCode = "ROXASPET2026";
-const peerlessPetScrollRedeemAmount = 1;
-const fashionTicketRedeemCode = "ROXASFASHION2026";
-const fashionTicketRedeemAmount = 1;
-const peerlessHolyWeaponRedeemCode = "ROXASWEAPON2026";
-const peerlessHolyWeaponRedeemAmount = 1;
-const peerlessRoleSkillRedeemCode = "ROXASROLE2026";
-const peerlessRoleSkillRedeemAmount = 2;
-const phantomTitleFirstRedeemCode = "PHANTOMTOP1-7D-2026";
 
 const adminRoleCatalog = careerTree.adminRoleCatalog;
 
@@ -585,7 +576,6 @@ restoreFashionFromAnomalyLog();
 const mapRegistry = createMapRegistry({ root });
 const adminMapApi = createAdminMapApi({ registry: mapRegistry, checkAdmin: checkMapAdmin, sendJson });
 mapRegistry.scanMaps();
-upsertAccountPassword(gameAdminAccount, gameAdminPassword);
 
 function handleHttpRequest(req, res) {
   const url = new URL(req.url, "http://localhost");
@@ -1222,10 +1212,6 @@ function checkAdminTokenOnly(req, data = null) {
   return hasBasicAdminAuth(req);
 }
 
-function passwordHash(password) {
-  return crypto.createHash("sha256").update(String(password || ""), "utf8").digest("hex");
-}
-
 function normalizeClientIp(ip = "") {
   let value = String(ip || "").trim();
   if (value.startsWith("::ffff:")) value = value.slice(7);
@@ -1318,14 +1304,7 @@ function resolveOwnerAccount(value) {
 }
 
 function upsertAccountPassword(account, password) {
-  const now = new Date().toISOString();
-  db.prepare(`
-    INSERT INTO accounts (account, password_hash, created_at, updated_at)
-    VALUES (?, ?, ?, ?)
-    ON CONFLICT(account) DO UPDATE SET
-      password_hash = excluded.password_hash,
-      updated_at = excluded.updated_at
-  `).run(account, passwordHash(password), now, now);
+  authRuntime.savePassword(account, password);
 }
 
 function safeJsonArray(raw) {
@@ -1489,6 +1468,9 @@ function recordAnomalyOnce(account, type, detail = {}, severity = 1, action = ""
   if (existing) return;
   recordAnomaly(account, type, detail, severity, action);
 }
+
+const authRuntime = createAuthRuntime({ db, recordAnomaly });
+upsertAccountPassword(gameAdminAccount, gameAdminPassword);
 
 const CLIENT_STAT_KEYS = ["hp", "defense", "speed", "attack", "mana", "crit", "critDamage"];
 const clientStatCheckAt = new Map();
@@ -2092,6 +2074,8 @@ function itemColumnForId(id) {
   if (card) return card.column;
   return fragmentItems.find((item) => item.id === id)?.column || "";
 }
+
+const redeemCodeRuntime = createRedeemCodeRuntime({ db, itemColumnForId });
 
 function isUntradeableItemId(id) {
   return id === "phantom_fragment";
@@ -3395,6 +3379,10 @@ function handleApi(req, res, url) {
         sendJson(res, 400, { ok: false, error: "bad_auth" });
         return;
       }
+      if (!authRuntime.consumeRegistration(requestClientIp(req))) {
+        sendJson(res, 429, { ok: false, error: "registration_rate_limited" });
+        return;
+      }
       const existing = db.prepare("SELECT account FROM accounts WHERE account = ?").get(account);
       if (existing) {
         sendJson(res, 409, { ok: false, error: "account_exists" });
@@ -3408,15 +3396,12 @@ function handleApi(req, res, url) {
     if (url.pathname === "/api/auth/login") {
       const account = String(data.account || "").trim();
       const password = String(data.password || "");
-      const row = db.prepare("SELECT password_hash, banned_at, ban_reason FROM accounts WHERE account = ?").get(account);
-      if (!row) {
-        sendJson(res, 404, { ok: false, error: "account_not_migrated" });
+      const auth = authRuntime.verifyAccountPassword(account, password, requestClientIp(req));
+      if (!auth.ok) {
+        sendJson(res, auth.status || 401, { ok: false, error: auth.error || "bad_credentials" });
         return;
       }
-      if (row.password_hash !== passwordHash(password)) {
-        sendJson(res, 401, { ok: false, error: "bad_password" });
-        return;
-      }
+      const row = db.prepare("SELECT banned_at, ban_reason FROM accounts WHERE account = ?").get(account);
       if (row.banned_at) {
         sendJson(res, 403, {
           ok: false,
@@ -3634,17 +3619,13 @@ function handleApi(req, res, url) {
       if (!account) return;
       const oldPassword = String(data.oldPassword || "");
       const newPassword = String(data.newPassword || "");
-      const row = db.prepare("SELECT password_hash FROM accounts WHERE account = ?").get(account);
-      if (row && row.password_hash !== passwordHash(oldPassword)) {
-        sendJson(res, 401, { ok: false, error: "bad_password" });
+      const verified = authRuntime.verifyAccountPassword(account, oldPassword, requestClientIp(req));
+      if (!verified.ok) {
+        sendJson(res, verified.status || 401, { ok: false, error: verified.error || "bad_credentials" });
         return;
       }
       if (!account || newPassword.length < 4 || newPassword.length > 24) {
         sendJson(res, 400, { ok: false, error: "bad_auth" });
-        return;
-      }
-      if (!row) {
-        sendJson(res, 404, { ok: false, error: "account_not_migrated" });
         return;
       }
       upsertAccountPassword(account, newPassword);
@@ -4187,6 +4168,10 @@ function handleApi(req, res, url) {
       return;
     }
     if (url.pathname === "/api/redeem-code/claim") {
+      const result = redeemCodeRuntime.claim(account, data.code);
+      sendJson(res, result.ok ? 200 : result.status || 500, result);
+      return;
+      // Legacy source-coded redemption below is unreachable until its removal in the extraction commit.
       const code = String(data.code || "").trim().toUpperCase();
       if (
         code !== dailyRedeemCode
@@ -4330,6 +4315,8 @@ function handleApi(req, res, url) {
       return;
     }
     if (url.pathname === "/api/battle-reward") {
+      sendJson(res, 410, { ok: false, error: "server_battle_required" });
+      return;
       const reward = rollWildBattleReward(data.monsterId, data.monsterCount);
       if (!reward) {
         sendJson(res, 400, { ok: false, error: "bad_monster_reward" });
@@ -5002,7 +4989,7 @@ function handleApi(req, res, url) {
     if (url.pathname === "/api/lucky-box/open") {
       const fragmentColumns = fragmentItems.map((item) => item.column).join(", ");
       const skillCardColumns = skillCardItems.map((item) => item.column).join(", ");
-      const row = db.prepare(`SELECT silver, soul_powder, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json FROM players WHERE account = ?`).get(account);
+      const row = db.prepare(`SELECT lucky_box, silver, soul_powder, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json FROM players WHERE account = ?`).get(account);
       if (!row) {
         sendJson(res, 404, { ok: false, error: "player_not_found" });
         return;

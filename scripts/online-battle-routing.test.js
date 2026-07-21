@@ -84,7 +84,8 @@ test("cover login is default and classic login stays switchable from admin", () 
   assert.doesNotMatch(indexSource, /id="coverDialogCancel"|id="coverInfoClose"|cover-dialog-actions/);
   assert.match(indexSource, /cover-menu-title[\s\S]*cover-menu-body[\s\S]*data-network-index="0"[\s\S]*main-menu-item submenu-item/);
   assert.match(appSource, /loginVisual:\s*\{\s*mode:\s*"cover"\s*\}/);
-  assert.match(appSource, /function saveAuthCache\(account, password = ""\)[\s\S]*JSON\.stringify\(\{ account, password \}\)/);
+  assert.match(appSource, /function saveAuthCache\(account\)[\s\S]*JSON\.stringify\(\{ account \}\)/);
+  assert.doesNotMatch(appSource, /JSON\.stringify\(\{ account, password \}\)/);
   assert.match(appSource, /positions:\s*\[64\.0436,\s*70\.3282,\s*76\.3365,\s*82\.5519,\s*88\.9055\]/);
   const stylesSource = fs.readFileSync(path.resolve(__dirname, "..", "styles.css"), "utf8");
   assert.match(stylesSource, /--cover-arrow-left:\s*67\.035%;[\s\S]*\.cover-arrow\s*\{[\s\S]*left:\s*var\(--cover-arrow-left\);/);
