@@ -736,6 +736,28 @@ function createRuntime(deps) {
       sendToPeer(peerId, { type: "teamBattleTurn", battleId: session.battleId, result, to: peerId, roster: session.defenderRoster }, session.realm);
     }
     if (result.done) {
+      if (session.pve && result.winner === "ally" && typeof deps.issuePveRewardTickets === "function") {
+        for (const peerId of session.attackerIds) {
+          const account = session.participantAccounts.get(peerId);
+          const rewardTicket = account ? deps.issuePveRewardTickets({
+            battleId: session.battleId,
+            account,
+            monsterId: session.wildMonsterId,
+            monsterCount: session.monsterCount
+          }) : "";
+          if (rewardTicket) {
+            sendToPeer(peerId, {
+              type: "teamBattleReward",
+              battleId: session.battleId,
+              to: peerId,
+              roster: session.attackerRoster,
+              wildMonsterId: session.wildMonsterId,
+              monsterCount: session.monsterCount,
+              rewardTicket
+            }, session.realm);
+          }
+        }
+      }
       broadcastBattleEnd(session);
       activeBattles.delete(sessionKey);
     } else {

@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { DatabaseSync } = require("node:sqlite");
 const { createAuthRuntime, legacyPasswordHash } = require("../src/server/auth/runtime.js");
 const { createRedeemCodeRuntime, codeHash } = require("../src/server/economy/redeem-code-runtime.js");
+const { createRewardTicketRuntime } = require("../战斗/reward-ticket-runtime.js");
 
 function authDb() {
   const db = new DatabaseSync(":memory:");
@@ -41,4 +42,12 @@ test("redeem code grants once and rejects a duplicate claim", () => {
   assert.equal(runtime.claim("player", "welcome").ok, true);
   assert.equal(db.prepare("SELECT soul_powder FROM players WHERE account = ?").get("player").soul_powder, 50);
   assert.equal(runtime.claim("player", "welcome").error, "code_exhausted");
+});
+
+test("server-issued battle reward ticket can only be consumed once by its owner", () => {
+  const runtime = createRewardTicketRuntime({ db: new DatabaseSync(":memory:") });
+  const ticket = runtime.issue({ battleId: "battle-1", account: "player", monsterId: "amumu", monsterCount: 1 });
+  assert.ok(ticket);
+  assert.deepEqual(runtime.consume("player", ticket), { ok: true, monsterId: "amumu", monsterCount: 1 });
+  assert.equal(runtime.consume("player", ticket).error, "invalid_reward_ticket");
 });

@@ -123,6 +123,10 @@ At the time of writing:
 
 Treat it as an inactive prototype or extraction attempt. Do not extend it as if it were production runtime unless you rewire the battle entry points first.
 
+### `reward-ticket-runtime.js`
+
+Issues a one-time, short-lived reward ticket only after the server-authoritative PVE runtime confirms victory. The HTTP reward endpoint consumes this ticket and ignores client-supplied monster or quantity fields.
+
 ## Active Runtime Flow
 
 ## 1. Shared Rule Layer

@@ -9214,7 +9214,7 @@ function generateFragmentDrops(monster, count = 1) {
   return drops;
 }
 
-async function grantWildBattleReward(monsterId, monsterCount = 1) {
+async function grantWildBattleReward(monsterId, monsterCount = 1, rewardTicket = "") {
   if (elfKingVault.stageById(monsterId)) {
     await grantElfKingVaultReward(monsterId);
     return;
@@ -9225,13 +9225,14 @@ async function grantWildBattleReward(monsterId, monsterCount = 1) {
   }
   const monster = wildMonsterTable[monsterId];
   if (!monster || !state.account) return;
-  state.pendingBattleReward = { error: "本地战斗不发放经济奖励，请使用服务器权威战斗。" };
-  return;
+  if (!rewardTicket) {
+    state.pendingBattleReward = { error: "本地战斗不发放经济奖励，请使用服务器权威战斗。" };
+    return;
+  }
   try {
     const result = await postApi("/api/battle-reward", {
       account: state.account,
-      monsterId,
-      monsterCount: count
+      rewardTicket
     });
     const reward = result.reward || {};
     const previousLevel = result.previousLevel || state.playerProgress.level;
@@ -9332,12 +9333,12 @@ async function grantImmortalBossReward(bossId) {
 }
 
 async function acceptTeamBattleReward(msg) {
-  if (!msg?.wildMonsterId || msg.rewardClaimedBy === state.peerId) return;
+  if (!msg?.wildMonsterId || !msg.rewardTicket || msg.rewardClaimedBy === state.peerId) return;
   if (!isActiveTeamBattleMessage(msg)) return;
   const rewardId = msg.rewardId || `${msg.battleId}-reward`;
   if (state.claimedTeamRewardIds.has(rewardId)) return;
   addBoundedId(state.claimedTeamRewardIds, rewardId);
-  await grantWildBattleReward(msg.wildMonsterId, msg.monsterCount || 1);
+  await grantWildBattleReward(msg.wildMonsterId, msg.monsterCount || 1, msg.rewardTicket);
   showMenuHint("队伍战斗奖励已发放");
 }
 
@@ -10904,7 +10905,7 @@ async function playBattleTurn(result) {
     battle.ending = true;
     showBattleResult(result.winner);
     const mySide = battle.role === "defender" ? "enemy" : "ally";
-    if (!battle.opponentPeerId && result.winner === mySide && battle.wildMonsterId && !battle.rewardClaimed) {
+    if (!battle.teamBattleServer && !battle.opponentPeerId && result.winner === mySide && battle.wildMonsterId && !battle.rewardClaimed) {
       battle.rewardClaimed = true;
       await grantWildBattleReward(battle.wildMonsterId, battle.monsterCount || battle.enemyTeam.length || 1);
     }

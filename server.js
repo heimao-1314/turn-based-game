@@ -38,6 +38,8 @@ const { createMapRegistry } = require("./地图系统/map-registry.js");
 const { createAdminMapApi } = require("./地图系统/admin-map-api.js");
 const { createAuthRuntime } = require("./src/server/auth/runtime.js");
 const { createRedeemCodeRuntime } = require("./src/server/economy/redeem-code-runtime.js");
+const { createRewardTicketRuntime } = require("./战斗/reward-ticket-runtime.js");
+const { createTeamRuntime } = require("./队伍/server.js");
 const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
@@ -2076,6 +2078,7 @@ function itemColumnForId(id) {
 }
 
 const redeemCodeRuntime = createRedeemCodeRuntime({ db, itemColumnForId });
+const rewardTicketRuntime = createRewardTicketRuntime({ db });
 
 function isUntradeableItemId(id) {
   return id === "phantom_fragment";
@@ -4315,8 +4318,13 @@ function handleApi(req, res, url) {
       return;
     }
     if (url.pathname === "/api/battle-reward") {
-      sendJson(res, 410, { ok: false, error: "server_battle_required" });
-      return;
+      const ticket = rewardTicketRuntime.consume(account, data.rewardTicket);
+      if (!ticket.ok) {
+        sendJson(res, ticket.status || 409, ticket);
+        return;
+      }
+      data.monsterId = ticket.monsterId;
+      data.monsterCount = ticket.monsterCount;
       const reward = rollWildBattleReward(data.monsterId, data.monsterCount);
       if (!reward) {
         sendJson(res, 400, { ok: false, error: "bad_monster_reward" });
@@ -5845,6 +5853,7 @@ server.on("upgrade", (req, socket) => {
   });
   const closeSocket = (reason = "closed") => {
     const meta = socketMeta.get(socket) || {};
+    teamRuntime.handleDisconnect(meta.peerId || "", meta);
     onlineBattle.handleDisconnect(meta.peerId || "", socketRealm(meta));
     if (meta.account && accountSockets.get(meta.account) === socket) accountSockets.delete(meta.account);
     if (meta.account) clientStatCheckAt.delete(`${meta.account}:ws_state`);
@@ -5899,12 +5908,6 @@ server.on("upgrade", (req, socket) => {
           const nextMapName = String(data.mapName);
           if (meta.mapName && meta.mapName !== nextMapName) data.previousMapName = meta.mapName;
           meta.mapName = nextMapName;
-          if (data.full === true || data.team?.leaderId || Array.isArray(data.team?.members)) {
-            meta.team = data.team && typeof data.team === "object" ? data.team : { leaderId: "", members: [] };
-          }
-          if (data.full === true || data.leaderId) {
-            meta.leaderId = String(data.leaderId || meta.team?.leaderId || "");
-          }
           if ("hiddenPlayers" in data) meta.hiddenPlayers = Boolean(data.hiddenPlayers);
         }
         socketMeta.set(socket, meta);
@@ -5953,7 +5956,7 @@ server.on("upgrade", (req, socket) => {
       }
 
       recordRoomTraffic(type, "in", Buffer.byteLength(message));
-      applyTeamControlMeta(data, socket);
+      if (teamRuntime.handleRoomMessage(data, socket)) continue;
       if (onlineBattle.handleRoomMessage(data, socket)) continue;
       broadcast(message, socket, data);
     }
@@ -6120,6 +6123,7 @@ const onlineBattle = createOnlineBattleRuntime({
   },
   getSocketMeta: (socket) => socketMeta.get(socket) || {},
   setSocketMeta: (socket, meta) => socketMeta.set(socket, meta),
+  issuePveRewardTickets: (ticket) => rewardTicketRuntime.issue(ticket),
   choiceMs: 15000
 });
 
