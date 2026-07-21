@@ -3330,11 +3330,11 @@ function drawMapHud(ctx) {
   ctx.textBaseline = "top";
   ctx.textAlign = "left";
   ctx.lineJoin = "round";
-  ctx.font = `12px ${DIALOG_FONT_FAMILY}`;
   ctx.lineWidth = 2;
   ctx.strokeStyle = "rgba(0, 13, 22, 0.95)";
   ctx.fillStyle = "#d9fbff";
   const serverLine = [state.serverName, activeChannelName()].filter(Boolean).join(" ");
+  ctx.font = `${serverLine ? 10 : 12}px ${DIALOG_FONT_FAMILY}`;
   const primaryLabel = serverLine || state.mapName || "";
   ctx.strokeText(primaryLabel, 1, 2);
   ctx.fillText(primaryLabel, 1, 2);
