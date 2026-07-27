@@ -13107,6 +13107,12 @@ function setupAuth() {
   setupCoverLogin();
 }
 
+function saveBrowserCredential(account, password) {
+  if (!window.PasswordCredential || !navigator.credentials?.store || !account || !password) return;
+  const credential = new window.PasswordCredential({ id: account, password, name: account });
+  navigator.credentials.store(credential).catch(() => {});
+}
+
 function applyLoginVisualMode() {
   const coverEnabled = state.loginVisual?.mode === "cover";
   $("#authScreen").classList.toggle("cover-mode", coverEnabled);
@@ -13182,6 +13188,7 @@ async function authenticateAccount({ account, password, mode = "login", autoRegi
 
   const ok = mode === "register" ? await doRegister() : await doLogin();
   if (!ok) return false;
+  if (mode === "login") saveBrowserCredential(account, password);
   state.loginAccount = account;
   state.account = "";
   state.authPassword = password;
