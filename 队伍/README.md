@@ -17,6 +17,17 @@ The active architecture is split across client and server:
 - reusable team helpers now live in `team/runtime.js`
 - server-authoritative team PVP/PVE orchestration lives in `联网战斗/runtime.js`
 
+## V2 Foundation (Not Yet Wired)
+
+The V2 protocol core is implemented separately from the active V1 message path:
+
+- `shared.js` defines command names, stable error codes, request ID validation, and realm normalization.
+- `server/team-state-machine.js` owns V2 teams, invitations, revisions, authenticated-account membership, reconnect updates, and request idempotency.
+- `server/index.js` is the server-side V2 export boundary.
+- `tests/team-state-machine.test.js` covers lifecycle, stale revisions, duplicate commands, impersonation, expiry, and reconnects.
+
+This core does not drive clients yet. It must first be connected in shadow mode and compared with the active V1 runtime before any feature flag sends authoritative V2 snapshots to browsers.
+
 ## File Layout
 
 ### `runtime.js`
