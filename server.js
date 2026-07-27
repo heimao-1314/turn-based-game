@@ -6049,63 +6049,6 @@ function findSocketByName(name = "", realm = null) {
   return null;
 }
 
-function normalizeTeamMembers(members = []) {
-  const seen = new Set();
-  return (Array.isArray(members) ? members : [])
-    .map((member) => ({
-      peerId: String(member?.peerId || ""),
-      account: String(member?.account || ""),
-      name: String(member?.name || "")
-    }))
-    .filter((member) => {
-      const key = member.peerId || member.account || member.name;
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-}
-
-function setSocketTeamMeta(socket, team, leaderId = "") {
-  if (!socket || socket.destroyed) return;
-  const meta = socketMeta.get(socket) || {};
-  meta.team = team;
-  meta.leaderId = leaderId;
-  socketMeta.set(socket, meta);
-}
-
-function applyTeamControlMeta(data, sender) {
-  if (!data || typeof data !== "object") return;
-  const senderMeta = socketMeta.get(sender) || {};
-  const realm = socketRealm(senderMeta);
-  const senderPeerId = senderMeta.peerId || data.peerId || "";
-  if (data.type === "teamAccepted" || data.type === "teamUpdate") {
-    const leaderId = String(data.leaderId || senderPeerId || "");
-    const members = normalizeTeamMembers(data.members || []);
-    setSocketTeamMeta(sender, { leaderId, members }, senderPeerId === leaderId ? "" : leaderId);
-    const targetSocket = findSocketByPeerId(data.to || "", realm);
-    if (targetSocket) setSocketTeamMeta(targetSocket, { leaderId, members }, leaderId);
-    return;
-  }
-  if (data.type === "teamLeave") {
-    setSocketTeamMeta(sender, { leaderId: "", members: [] }, "");
-    const leaderSocket = findSocketByPeerId(data.to || data.leaderId || "", realm);
-    if (leaderSocket) {
-      const leaderMeta = socketMeta.get(leaderSocket) || {};
-      const members = normalizeTeamMembers(leaderMeta.team?.members || []).filter((member) => {
-        if (data.memberPeerId) return member.peerId !== data.memberPeerId;
-        return member.name !== data.name;
-      });
-      setSocketTeamMeta(leaderSocket, { leaderId: leaderMeta.peerId || data.to || "", members }, "");
-    }
-    return;
-  }
-  if (data.type === "teamDisband") {
-    setSocketTeamMeta(sender, { leaderId: "", members: [] }, "");
-    const targetSocket = findSocketByPeerId(data.to || "", realm);
-    if (targetSocket) setSocketTeamMeta(targetSocket, { leaderId: "", members: [] }, "");
-  }
-}
-
 const onlineBattle = createOnlineBattleRuntime({
   statLimits: STAT_LIMITS,
   safeJsonArray,

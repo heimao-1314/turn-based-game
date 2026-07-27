@@ -235,3 +235,11 @@ test("server state forwarding replaces client-provided team metadata", () => {
   assert.match(source, /data\.team = meta\.team \|\| \{ leaderId: "", members: \[\] \};/);
   assert.match(source, /data\.leaderId = data\.team\.leaderId \|\| meta\.leaderId \|\| "";/);
 });
+
+test("server delegates team commands without retaining a roster writer", () => {
+  const source = fs.readFileSync(path.resolve(__dirname, "..", "server.js"), "utf8");
+  assert.match(source, /if \(teamRuntime\.handleRoomMessage\(data, socket\)\) continue;/);
+  assert.doesNotMatch(source, /function applyTeamControlMeta\(/);
+  assert.doesNotMatch(source, /function setSocketTeamMeta\(/);
+  assert.doesNotMatch(source, /function normalizeTeamMembers\(/);
+});
