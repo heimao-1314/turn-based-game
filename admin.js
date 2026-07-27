@@ -146,20 +146,39 @@ const Players = (() => {
   function render() {
     const el = $("#playerList");
     if (!el) return;
+    const now = Date.now();
     el.innerHTML = list.map((p) => `
-      <div class="player-row ${selected && playerKey(selected) === playerKey(p) ? "active" : ""}" data-player-key="${Core.escapeHtml(playerKey(p))}">
-        <div>
-          <strong>${Core.escapeHtml(p.name || p.account)}</strong>
-          <small>所属账号 ${Core.escapeHtml(ownerAccountText(p))} / 服务器 ${Core.escapeHtml(serverText(p))} / 角色槽 ${Core.escapeHtml(characterSlotText(p))}</small>
-          <small>角色ID ${Core.escapeHtml(characterIdText(p))} / Lv.${p.level} / 龙魂 ${p.dragonSoul} / 银币 ${p.silver || 0}${p.bannedAt ? " / 已封禁" : ""}</small>
-          <small>${Core.escapeHtml(commonIpText(p))}</small>
-        </div>
-        <button type="button" class="btn-sm">选择</button>
-      </div>
+      <tr class="player-row ${selected && playerKey(selected) === playerKey(p) ? "selected" : ""}" data-player-key="${Core.escapeHtml(playerKey(p))}">
+        <td><span class="status-dot ${isRecentlyOnline(p, now) ? "status-online" : "status-offline"}"></span>${isRecentlyOnline(p, now) ? "在线" : "离线"}</td>
+        <td><div class="player-cell"><span class="cell-avatar">${Core.escapeHtml(String(p.name || p.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(p.name || p.account)}${p.bannedAt ? "（已封）" : ""}</strong></div></td>
+        <td>${Core.escapeHtml(ownerAccountText(p))}</td>
+        <td><strong class="level-value">Lv. ${Number(p.level) || 1}</strong></td>
+        <td>${Number(p.dragonSoul) || 1}</td>
+        <td><strong class="silver-value">${formatNumber(p.silver)}</strong></td>
+        <td><span class="ip-value" title="${Core.escapeHtml(p.commonIp?.ip || "暂无记录")}">${Core.escapeHtml(p.commonIp?.ip || "暂无记录")}</span></td>
+        <td>${formatNumber(p.commonIp?.count)} 次</td>
+        <td><span class="time-value">${Core.escapeHtml(formatTime(p.commonIp?.lastSeenAt || p.updatedAt))}</span></td>
+      </tr>
     `).join("");
     el.querySelectorAll(".player-row").forEach((row) => {
       row.addEventListener("click", () => select(row.dataset.playerKey));
     });
+  }
+
+  function formatNumber(value) {
+    return Math.max(0, Number(value) || 0).toLocaleString("zh-CN");
+  }
+
+  function formatTime(value) {
+    if (!value) return "暂无记录";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString("zh-CN", { hour12: false }).replaceAll("/", "-");
+  }
+
+  function isRecentlyOnline(player, now = Date.now()) {
+    const seenAt = new Date(player.commonIp?.lastSeenAt || player.updatedAt || 0).getTime();
+    return Number.isFinite(seenAt) && now - seenAt >= 0 && now - seenAt <= 10 * 60 * 1000;
   }
 
   async function select(account) {
@@ -549,8 +568,15 @@ const roleCatalog = window.CareerTree.adminRoleCatalog;
 
   /* 将选中玩家数据填入表单 */
   function fillForm(player) {
+    const displayName = player.name || Players.characterIdText(player);
+    const inspectorName = $("#inspectorName");
+    const inspectorMeta = $("#inspectorMeta");
+    const inspectorAvatar = $(".profile-avatar");
+    if (inspectorName) inspectorName.textContent = displayName;
+    if (inspectorMeta) inspectorMeta.textContent = `账号 ${Players.ownerAccountText(player)} · ${Players.serverText(player)}`;
+    if (inspectorAvatar) inspectorAvatar.textContent = displayName.charAt(0).toUpperCase();
     $("#selectedPlayer").textContent = [
-      player.name || Players.characterIdText(player),
+      displayName,
       `所属账号 ${Players.ownerAccountText(player)}`,
       `服务器 ${Players.serverText(player)}`,
       `角色槽 ${Players.characterSlotText(player)}`,
