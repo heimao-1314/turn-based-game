@@ -9,5 +9,7 @@ test("opening camera resolution does not fall through to the system-menu action"
 
   assert.ok(match, "detail settings confirmation handler exists");
   assert.match(match[1], /if \(state\.menuItem === 0\) return openCameraResolutionMenu\(\);/);
-  assert.match(match[1], /if \(state\.menuItem === 1\) return openMainMenuAt\(4, "细节设置"\);/);
+  assert.match(match[1], /if \(state\.menuItem === 1\) return openModelScaleMenu\(\);/);
+  assert.match(match[1], /if \(state\.menuItem === 2\) \{[\s\S]*?setPetNamePreference\(!state\.showPetNames\);/);
+  assert.match(match[1], /if \(state\.menuItem === 3\) return openMainMenuAt\(4, "细节设置"\);/);
 });

@@ -6241,6 +6241,97 @@ function confirmCameraResolutionMenu() {
   openCameraResolutionMenu();
 }
 
+function openModelScaleMenu() {
+  state.menuMode = "model_scale";
+  state.menuItem = 0;
+  setMenuAsSingleList("调整模型大小", [
+    { label: `宠物模型大小：${formatModelScale(state.actorScales.pet)}`, icon: "1.9" },
+    { label: `人物模型大小：${formatModelScale(state.actorScales.player)}`, icon: "2.10" },
+    { label: "返回细节设置", icon: "1.13" }
+  ]);
+  bindCurrentMenuClicks(confirmModelScaleMenu);
+}
+
+function confirmModelScaleMenu() {
+  if (state.menuItem === 0) return openModelScaleOptionMenu("pet");
+  if (state.menuItem === 1) return openModelScaleOptionMenu("player");
+  openDetailSettingsMenu();
+}
+
+function formatModelScale(scale) {
+  return `${Math.round(clampClientNumber(scale, 1, MODEL_SCALE_MIN, MODEL_SCALE_MAX) * 100)}%`;
+}
+
+function openModelScaleOptionMenu(kind) {
+  const target = kind === "pet" ? "pet" : "player";
+  const value = clampClientNumber(state.actorScales[target], 1, MODEL_SCALE_MIN, MODEL_SCALE_MAX);
+  state.modelScaleAdjustment = { kind: target, original: value, value };
+  state.menuMode = "model_scale_adjust";
+  state.menuItem = 0;
+  setMenuAsSingleList(target === "pet" ? "宠物模型大小" : "人物模型大小", []);
+  renderModelScaleAdjustment();
+}
+
+function renderModelScaleAdjustment() {
+  const adjustment = state.modelScaleAdjustment;
+  if (!adjustment) return openModelScaleMenu();
+  const list = $("#mainMenuList");
+  const percent = Math.round(adjustment.value * 100);
+  list.innerHTML = `
+    <div class="menu-scale-adjuster">
+      <div class="menu-scale-value"><span>当前大小</span><strong>${percent}%</strong></div>
+      <input class="menu-scale-range" type="range" min="50" max="250" step="5" value="${percent}" style="--model-scale-progress:${(percent - 50) / 2}%" aria-label="${adjustment.kind === "pet" ? "宠物" : "人物"}模型大小" />
+      <div class="menu-scale-limits"><span>50%</span><span>250%</span></div>
+    </div>
+  `;
+  decorateMenuFrame(list);
+  const input = list.querySelector(".menu-scale-range");
+  input?.addEventListener("input", () => previewModelScaleAdjustment(Number(input.value) / 100));
+}
+
+function previewModelScaleAdjustment(value) {
+  const adjustment = state.modelScaleAdjustment;
+  if (!adjustment) return;
+  const scale = Math.round(clampClientNumber(value, adjustment.value, MODEL_SCALE_MIN, MODEL_SCALE_MAX) / MODEL_SCALE_STEP) * MODEL_SCALE_STEP;
+  adjustment.value = Number(scale.toFixed(2));
+  state.actorScales[adjustment.kind] = adjustment.value;
+  const percent = Math.round(adjustment.value * 100);
+  const list = $("#mainMenuList");
+  const valueLabel = list.querySelector(".menu-scale-value strong");
+  const input = list.querySelector(".menu-scale-range");
+  if (valueLabel) valueLabel.textContent = `${percent}%`;
+  if (input) {
+    input.value = String(percent);
+    input.style.setProperty("--model-scale-progress", `${(percent - 50) / 2}%`);
+  }
+}
+
+function adjustModelScaleBy(delta) {
+  const adjustment = state.modelScaleAdjustment;
+  if (adjustment) previewModelScaleAdjustment(adjustment.value + delta * MODEL_SCALE_STEP);
+}
+
+function confirmModelScaleOptionMenu() {
+  const adjustment = state.modelScaleAdjustment;
+  if (!adjustment) return openModelScaleMenu();
+  saveModelScalePreference(adjustment.kind, adjustment.value);
+  showMenuHint(`${adjustment.kind === "pet" ? "宠物" : "人物"}模型大小已调整为 ${formatModelScale(adjustment.value)}`);
+  state.modelScaleAdjustment = null;
+  openModelScaleMenu();
+}
+
+function backModelScaleMenu() {
+  if (state.menuMode === "model_scale_adjust") {
+    const adjustment = state.modelScaleAdjustment;
+    if (adjustment) state.actorScales[adjustment.kind] = adjustment.original;
+    state.modelScaleAdjustment = null;
+    return openModelScaleMenu();
+  }
+  if (state.menuMode === "model_scale") return openDetailSettingsMenu();
+  if (state.menuMode === "detail_settings") return openMainMenuAt(4, "细节设置");
+  return closeMainMenu();
+}
+
 function openPasswordPanel() {
   closeMainMenu();
   const panel = $("#passwordPanel");
@@ -12363,7 +12454,10 @@ function escapeHtml(text) {
 function isTextInputTarget(target) {
   if (!target) return false;
   const tagName = target.tagName;
-  return target.isContentEditable || tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
+  return target.isContentEditable
+    || (tagName === "INPUT" && target.type !== "range")
+    || tagName === "TEXTAREA"
+    || tagName === "SELECT";
 }
 
 function isInputUiActive() {
@@ -13269,11 +13363,19 @@ function setupControls() {
     }
     if (state.menuOpen) {
       if (state.menuMode && state.menuMode !== "main") {
+        if (state.menuMode === "model_scale_adjust") {
+          if (key === "up" || key === "left") return adjustModelScaleBy(-1);
+          if (key === "down" || key === "right") return adjustModelScaleBy(1);
+          if (key === "confirm" || key === "nearby") return confirmModelScaleOptionMenu();
+          if (key === "back") return backModelScaleMenu();
+          return;
+        }
         if (key === "up" || key === "left") return moveMainMenuItem(-1);
         if (key === "down" || key === "right") return moveMainMenuItem(1);
         if (key === "confirm" || key === "nearby") return confirmMainMenuItem();
         if (key === "back" && state.menuMode === "lucky_box_roll") return backLuckyBoxRollMenu();
         if (key === "back" && state.menuMode.startsWith("mad_brag")) return backMadBragMenu();
+        if (key === "back" && ["detail_settings", "model_scale"].includes(state.menuMode)) return backModelScaleMenu();
         if (key === "back") return closeMainMenu();
         return;
       }
@@ -13489,6 +13591,7 @@ window.addEventListener('keydown', (event) => {
   bindTouchButton($("#mainMenuBack"), () => {
     if (state.menuMode === "lucky_box_roll") return backLuckyBoxRollMenu();
     if (state.menuMode?.startsWith("mad_brag")) return backMadBragMenu();
+    if (["detail_settings", "model_scale", "model_scale_adjust"].includes(state.menuMode)) return backModelScaleMenu();
     return closeMainMenu();
   });
   $("#roleStatsAction")?.addEventListener("click", toggleRoleStatsCardPage);
@@ -13731,6 +13834,7 @@ window.addEventListener("beforeunload", () => {
 });
 
 async function boot() {
+  state.showPetNames = loadPetNamePreference();
   await refreshClientVersion();
   setupOfflineAssetCache();
   setupBackgroundKeepAlive();
