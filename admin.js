@@ -147,10 +147,10 @@ const Players = (() => {
     const el = $("#playerList");
     if (!el) return;
     const now = Date.now();
-    el.innerHTML = list.map((p) => `
+    el.innerHTML = list.map((p, index) => `
       <tr class="player-row ${selected && playerKey(selected) === playerKey(p) ? "selected" : ""}" data-player-key="${Core.escapeHtml(playerKey(p))}">
         <td><span class="status-dot ${isRecentlyOnline(p, now) ? "status-online" : "status-offline"}"></span>${isRecentlyOnline(p, now) ? "在线" : "离线"}</td>
-        <td><div class="player-cell"><span class="cell-avatar">${Core.escapeHtml(String(p.name || p.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(p.name || p.account)}${p.bannedAt ? "（已封）" : ""}</strong></div></td>
+        <td><div class="player-cell"><span class="cell-avatar avatar-tone-${index % 6}">${Core.escapeHtml(String(p.name || p.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(p.name || p.account)}${p.bannedAt ? "（已封）" : ""}</strong></div></td>
         <td>${Core.escapeHtml(ownerAccountText(p))}</td>
         <td><strong class="level-value">Lv. ${Number(p.level) || 1}</strong></td>
         <td>${Number(p.dragonSoul) || 1}</td>
@@ -263,7 +263,7 @@ const Servers = (() => {
       return;
     }
 
-    el.innerHTML = list.map((server) => {
+    el.innerHTML = list.map((server, index) => {
       const id = serverId(server);
       const enabled = isEnabled(server);
       const characterCount = count(server.characterCount ?? server.roleCount);
@@ -272,7 +272,7 @@ const Servers = (() => {
       return `
         <tr class="server-row">
           <td><span class="status-dot ${enabled ? "status-online" : "status-offline"}"></span>${enabled ? "已启用" : "已停用"}</td>
-          <td><div class="player-cell"><span class="cell-avatar server-avatar">S</span><strong>${Core.escapeHtml(serverName(server))}</strong></div></td>
+          <td><div class="player-cell"><span class="cell-avatar avatar-tone-${index % 6}">S</span><strong>${Core.escapeHtml(serverName(server))}</strong></div></td>
           <td><span class="id-value">${Core.escapeHtml(id || "未提供")}</span></td>
           <td>${characterCount.toLocaleString("zh-CN")}</td>
           <td><strong class="online-value">${onlineCount.toLocaleString("zh-CN")}</strong></td>
@@ -382,7 +382,7 @@ const Rankings = (() => {
     el.innerHTML = list.length ? list.map((entry, i) => `
       <tr class="ranking-row ${entry.bannedAt ? "banned" : ""}" data-account="${Core.escapeHtml(entry.account)}">
         <td><span class="rank-number rank-${i + 1}">#${i + 1}</span></td>
-        <td><div class="player-cell"><span class="cell-avatar rank-avatar">${Core.escapeHtml(String(entry.name || entry.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(entry.name || entry.account)}${entry.bannedAt ? "（已封）" : ""}</strong></div></td>
+        <td><div class="player-cell"><span class="cell-avatar avatar-tone-${i % 6}">${Core.escapeHtml(String(entry.name || entry.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(entry.name || entry.account)}${entry.bannedAt ? "（已封）" : ""}</strong></div></td>
         <td>${Core.escapeHtml(entry.account)}</td>
         <td><strong class="level-value">Lv. ${Number(entry.level) || 1}</strong></td>
         <td>${Number(entry.dragonSoul) || 1}</td>
@@ -487,10 +487,10 @@ const Anomalies = (() => {
   function render() {
     const el = $("#anomalyList");
     if (!el) return;
-    el.innerHTML = list.length ? list.map((entry) => `
+    el.innerHTML = list.length ? list.map((entry, index) => `
       <tr class="ranking-row ${entry.bannedAt ? "banned" : ""}" data-account="${Core.escapeHtml(entry.account)}">
         <td><span class="severity-badge severity-${Math.max(1, Math.min(5, Number(entry.severity) || 1))}">S${Number(entry.severity) || 1}</span></td>
-        <td><div class="player-cell"><span class="cell-avatar anomaly-avatar">${Core.escapeHtml(String(entry.name || entry.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(entry.name || entry.account)}${entry.bannedAt ? "（已封）" : ""}</strong></div></td>
+        <td><div class="player-cell"><span class="cell-avatar avatar-tone-${index % 6}">${Core.escapeHtml(String(entry.name || entry.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(entry.name || entry.account)}${entry.bannedAt ? "（已封）" : ""}</strong></div></td>
         <td>${Core.escapeHtml(entry.account)}</td>
         <td><strong class="anomaly-type">${Core.escapeHtml(typeLabel(entry.type))}</strong></td>
         <td>${Core.escapeHtml(actionLabel(entry.action))}</td>
