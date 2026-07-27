@@ -176,6 +176,10 @@ const Players = (() => {
     return date.toLocaleString("zh-CN", { hour12: false }).replaceAll("/", "-");
   }
 
+  function formatCompactNumber(value) {
+    return new Intl.NumberFormat("zh-CN", { notation: "compact", maximumFractionDigits: 2 }).format(Math.max(0, Number(value) || 0));
+  }
+
   function isRecentlyOnline(player, now = Date.now()) {
     const seenAt = new Date(player.commonIp?.lastSeenAt || player.updatedAt || 0).getTime();
     return Number.isFinite(seenAt) && now - seenAt >= 0 && now - seenAt <= 10 * 60 * 1000;
@@ -208,6 +212,10 @@ const Players = (() => {
       render();
       const metric = $("#metricPlayers");
       if (metric) metric.textContent = String(list.length);
+      const onlineMetric = $("#metricOnline");
+      if (onlineMetric) onlineMetric.textContent = String(list.filter((player) => isRecentlyOnline(player)).length);
+      const silverMetric = $("#metricSilver");
+      if (silverMetric) silverMetric.textContent = formatCompactNumber(list.reduce((total, player) => total + (Number(player.silver) || 0), 0));
       Core.message(`读取到 ${list.length} 个玩家`);
     } catch (err) {
       Core.message(`读取失败：${err.message}`, true);
@@ -216,7 +224,7 @@ const Players = (() => {
 
   return {
     getList, getSelected, setSelected, render, select, load, commonIpText,
-    ownerAccountText, serverText, characterSlotText, characterIdText
+    ownerAccountText, serverText, characterSlotText, characterIdText, formatNumber, formatTime
   };
 })();
 
@@ -570,10 +578,23 @@ const roleCatalog = window.CareerTree.adminRoleCatalog;
     const displayName = player.name || Players.characterIdText(player);
     const inspectorName = $("#inspectorName");
     const inspectorMeta = $("#inspectorMeta");
-    const inspectorAvatar = $(".profile-avatar");
+    const inspectorAvatar = $("#inspectorAvatar");
     if (inspectorName) inspectorName.textContent = displayName;
     if (inspectorMeta) inspectorMeta.textContent = `账号 ${Players.ownerAccountText(player)} · ${Players.serverText(player)}`;
     if (inspectorAvatar) inspectorAvatar.textContent = displayName.charAt(0).toUpperCase();
+    const inspectorFields = {
+      inspectorId: Players.characterIdText(player),
+      inspectorLevel: `Lv. ${Number(player.level) || 1}`,
+      inspectorDragon: String(Number(player.dragonSoul) || 1),
+      inspectorSilver: Players.formatNumber(player.silver),
+      inspectorIp: player.commonIp?.ip || "暂无记录",
+      inspectorLogins: `${Players.formatNumber(player.commonIp?.count)} 次`,
+      inspectorLastSeen: Players.formatTime(player.commonIp?.lastSeenAt || player.updatedAt)
+    };
+    Object.entries(inspectorFields).forEach(([id, value]) => {
+      const field = $(`#${id}`);
+      if (field) field.textContent = value;
+    });
     $("#selectedPlayer").textContent = [
       displayName,
       `所属账号 ${Players.ownerAccountText(player)}`,
