@@ -187,6 +187,8 @@ const Players = (() => {
       list = result.players || [];
       if (selected) selected = list.find((p) => playerKey(p) === playerKey(selected)) || null;
       render();
+      const metric = $("#metricPlayers");
+      if (metric) metric.textContent = String(list.length);
       Core.message(`读取到 ${list.length} 个玩家`);
     } catch (err) {
       Core.message(`读取失败：${err.message}`, true);
