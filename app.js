@@ -2733,7 +2733,7 @@ function setupRealtime() {
     }
     if (msg.type === "chat") {
       const peer = await upsertPeerFromMessage(msg);
-      addChat(peer, msg.text, false);
+      addChat(peer, msg.text, false, msg.channel || "nearby");
     }
     if (msg.type === "privateChat" && msg.to === state.peerId) {
       addPrivateChatLine(msg.name || "私聊", msg.text, false);
@@ -4079,15 +4079,27 @@ async function enterGame(initialSaved = null) {
   }
 }
 
-function addChat(actor, text, broadcast = true) {
+function chatChannelLabel(channel) {
+  return ({ server: "服", channel: "线", nearby: "屏", whisper: "私聊", team: "队" })[channel] || "屏";
+}
+
+function renderChatLine(line, includeTime = false) {
+  const channel = ["server", "channel", "nearby", "whisper", "team"].includes(line.channel) ? line.channel : "nearby";
+  const time = includeTime ? `${escapeHtml(line.time)} ` : "";
+  return `<div class="chat-line chat-line-${channel}">${time}<span class="chat-channel-tag">【${chatChannelLabel(channel)}】</span>${escapeHtml(line.name)}：${renderMessage(line.text)}</div>`;
+}
+
+function renderChatFeed() {
+  $("#chatFeed").innerHTML = state.chatLines.slice(-4).map((line) => renderChatLine(line)).join("");
+}
+
+function addChat(actor, text, broadcast = true, channel = state.chatChannel || "nearby") {
   const now = performance.now();
   actor.bubble = text;
   actor.bubbleUntil = now + 2600;
-  state.chatLines.push({ name: actor.name, text, time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
+  state.chatLines.push({ name: actor.name, text, channel, time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
   state.chatLines = state.chatLines.slice(-80);
-  $("#chatFeed").innerHTML = state.chatLines.slice(-4)
-    .map((line) => `<div class="chat-line">${escapeHtml(line.name)}：${renderMessage(line.text)}</div>`)
-    .join("");
+  renderChatFeed();
   showChatFeedTemporarily();
   if ($("#chatHistoryPanel").classList.contains("active")) renderChatHistory();
   if (broadcast && actor === state.player && state.socket?.readyState === WebSocket.OPEN) {
@@ -4252,7 +4264,7 @@ async function submitPenguinRename() {
 
 function renderChatHistory() {
   $("#chatHistoryList").innerHTML = state.chatLines.length
-    ? state.chatLines.map((line) => `<div class="chat-line">${escapeHtml(line.time)} ${escapeHtml(line.name)}：${renderMessage(line.text)}</div>`).join("")
+    ? state.chatLines.map((line) => renderChatLine(line, true)).join("")
     : `<div class="chat-line">暂无聊天记录</div>`;
   const panel = $("#chatHistoryPanel");
   panel.classList.add("active");
@@ -4904,11 +4916,9 @@ function confirmFriendsMenu() {
 
 function addPrivateChatLine(name, text, broadcast = true) {
   const lineName = broadcast ? `你悄悄对${name}` : `${name}悄悄对你`;
-  state.chatLines.push({ name: lineName, text, time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
+  state.chatLines.push({ name: lineName, text, channel: "whisper", time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
   state.chatLines = state.chatLines.slice(-80);
-  $("#chatFeed").innerHTML = state.chatLines.slice(-4)
-    .map((line) => `<div class="chat-line">${escapeHtml(line.name)}：${renderMessage(line.text)}</div>`)
-    .join("");
+  renderChatFeed();
   showChatFeedTemporarily();
 }
 

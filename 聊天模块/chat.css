@@ -18,3 +18,7 @@
 .emoji-page-actions { grid-column: 1 / -1; display: flex; justify-content: center; }
 .emoji-page-actions button { min-width: 92px; min-height: 28px; padding: 3px 8px; color: #f5e7a8; background: rgba(58, 48, 22, 0.96); border: 1px solid rgba(238, 206, 102, 0.38); }
 .chat-history-panel { border: 1px solid rgba(238, 206, 102, 0.38); background: rgba(20, 24, 18, 0.96); }
+.chat-channel-tag { margin-right: 2px; font-weight: 700; }
+.chat-line-server { color: #ff6a6a; }
+.chat-line-channel { color: #ffe36e; }
+.chat-line-nearby, .chat-line-whisper { color: #f6f2d2; }
