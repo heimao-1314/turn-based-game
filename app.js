@@ -692,6 +692,7 @@ const state = {
   friends: [],
   silver: 0,
   privateChatTarget: null,
+  chatChannel: "nearby",
   team: { leaderId: "", members: [] },
   followLeaderId: "",
   phantom: { points: 0, fragment: 0, equippedTitle: "", claimedTitles: [] },
@@ -966,8 +967,11 @@ function menuActionForLabel(label) {
   if (label === "灵魂粉末") return "soul_powder_menu";
   if (label === "生活技能") return "life_skills";
   if (label === "原地挂机") return "idle_hunt";
-  if (label === "本线广播") return "chat";
-  if (label === "同屏聊天") return "chat";
+  if (label === "同屏聊天") return "chat_nearby";
+  if (label === "本服广播") return "chat_server";
+  if (label === "本线广播") return "chat_channel";
+  if (label === "队伍聊天") return "chat_team";
+  if (label === "发悄悄话") return "chat_whisper";
   if (label === "退出游戏") return "logout";
   if (label === "账号功能") return "account_menu";
   if (label === "免费领取") return "free_claim";
@@ -2734,6 +2738,10 @@ function setupRealtime() {
     if (msg.type === "privateChat" && msg.to === state.peerId) {
       addPrivateChatLine(msg.name || "私聊", msg.text, false);
     }
+    if (msg.type === "chatError") {
+      const hints = { rate_limited: "发言太快，请稍后再试", target_offline: "对方不在线", not_in_team: "当前不在队伍中", bad_target: "私聊目标无效", empty_message: "请输入聊天内容" };
+      showMenuHint(hints[msg.error] || "消息发送失败");
+    }
     if (msg.type === "friendAdd" && msg.to === state.peerId) {
       addFriend({ peerId: msg.peerId, name: msg.name });
       sendRoomMessage({ type: "friendAdded", to: msg.peerId, name: state.player?.name || state.account });
@@ -4083,18 +4091,7 @@ function addChat(actor, text, broadcast = true) {
   showChatFeedTemporarily();
   if ($("#chatHistoryPanel").classList.contains("active")) renderChatHistory();
   if (broadcast && actor === state.player && state.socket?.readyState === WebSocket.OPEN) {
-    state.socket.send(JSON.stringify({
-      type: "chat",
-      peerId: state.peerId,
-      name: actor.name,
-      spriteId: actor.spriteId,
-      x: actor.x,
-      y: actor.y,
-      mapName: state.mapName,
-      text,
-      direction: actor.direction,
-      moving: actor.moving
-    }));
+    sendRoomMessage({ type: "chat.send", channel: state.chatChannel || "nearby", text });
   }
 }
 
@@ -4270,6 +4267,21 @@ function openChatHistoryPanel() {
   state.privateChatTarget = null;
   $("#chatInput").placeholder = "";
   renderChatHistory();
+}
+
+function openChatComposer(channel = "nearby", target = null) {
+  const labels = { nearby: "同屏聊天", server: "本服广播", channel: "本线广播", team: "队伍聊天", whisper: "悄悄话" };
+  closeMainMenu();
+  state.chatChannel = channel;
+  state.privateChatTarget = target;
+  $("#chatTitle").textContent = labels[channel] || "聊天";
+  $("#chatChannelHint").textContent = channel === "whisper" ? `对 ${target?.name || ""}` : "";
+  $("#chatInput").value = "";
+  $("#chatInput").placeholder = channel === "whisper" ? `悄悄对 ${target?.name || ""} 说` : "输入聊天内容";
+  $("#chatForm").classList.add("active");
+  decorateMenuFrame($("#chatForm"));
+  $("#chatForm").querySelectorAll(".menu-framed-button").forEach(decorateMenuFrame);
+  setTimeout(() => $("#chatInput").focus(), 0);
 }
 
 function renderMessage(text) {
@@ -4858,6 +4870,23 @@ function openFriendsMenu() {
   bindCurrentMenuClicks(confirmFriendsMenu);
 }
 
+function openWhisperTargetMenu() {
+  const targets = [...state.peers.entries()].map(([peerId, peer]) => ({ peerId, name: peer.name })).filter((target) => target.name);
+  state.menuMode = "chat_whisper_targets";
+  state.menuItem = 0;
+  state.menuWhisperTargets = targets;
+  setMenuAsSingleList("选择悄悄话对象", targets.length
+    ? targets.map((target) => ({ label: target.name, icon: "2.7" }))
+    : [{ label: "当前没有在线玩家", icon: "2.7", disabled: true }]);
+  bindCurrentMenuClicks(confirmWhisperTargetMenu);
+}
+
+function confirmWhisperTargetMenu() {
+  const target = state.menuWhisperTargets?.[state.menuItem];
+  if (!target) return;
+  openChatComposer("whisper", target);
+}
+
 function confirmFriendsMenu() {
   const friend = state.menuFriendList?.[state.menuItem];
   if (!friend) return;
@@ -4867,11 +4896,7 @@ function confirmFriendsMenu() {
     return;
   }
   state.privateChatTarget = { peerId: online[0], name: friend.name };
-  closeMainMenu();
-  $("#chatForm").classList.add("active");
-  $("#chatInput").value = "";
-  $("#chatInput").placeholder = `私聊 ${friend.name}`;
-  $("#chatInput").focus();
+  openChatComposer("whisper", state.privateChatTarget);
 }
 
 function addPrivateChatLine(name, text, broadcast = true) {
@@ -5580,6 +5605,10 @@ function confirmMainMenuItem() {
     confirmFriendsMenu();
     return true;
   }
+  if (state.menuMode === "chat_whisper_targets") {
+    confirmWhisperTargetMenu();
+    return true;
+  }
   if (state.menuMode === "team") {
     confirmTeamMenu();
     return true;
@@ -5713,11 +5742,11 @@ function confirmMainMenuItem() {
   if (item.action === "world_map") {
     openWorldMapMenu();
   }
-  if (item.action === "chat") {
-    closeMainMenu();
-    $("#chatForm").classList.add("active");
-    $("#chatInput").focus();
-  }
+  if (item.action === "chat_nearby") openChatComposer("nearby");
+  if (item.action === "chat_server") openChatComposer("server");
+  if (item.action === "chat_channel") openChatComposer("channel");
+  if (item.action === "chat_team") openChatComposer("team");
+  if (item.action === "chat_whisper") openWhisperTargetMenu();
   if (item.action === "logout") logoutGame();
   if (!item.action) {
     showMenuHint(`${item.label} 暂未开放`);
@@ -13756,7 +13785,7 @@ function setupChat() {
     const text = input.value.trim();
     if (!text || !state.player) return;
     if (state.privateChatTarget) {
-      sendRoomMessage({ type: "privateChat", to: state.privateChatTarget.peerId, name: state.player.name, text });
+      sendRoomMessage({ type: "chat.send", channel: "whisper", to: state.privateChatTarget.peerId, text });
       addPrivateChatLine(state.privateChatTarget.name, text, true);
       state.privateChatTarget = null;
       input.placeholder = "";
@@ -13769,6 +13798,12 @@ function setupChat() {
     input.value = "";
     $("#chatForm").classList.remove("active");
     $("#emojiPanel").classList.remove("active");
+  });
+  $("#chatCancel").addEventListener("click", () => {
+    $("#chatForm").classList.remove("active");
+    $("#emojiPanel").classList.remove("active");
+    state.privateChatTarget = null;
+    $("#chatInput").value = "";
   });
 }
 

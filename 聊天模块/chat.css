@@ -1,0 +1,11 @@
+/* Chat surfaces reuse the in-game menu frame and action treatment. */
+.chat-form { left: 50%; right: auto; top: calc((min(430px, 100vw) * 20 / 15) - 244px + env(safe-area-inset-top)); width: min(390px, calc(100vw - 20px)); padding: 0; transform: translateX(-50%); grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; gap: 0; background: rgba(20, 24, 18, 0.96); color: #f5e7a8; }
+.chat-menu-title, .chat-menu-body, .chat-menu-actions { position: relative; z-index: 1; }
+.chat-menu-title { display: flex; align-items: baseline; justify-content: space-between; min-height: 36px; padding: 8px 12px; border-bottom: 1px solid rgba(238, 206, 102, 0.32); background: rgba(58, 48, 22, 0.9); font-size: 14px; }
+#chatChannelHint { color: #b9cda8; font-size: 12px; }
+.chat-menu-body { padding: 12px; }
+.chat-menu-body input { width: 100%; min-height: 38px; box-sizing: border-box; }
+.chat-menu-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; padding: 0 12px 12px; }
+.chat-menu-actions .menu-framed-button { min-height: 32px; }
+.emoji-panel { left: 50%; right: auto; top: calc((min(430px, 100vw) * 20 / 15) - 376px + env(safe-area-inset-top)); width: min(390px, calc(100vw - 20px)); transform: translateX(-50%); border-radius: 0; border-color: rgba(238, 206, 102, 0.38); background: rgba(20, 24, 18, 0.98); }
+.chat-history-panel { border: 1px solid rgba(238, 206, 102, 0.38); background: rgba(20, 24, 18, 0.96); }

@@ -43,6 +43,7 @@ const { createEncounterRuntime } = require("./联网战斗/encounter-runtime.js"
 const { createTeamRuntime } = require("./队伍/server.js");
 const { createSocketWriteRuntime } = require("./src/server/realtime/socket-write-runtime.js");
 const { createWebSocketFrameRuntime, encodeControlFrame } = require("./src/server/realtime/websocket-frame-runtime.js");
+const { createChatRuntime } = require("./聊天模块/server.js");
 const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
@@ -103,6 +104,13 @@ function sendSocketJson(socket, payload) {
   const message = JSON.stringify(payload);
   return socketWriteRuntime.write(socket, encodeFrame(message), payload.type || roomMessageType(message));
 }
+
+const chatRuntime = createChatRuntime({
+  sockets,
+  socketMeta,
+  sendSocketJson,
+  recordAnomalyOnce
+});
 let immortalCultivationRuntime = null;
 let madBragRuntime = null;
 function configSecret(name, fallback, weakValues = []) {
@@ -6001,6 +6009,7 @@ server.on("upgrade", (req, socket, head) => {
       }
 
       recordRoomTraffic(type, "in", Buffer.byteLength(message));
+      if (chatRuntime.handleRoomMessage(data, socket)) continue;
       if (teamRuntime.handleRoomMessage(data, socket)) continue;
       if (onlineBattle.handleRoomMessage(data, socket)) continue;
       broadcast(message, socket, data);

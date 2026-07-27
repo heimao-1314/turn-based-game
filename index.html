@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="font-theme.css" />
     <link rel="stylesheet" href="styles.css?v=20260713-camera-select-1" />
     <link rel="stylesheet" href="菜单UI/菜单界面.css?v=20260712-11" />
+    <link rel="stylesheet" href="聊天模块/chat.css?v=20260727-1" />
     <link rel="stylesheet" href="飞图小地图/区域飞图.css" />
     <script>
       if (/\bEdg\//.test(navigator.userAgent || "")) {
@@ -191,9 +192,15 @@
         <div id="chatFeed" class="chat-feed"></div>
         <div id="emojiPanel" class="emoji-panel"></div>
         <form id="chatForm" class="chat-form">
-          <input id="chatInput" maxlength="160" placeholder="输入聊天内容" />
-          <button id="emojiBtn" class="emoji-toggle" type="button">表情</button>
-          <button type="submit">发送</button>
+          <div class="chat-menu-title"><strong id="chatTitle">同屏聊天</strong><span id="chatChannelHint"></span></div>
+          <div class="chat-menu-body">
+            <input id="chatInput" maxlength="160" placeholder="输入聊天内容" />
+          </div>
+          <div class="chat-menu-actions">
+            <button id="emojiBtn" class="menu-framed-button compact emoji-toggle" type="button">表情</button>
+            <button class="menu-framed-button compact" type="submit">发送</button>
+            <button id="chatCancel" class="menu-framed-button compact" type="button">返回</button>
+          </div>
         </form>
         <div id="controlPad" class="control-pad" aria-label="游戏按键"></div>
   <div class="pad-softkeys">
