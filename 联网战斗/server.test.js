@@ -70,6 +70,7 @@ function createHarness(configureMeta = () => {}, configureRows = () => {}) {
     sendSocketJson: (socket, payload) => sent.push({ to: socket.id, payload }),
     getSocketMeta: (socket) => metas.get(socket) || {},
     setSocketMeta: (socket, meta) => metas.set(socket, meta),
+    consumePveEncounter: () => ({ ok: true }),
     choiceMs: 60_000
   });
   return { runtime, sent, sockets };
@@ -139,8 +140,8 @@ test("server blocks sacrifice role skill without required allies alive", () => {
 
 test("队 v 队 PK 会展开双方在线队员", () => {
   const { runtime, sent, sockets } = createHarness((metas, sockets) => {
-    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", name: "丙" }] };
-    metas.get(sockets.b).team = { leaderId: "b", members: [{ peerId: "d", name: "丁" }] };
+    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", account: "acctC", name: "丙" }] };
+    metas.get(sockets.b).team = { leaderId: "b", members: [{ peerId: "d", account: "acctD", name: "丁" }] };
   });
   assert.equal(runtime.handleRoomMessage({ type: "battleStart", battleId: "team-pvp", attackerId: "a", defenderId: "b" }, sockets.a), true);
   assert.deepEqual(sent.map((item) => item.to).sort(), ["a", "b", "c", "d"]);
@@ -153,8 +154,8 @@ test("队 v 队 PK 会展开双方在线队员", () => {
 
 test("单人 PVP 显式 solo 时不会被残留队伍状态展开", () => {
   const { runtime, sent, sockets } = createHarness((metas, sockets) => {
-    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", name: "中" }] };
-    metas.get(sockets.b).team = { leaderId: "b", members: [{ peerId: "d", name: "丁" }] };
+    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", account: "acctC", name: "中" }] };
+    metas.get(sockets.b).team = { leaderId: "b", members: [{ peerId: "d", account: "acctD", name: "丁" }] };
   });
   assert.equal(runtime.handleRoomMessage({
     type: "battleStart",
@@ -188,11 +189,12 @@ test("API 发起单人 PVP 不经过房间 battleStart 广播", () => {
 
 test("API 发起组队 PVE 不经过房间 teamPveStart 广播", () => {
   const { runtime, sent, sockets } = createHarness((metas, sockets) => {
-    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", name: "中" }] };
+    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", account: "acctC", name: "中" }] };
   });
   const result = runtime.startPve("acctA", {
     battleId: "api-pve",
     wildMonsterId: "amumu",
+    encounterId: "api-pve-encounter",
     monsterCount: 1,
     enemies: [{ name: "阿木木", spriteId: 895, battleStats: { hp: 100, attack: 10, defense: 0, speed: 1, mana: 0, crit: 0, critDamage: 100, skillId: "wild_amumu" } }]
   });
@@ -206,13 +208,14 @@ test("API 发起组队 PVE 不经过房间 teamPveStart 广播", () => {
 
 test("组队 PVE 会进入服务器权威战斗", () => {
   const { runtime, sent, sockets } = createHarness((metas, sockets) => {
-    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", name: "丙" }] };
+    metas.get(sockets.a).team = { leaderId: "a", members: [{ peerId: "c", account: "acctC", name: "丙" }] };
   });
   assert.equal(runtime.handleRoomMessage({
     type: "teamPveStart",
     battleId: "team-pve",
     leaderId: "a",
     wildMonsterId: "amumu",
+    encounterId: "team-pve-encounter",
     monsterCount: 1,
     enemies: [{ name: "阿木木", spriteId: 895, battleStats: { hp: 100, attack: 10, defense: 0, speed: 1, mana: 0, crit: 0, critDamage: 100, skillId: "wild_amumu" } }]
   }, sockets.a), true);
@@ -229,11 +232,13 @@ test("旧 battleChoice 不再广播为客户端间战斗同步", () => {
   assert.equal(sent.length, 0);
 });
 
-test("服务器权威战斗结束会定向通知参与者", () => {
+test("客户端 teamBattleEnd 无法终止服务器权威战斗，逃跑会定向通知参与者", () => {
   const { runtime, sent, sockets } = createHarness();
   runtime.handleRoomMessage({ type: "battleStart", battleId: "end", attackerId: "a", defenderId: "b" }, sockets.a);
   sent.length = 0;
   assert.equal(runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "end" }, sockets.a), true);
+  assert.equal(sent.length, 0);
+  assert.equal(runtime.handleRoomMessage({ type: "battleEscape", battleId: "end", reason: "escape" }, sockets.a), true);
   assert.deepEqual(sent.map((item) => [item.to, item.payload.type, item.payload.to]), [
     ["a", "teamBattleEnd", "a"],
     ["b", "teamBattleEnd", "b"]

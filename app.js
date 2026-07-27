@@ -669,6 +669,8 @@ const state = {
   isAdmin: false,
   mapScale: 1,
   actorScales: { player: 1, pet: 1, other: 1 },
+  modelScaleAdjustment: null,
+  showPetNames: true,
   mapViewportX: 0,
   mapViewportY: 0,
   mapViewportW: 0,
@@ -783,6 +785,11 @@ const CAMERA_RESOLUTIONS = [
   { id: "360x475", label: "360×475", width: 360, height: 475 }
 ];
 const DEFAULT_CAMERA_RESOLUTION_ID = "240x320";
+const MODEL_SCALE_STORAGE_KEY = "dw-model-scale-preferences";
+const SHOW_PET_NAME_STORAGE_KEY = "dw-show-pet-name";
+const MODEL_SCALE_MIN = 0.5;
+const MODEL_SCALE_MAX = 2.5;
+const MODEL_SCALE_STEP = 0.05;
 let cameraResolutionId = localStorage.getItem("dw-camera-resolution") || DEFAULT_CAMERA_RESOLUTION_ID;
 if (!CAMERA_RESOLUTIONS.some((resolution) => resolution.id === cameraResolutionId)) {
   cameraResolutionId = DEFAULT_CAMERA_RESOLUTION_ID;
@@ -803,6 +810,37 @@ function setCameraResolution(id) {
   MAP_VIEW_WORLD_H = resolution.height;
   localStorage.setItem("dw-camera-resolution", resolution.id);
   return true;
+}
+
+function loadModelScalePreferences(defaults = {}) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MODEL_SCALE_STORAGE_KEY) || "{}");
+    return {
+      player: clampClientNumber(saved.player, defaults.player ?? 1, MODEL_SCALE_MIN, MODEL_SCALE_MAX),
+      pet: clampClientNumber(saved.pet, defaults.pet ?? 1, MODEL_SCALE_MIN, MODEL_SCALE_MAX)
+    };
+  } catch {
+    return { player: defaults.player ?? 1, pet: defaults.pet ?? 1 };
+  }
+}
+
+function saveModelScalePreference(kind, scale) {
+  if (kind !== "player" && kind !== "pet") return false;
+  const value = clampClientNumber(scale, 1, MODEL_SCALE_MIN, MODEL_SCALE_MAX);
+  state.actorScales[kind] = value;
+  const saved = loadModelScalePreferences(state.actorScales);
+  saved[kind] = value;
+  localStorage.setItem(MODEL_SCALE_STORAGE_KEY, JSON.stringify(saved));
+  return true;
+}
+
+function loadPetNamePreference() {
+  return localStorage.getItem(SHOW_PET_NAME_STORAGE_KEY) !== "false";
+}
+
+function setPetNamePreference(enabled) {
+  state.showPetNames = Boolean(enabled);
+  localStorage.setItem(SHOW_PET_NAME_STORAGE_KEY, String(state.showPetNames));
 }
 const MAP_LOADING_MIN_MS = 850;
 const MAP_LOADING_MAX_MS = 5000;
@@ -1017,14 +1055,16 @@ async function loadGameVisualSettings() {
   try {
     const result = await apiGet("/api/game-visual");
     const visual = result.visual || {};
-    state.actorScales = {
+    const defaults = {
       player: clampClientNumber(visual.playerScale, 1, 0.5, 2.5),
       pet: clampClientNumber(visual.petScale, 1, 0.5, 2.5),
       other: clampClientNumber(visual.otherScale, 1, 0.5, 2.5)
     };
+    state.actorScales = { ...defaults, ...loadModelScalePreferences(defaults) };
   } catch (error) {
     console.warn("game visual settings fallback", error);
-    state.actorScales = { player: 1, pet: 1, other: 1 };
+    const defaults = { player: 1, pet: 1, other: 1 };
+    state.actorScales = { ...defaults, ...loadModelScalePreferences(defaults) };
   }
 }
 
@@ -3557,10 +3597,12 @@ function drawActor(ctx, actor, now, scale = 1.2, nameColor = "#ffffff") {
   ctx.font = `${MAP_NAME_FONT_SIZE * state.mapScale}px ${MAP_NAME_FONT_FAMILY}`;
   ctx.textAlign = "center";
   const nameY = p.y - h - 5 * state.mapScale;
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fillText(actor.name, p.x + 1, nameY + 1);
-  ctx.fillStyle = nameColor;
-  ctx.fillText(actor.name, p.x, nameY);
+  if (!actor.isPet || state.showPetNames) {
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillText(actor.name, p.x + 1, nameY + 1);
+    ctx.fillStyle = nameColor;
+    ctx.fillText(actor.name, p.x, nameY);
+  }
   ctx.restore();
   if (actor.bubble && now < actor.bubbleUntil) drawBubble(ctx, actor.bubble, p.x, nameY - 2 * state.mapScale);
 }
@@ -3568,7 +3610,7 @@ function drawActor(ctx, actor, now, scale = 1.2, nameColor = "#ffffff") {
 function actorMapScale(actor) {
   if (actor?.isPet) return state.actorScales.pet || 1;
   if (actor === state.player) return state.actorScales.player || 1;
-  return state.actorScales.other || state.actorScales.player || 1;
+  return state.actorScales.other || 1;
 }
 
 function randomMapLoadingSpriteId() {
@@ -5562,6 +5604,14 @@ function confirmMainMenuItem() {
     confirmCameraResolutionMenu();
     return true;
   }
+  if (state.menuMode === "model_scale") {
+    confirmModelScaleMenu();
+    return true;
+  }
+  if (state.menuMode === "model_scale_adjust") {
+    confirmModelScaleOptionMenu();
+    return true;
+  }
   if (state.menuMode === "free_claim") {
     confirmFreeClaimMenu();
     return true;
@@ -6148,6 +6198,8 @@ function openDetailSettingsMenu() {
   state.menuItem = 0;
   setMenuAsSingleList("细节设置", [
     { label: `摄像机分辨率：${currentCameraResolution().label}`, icon: "2.11" },
+    { label: "调整模型大小", icon: "1.13" },
+    { label: `显示宠物名字：${state.showPetNames ? "开" : "关"}`, icon: "2.12" },
     { label: "返回系统菜单", icon: "1.13" }
   ]);
   bindCurrentMenuClicks(confirmDetailSettingsMenu);
@@ -6155,7 +6207,13 @@ function openDetailSettingsMenu() {
 
 function confirmDetailSettingsMenu() {
   if (state.menuItem === 0) return openCameraResolutionMenu();
-  if (state.menuItem === 1) return openMainMenuAt(4, "细节设置");
+  if (state.menuItem === 1) return openModelScaleMenu();
+  if (state.menuItem === 2) {
+    setPetNamePreference(!state.showPetNames);
+    showMenuHint(`宠物名字显示已${state.showPetNames ? "开启" : "关闭"}`);
+    return openDetailSettingsMenu();
+  }
+  if (state.menuItem === 3) return openMainMenuAt(4, "细节设置");
 }
 
 function openCameraResolutionMenu() {

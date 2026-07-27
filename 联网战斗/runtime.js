@@ -229,32 +229,6 @@ function createRuntime(deps) {
     };
   }
 
-  function buildWildActorFromSnapshot(data) {
-    if (!data || typeof data !== "object") return null;
-    const spriteId = Number(data.spriteId ?? data.s) || 0;
-    const name = String(data.name ?? data.n ?? "").slice(0, 24);
-    if (!name || !spriteId) return null;
-    const battleStats = data.battleStats || data.stats || data.bs || null;
-    return {
-      name,
-      spriteId,
-      x: Number(data.x) || 0,
-      y: Number(data.y) || 0,
-      direction: data.direction || data.d || "down",
-      ownerPeerId: "",
-      ownerName: "",
-      isPet: data.isPet === true,
-      isMercenary: data.isMercenary === true,
-      mercenaryData: data.mercenaryData || null,
-      wildMonsterId: data.wildMonsterId || data.wm || "",
-      immortalBossId: data.immortalBossId || "",
-      elfKingVaultBossId: data.elfKingVaultBossId || "",
-      elfKingVaultStageId: data.elfKingVaultStageId || "",
-      battleStats,
-      forceBasicAttack: data.forceBasicAttack === true || battleStats?.forceBasicAttack === true
-    };
-  }
-
   function buildBattleParticipants(row, meta, ownerPeerId, ownerName) {
     const mirror = deps.arenaMirrorForPlayerRow(row, meta?.clientMirror || null);
     const selection = mirror.selection || deps.safeJsonObject(row.selection_json);
@@ -327,12 +301,13 @@ function createRuntime(deps) {
   }
 
   function resolvePeerId(peerId = "", hints = {}, realm = null) {
-    if (peerId && deps.findSocketByPeerId(peerId, realm)) return peerId;
-    if (hints.account) {
-      const socket = deps.findSocketByAccount?.(hints.account, realm);
+    const account = String(hints.account || "");
+    if (account) {
+      const socket = deps.findSocketByAccount?.(account, realm);
       const meta = socket ? deps.getSocketMeta(socket) : null;
-      if (meta?.peerId) return meta.peerId;
+      return meta?.peerId || "";
     }
+    if (peerId && deps.findSocketByPeerId(peerId, realm)) return peerId;
     if (hints.name) {
       const socket = deps.findSocketByName?.(hints.name, realm);
       const meta = socket ? deps.getSocketMeta(socket) : null;
@@ -341,46 +316,67 @@ function createRuntime(deps) {
     return peerId || "";
   }
 
+  function socketForAccount(account = "", realm = null) {
+    if (!account || typeof deps.findSocketByAccount !== "function") return null;
+    return deps.findSocketByAccount(account, realm) || null;
+  }
+
+  function canonicalTeamLeaderAccount(meta = {}) {
+    const account = String(meta.account || "");
+    if (!account) return "";
+    if (meta.teamLeaderAccount) return String(meta.teamLeaderAccount);
+    if (meta.leaderId && meta.leaderId !== meta.peerId) return "";
+    if (meta.team?.leaderId && meta.team.leaderId !== meta.peerId) return "";
+    return account;
+  }
+
   function teamPeerIds(peerId, hints = {}, realm = null) {
     peerId = resolvePeerId(peerId, hints, realm);
     const socket = deps.findSocketByPeerId(peerId, realm);
     const meta = socket ? deps.getSocketMeta(socket) : null;
     if (!meta) return [peerId];
-    const leaderPeerId = meta.leaderId && meta.leaderId !== peerId ? meta.leaderId : peerId;
-    const leaderSocket = deps.findSocketByPeerId(leaderPeerId, realm);
-    const leaderMeta = leaderSocket ? deps.getSocketMeta(leaderSocket) : meta;
+    const leaderAccount = canonicalTeamLeaderAccount(meta);
+    if (!leaderAccount) return [peerId];
+    const leaderSocket = socketForAccount(leaderAccount, realm);
+    const leaderMeta = leaderSocket ? deps.getSocketMeta(leaderSocket) : null;
+    if (!leaderMeta?.peerId || leaderMeta.account !== leaderAccount) return [peerId];
     const leaderMap = leaderMeta?.mapName || "";
-    const memberIds = Array.isArray(leaderMeta?.team?.members)
-      ? leaderMeta.team.members.map((member) => member?.peerId || "").filter(Boolean)
+    const memberAccounts = Array.isArray(leaderMeta?.team?.members)
+      ? leaderMeta.team.members.map((member) => String(member?.account || "")).filter(Boolean)
       : [];
-    return normalizeRoster([leaderPeerId, ...memberIds], realm)
-      .filter((item) => {
-        if (!leaderMap) return true;
-        const memberSocket = deps.findSocketByPeerId(item.peerId, realm);
+    return [...new Set([leaderAccount, ...memberAccounts])]
+      .map((account) => {
+        const memberSocket = socketForAccount(account, realm);
         const memberMeta = memberSocket ? deps.getSocketMeta(memberSocket) : null;
-        return (memberMeta?.mapName || "") === leaderMap;
+        return memberMeta?.peerId && (!leaderMap || memberMeta.mapName === leaderMap) ? memberMeta.peerId : "";
       })
-      .map((item) => item.peerId)
-      .slice(0, 4);
-  }
-
-  function rosterPeerIds(roster = [], fallbackPeerId = "", realm = null) {
-    return normalizeRoster([
-      fallbackPeerId,
-      ...(Array.isArray(roster) ? roster.map((member) => member?.peerId || "").filter(Boolean) : [])
-    ], realm)
-      .filter((item) => {
-        const socket = deps.findSocketByPeerId(item.peerId, realm);
-        const meta = socket ? deps.getSocketMeta(socket) : null;
-        return Boolean(meta?.account);
-      })
-      .map((item) => item.peerId)
+      .filter(Boolean)
       .slice(0, 4);
   }
 
   function sharesTeam(attackerIds, defenderIds) {
     const defenderSet = new Set(defenderIds || []);
     return (attackerIds || []).some((peerId) => defenderSet.has(peerId));
+  }
+
+  function isPeerInActiveBattle(peerId, realm = {}) {
+    if (!peerId) return false;
+    const account = accountForPeerId(peerId, realm);
+    if (account) return isAccountInActiveBattle(account, realm);
+    return [...activeBattles.values()].some((active) => (
+      active.realm?.serverId === realm.serverId
+      && Number(active.realm?.channelId) === Number(realm.channelId)
+      && (active.attackerIds.includes(peerId) || active.defenderIds.includes(peerId))
+    ));
+  }
+
+  function isAccountInActiveBattle(account, realm = {}) {
+    if (!account) return false;
+    return [...activeBattles.values()].some((active) => (
+      active.realm?.serverId === realm.serverId
+      && Number(active.realm?.channelId) === Number(realm.channelId)
+      && [...(active.participantAccounts?.values() || [])].includes(account)
+    ));
   }
 
   function buildSide(peerIds, realm = null) {
@@ -433,6 +429,7 @@ function createRuntime(deps) {
   function createSession(invite, attackerIds, defenderIds, realm = null) {
     const attacker = buildSide(attackerIds, realm);
     const defender = invite.pve ? { roster: [], actors: buildWildSide(invite, attackerIds) } : buildSide(defenderIds, realm);
+    const teamLeaderAccounts = [...new Set((invite.teamLeaderAccounts || []).map((account) => String(account || "")).filter(Boolean))];
     const session = {
       battleId: invite.battleId,
       key: battleKey(realm, invite.battleId),
@@ -447,7 +444,9 @@ function createRuntime(deps) {
       battleState: null,
       choices: new Map(),
       timer: null,
-      participantAccounts: participantAccountMap([...attackerIds, ...defenderIds], realm)
+      participantAccounts: participantAccountMap([...attackerIds, ...defenderIds], realm),
+      // Only the originating group leaders may tear down this session through team disband.
+      teamLeaderAccounts
     };
     session.engine = BattleEngine.createRuntime({
       statLimits: deps.statLimits,
@@ -574,12 +573,16 @@ function createRuntime(deps) {
     };
   }
 
+  function isSupportedPveMonster(monsterId) {
+    return monsterId === "amumu" || monsterId === "phantom" || monsterId === "afei";
+  }
+
+  function requiresPveEncounter(monsterId) {
+    return monsterId === "amumu" || monsterId === "phantom";
+  }
+
   function buildWildSide(invite, attackerIds) {
-    const snapshotActors = Array.isArray(invite.enemies)
-      ? invite.enemies.map(buildWildActorFromSnapshot).filter(Boolean).slice(0, 48)
-      : [];
-    if (snapshotActors.length) return snapshotActors;
-    const monsterId = String(invite.wildMonsterId || "amumu");
+    const monsterId = String(invite.wildMonsterId || "");
     const monster = wildMonsterStats(monsterId);
     if (monsterId === "afei") {
       const boss = {
@@ -602,7 +605,7 @@ function createRuntime(deps) {
       }));
       return [boss, ...minions];
     }
-    const count = Math.max(1, Math.min(14, Number(invite.monsterCount) || wildMonsterCountForTeam(attackerIds.length)));
+    const count = wildMonsterCountForTeam(attackerIds.length);
     return Array.from({ length: count }, (_, index) => ({
       name: count === 1 ? monster.name : `${monster.name}${index + 1}`,
       spriteId: monster.spriteId,
@@ -626,6 +629,7 @@ function createRuntime(deps) {
         Object.entries(choice.actions).forEach(([ref, action]) => {
           if (!action || typeof action !== "object") return;
           const fighter = findFighterByRef(ownTeam, ref);
+          if (fighter?.actor?.ownerPeerId !== peerId) return;
           const clean = sanitizeActionForFighter(fighter, action, targetTeam, session.battleState);
           if (clean) result.actions[fighterRef(fighter)] = clean;
         });
@@ -677,6 +681,15 @@ function createRuntime(deps) {
     return true;
   }
 
+  function sendToParticipant(session, peerId, payload) {
+    const account = session.participantAccounts?.get(peerId) || "";
+    const socket = socketForAccount(account, session.realm);
+    const meta = socket ? deps.getSocketMeta(socket) || {} : null;
+    if (!socket || !meta?.peerId) return false;
+    deps.sendSocketJson(socket, { ...payload, to: meta.peerId });
+    return true;
+  }
+
   function broadcastBattleStart(session, attackerInvite) {
     const attackerMessage = {
       type: "teamBattleStart",
@@ -701,16 +714,16 @@ function createRuntime(deps) {
       friendlyRoster: session.defenderRoster,
       enemyRoster: session.attackerRoster
     };
-    for (const peerId of session.attackerIds) sendToPeer(peerId, { ...attackerMessage, to: peerId, controlledPeerId: peerId }, session.realm);
-    for (const peerId of session.defenderIds) sendToPeer(peerId, { ...defenderMessage, to: peerId, controlledPeerId: peerId }, session.realm);
+    for (const peerId of session.attackerIds) sendToParticipant(session, peerId, { ...attackerMessage, controlledPeerId: peerId });
+    for (const peerId of session.defenderIds) sendToParticipant(session, peerId, { ...defenderMessage, controlledPeerId: peerId });
   }
 
   function broadcastBattleEnd(session, extra = {}) {
     for (const peerId of session.attackerIds) {
-      sendToPeer(peerId, { type: "teamBattleEnd", battleId: session.battleId, to: peerId, roster: session.attackerRoster, ...extra }, session.realm);
+      sendToParticipant(session, peerId, { type: "teamBattleEnd", battleId: session.battleId, roster: session.attackerRoster, ...extra });
     }
     for (const peerId of session.defenderIds) {
-      sendToPeer(peerId, { type: "teamBattleEnd", battleId: session.battleId, to: peerId, roster: session.defenderRoster, ...extra }, session.realm);
+      sendToParticipant(session, peerId, { type: "teamBattleEnd", battleId: session.battleId, roster: session.defenderRoster, ...extra });
     }
   }
 
@@ -730,13 +743,14 @@ function createRuntime(deps) {
     applyTeamHp(session.battleState.playerTeam, result.hp.ally);
     applyTeamHp(session.battleState.enemyTeam, result.hp.enemy);
     for (const peerId of session.attackerIds) {
-      sendToPeer(peerId, { type: "teamBattleTurn", battleId: session.battleId, result, to: peerId, roster: session.attackerRoster }, session.realm);
+      sendToParticipant(session, peerId, { type: "teamBattleTurn", battleId: session.battleId, result, roster: session.attackerRoster });
     }
     for (const peerId of session.defenderIds) {
-      sendToPeer(peerId, { type: "teamBattleTurn", battleId: session.battleId, result, to: peerId, roster: session.defenderRoster }, session.realm);
+      sendToParticipant(session, peerId, { type: "teamBattleTurn", battleId: session.battleId, result, roster: session.defenderRoster });
     }
     if (result.done) {
-      if (session.pve && result.winner === "ally" && typeof deps.issuePveRewardTickets === "function") {
+      // Boss rewards need their own server-issued challenge ticket and cannot reuse wild encounters.
+      if (session.pve && requiresPveEncounter(session.wildMonsterId) && result.winner === "ally" && typeof deps.issuePveRewardTickets === "function") {
         for (const peerId of session.attackerIds) {
           const account = session.participantAccounts.get(peerId);
           const rewardTicket = account ? deps.issuePveRewardTickets({
@@ -746,20 +760,21 @@ function createRuntime(deps) {
             monsterCount: session.monsterCount
           }) : "";
           if (rewardTicket) {
-            sendToPeer(peerId, {
+            sendToParticipant(session, peerId, {
               type: "teamBattleReward",
               battleId: session.battleId,
-              to: peerId,
               roster: session.attackerRoster,
               wildMonsterId: session.wildMonsterId,
               monsterCount: session.monsterCount,
-              rewardTicket
-            }, session.realm);
+              rewardTicket,
+              rewardId: rewardTicket
+            });
           }
         }
       }
       broadcastBattleEnd(session);
       activeBattles.delete(sessionKey);
+      pendingStarts.delete(sessionKey);
     } else {
       session.choices.clear();
       startResolutionTimer(session);
@@ -781,6 +796,28 @@ function createRuntime(deps) {
       attackerName: senderMeta.name || data.attackerName || ""
     };
     const defenderPeerId = resolvePeerId(data.defenderId, { account: data.defenderAccount || "", name: data.defenderName || "" }, realm);
+    const defenderSocket = deps.findSocketByPeerId(defenderPeerId, realm);
+    const defenderMeta = defenderSocket ? deps.getSocketMeta(defenderSocket) || {} : null;
+    if (!defenderMeta?.account) {
+      sendToPeer(data.attackerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: data.attackerId,
+        defenderId: data.defenderId,
+        reason: "offline"
+      }, realm);
+      return true;
+    }
+    if (!senderMeta.mapName || !defenderMeta.mapName || senderMeta.mapName !== defenderMeta.mapName) {
+      sendToPeer(data.attackerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: data.attackerId,
+        defenderId: data.defenderId,
+        reason: "different_map"
+      }, realm);
+      return true;
+    }
     const attackerIds = soloPvp
       ? [attackerPeerId]
       : teamPeerIds(data.attackerId, { account: data.attackerAccount || "", name: data.attackerName || "" }, realm);
@@ -797,7 +834,32 @@ function createRuntime(deps) {
       }, realm);
       return true;
     }
-    const session = createSession(data, attackerIds, defenderIds, realm);
+    const teamLeaderAccounts = [];
+    if (!soloPvp && attackerIds.length > 1) {
+      const leaderAccount = canonicalTeamLeaderAccount(senderMeta);
+      if (leaderAccount) teamLeaderAccounts.push(leaderAccount);
+    }
+    if (!soloPvp && defenderIds.length > 1) {
+      const leaderAccount = canonicalTeamLeaderAccount(defenderMeta);
+      if (leaderAccount) teamLeaderAccounts.push(leaderAccount);
+    }
+    const requestedKey = battleKey(realm, data.battleId);
+    const participantAccounts = [...new Set([
+      senderMeta.account,
+      ...attackerIds.map((peerId) => accountForPeerId(peerId, realm)),
+      ...defenderIds.map((peerId) => accountForPeerId(peerId, realm))
+    ].filter(Boolean))];
+    if (activeBattles.has(requestedKey) || participantAccounts.some((account) => isAccountInActiveBattle(account, realm))) {
+      sendToPeer(data.attackerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: data.attackerId,
+        defenderId: data.defenderId,
+        reason: "battle_in_progress"
+      }, realm);
+      return true;
+    }
+    const session = createSession({ ...data, teamLeaderAccounts }, attackerIds, defenderIds, realm);
     if (!session.battleState?.playerTeam?.length || !session.battleState?.enemyTeam?.length) {
       sendToPeer(data.attackerId, {
         type: "battleRejected",
@@ -815,16 +877,53 @@ function createRuntime(deps) {
     return true;
   }
 
+  function handlePveIdleEncounterRequest(sender) {
+    const senderMeta = deps.getSocketMeta(sender) || {};
+    const realm = realmFromMeta(senderMeta);
+    const leaderPeerId = senderMeta.peerId || "";
+    if (!leaderPeerId || !senderMeta.account) return true;
+    const canonicalLeaderAccount = canonicalTeamLeaderAccount(senderMeta);
+    const canonicalLeaderId = String(senderMeta.team?.leaderId || senderMeta.leaderId || leaderPeerId);
+    if (canonicalLeaderAccount !== senderMeta.account || canonicalLeaderId !== leaderPeerId) return true;
+    const attackerIds = teamPeerIds(leaderPeerId, {}, realm);
+    const participantAccounts = attackerIds.map((peerId) => accountForPeerId(peerId, realm)).filter(Boolean);
+    if (
+      !attackerIds.length
+      || attackerIds.some((peerId) => isPeerInActiveBattle(peerId, realm))
+      || participantAccounts.some((account) => isAccountInActiveBattle(account, realm))
+    ) return true;
+    deps.requestPveIdleEncounter?.({ ...senderMeta, socket: sender });
+    return true;
+  }
+
   function handleTeamPveStart(data, sender) {
     const senderMeta = deps.getSocketMeta(sender) || {};
     const realm = realmFromMeta(senderMeta);
-    const leaderPeerId = senderMeta.peerId || data?.leaderId || data?.attackerId || "";
-    if (!data?.battleId || !leaderPeerId || !data?.wildMonsterId) return false;
-    let attackerIds = teamPeerIds(leaderPeerId, {}, realm);
-    if (attackerIds.length <= 1 && Array.isArray(data.roster)) {
-      attackerIds = rosterPeerIds(data.roster, leaderPeerId, realm);
+    const leaderPeerId = senderMeta.peerId || "";
+    const monsterId = String(data?.wildMonsterId || "");
+    if (!data?.battleId || !leaderPeerId || !senderMeta.account) return true;
+    if (!isSupportedPveMonster(monsterId)) {
+      sendToPeer(leaderPeerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: leaderPeerId,
+        reason: "unsupported_monster"
+      }, realm);
+      return true;
     }
-    if (attackerIds.length <= 1) {
+    const canonicalLeaderAccount = canonicalTeamLeaderAccount(senderMeta);
+    const canonicalLeaderId = String(senderMeta.team?.leaderId || senderMeta.leaderId || leaderPeerId);
+    if (canonicalLeaderAccount !== senderMeta.account || canonicalLeaderId !== leaderPeerId) {
+      sendToPeer(leaderPeerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: leaderPeerId,
+        reason: "team_leader_required"
+      }, realm);
+      return true;
+    }
+    const attackerIds = teamPeerIds(leaderPeerId, {}, realm);
+    if (!attackerIds.length) {
       sendToPeer(leaderPeerId, {
         type: "battleRejected",
         battleId: data.battleId,
@@ -833,15 +932,80 @@ function createRuntime(deps) {
       }, realm);
       return true;
     }
-    const session = createSession({
-      ...data,
+    const requestedKey = battleKey(realm, data.battleId);
+    const participantAccounts = attackerIds.map((peerId) => accountForPeerId(peerId, realm)).filter(Boolean);
+    const participantAlreadyBattling = (
+      attackerIds.some((peerId) => isPeerInActiveBattle(peerId, realm))
+      || participantAccounts.some((account) => isAccountInActiveBattle(account, realm))
+    );
+    if (activeBattles.has(requestedKey) || participantAlreadyBattling) {
+      sendToPeer(leaderPeerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: leaderPeerId,
+        reason: "battle_in_progress"
+      }, realm);
+      return true;
+    }
+    let startCheck = { ok: true };
+    for (const peerId of attackerIds) {
+      const account = accountForPeerId(peerId, realm);
+      const check = deps.canStartPve?.(account) || { ok: true };
+      if (check.ok) continue;
+      startCheck = check;
+      break;
+    }
+    if (!startCheck?.ok) {
+      sendToPeer(leaderPeerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: leaderPeerId,
+        reason: startCheck.error || "battle_cooldown"
+      }, realm);
+      return true;
+    }
+    const invite = {
+      battleId: data.battleId,
       pve: true,
       attackerId: leaderPeerId,
-      leaderId: leaderPeerId
-    }, attackerIds, [], realm);
+      leaderId: leaderPeerId,
+      wildMonsterId: monsterId,
+      marker: data.marker || null,
+      teamLeaderAccounts: attackerIds.length > 1 ? [canonicalLeaderAccount] : []
+    };
+    const session = createSession(invite, attackerIds, [], realm);
+    if (!session.battleState?.playerTeam?.length || !session.battleState?.enemyTeam?.length) {
+      sendToPeer(leaderPeerId, {
+        type: "battleRejected",
+        battleId: data.battleId,
+        attackerId: leaderPeerId,
+        reason: "offline"
+      }, realm);
+      return true;
+    }
+    if (requiresPveEncounter(monsterId)) {
+      let encounterCheck = null;
+      try {
+        encounterCheck = deps.consumePveEncounter?.({
+          account: senderMeta.account,
+          encounterId: data.encounterId,
+          monsterId,
+          meta: senderMeta
+        });
+      } catch {}
+      if (!encounterCheck?.ok) {
+        sendToPeer(leaderPeerId, {
+          type: "battleRejected",
+          battleId: data.battleId,
+          attackerId: leaderPeerId,
+          reason: encounterCheck?.error === "pve_encounter_mismatch" ? "pve_encounter_mismatch" : "pve_encounter_required"
+        }, realm);
+        return true;
+      }
+    }
     activeBattles.set(session.key, session);
-    pendingStarts.set(session.key, { ...data, realm });
-    broadcastBattleStart(session, data);
+    pendingStarts.set(session.key, { battleId: session.battleId, attackerId: leaderPeerId, realm });
+    broadcastBattleStart(session, invite);
     startResolutionTimer(session);
     return true;
   }
@@ -858,9 +1022,7 @@ function createRuntime(deps) {
     const meta = deps.getSocketMeta(sender) || {};
     const realm = realmFromMeta(meta);
     if (session.realm?.serverId !== realm.serverId || Number(session.realm?.channelId) !== Number(realm.channelId)) return "";
-    const peerId = meta.peerId || data.peerId || "";
-    if (session.attackerIds.includes(peerId) || session.defenderIds.includes(peerId)) return peerId;
-    const account = meta.account || "";
+    const account = String(meta.account || "");
     if (!account) return "";
     for (const [knownPeerId, knownAccount] of session.participantAccounts || []) {
       if (knownAccount === account) return knownPeerId;
@@ -883,20 +1045,38 @@ function createRuntime(deps) {
     return true;
   }
 
-  function handleBattleEnd(data, sender) {
+  function handleBattleEnd(data, sender, allowEscape = false) {
     if (!data?.battleId) return false;
     const key = battleKey(realmFromMeta(deps.getSocketMeta(sender) || {}), data.battleId);
     const session = activeBattles.get(key);
-    if (session && !sessionPeerIdForSender(session, sender, data)) return true;
+    const escapedPeerId = session ? sessionPeerIdForSender(session, sender, data) : "";
+    if (session && (!allowEscape || data.reason !== "escape" || !escapedPeerId)) return true;
     if (session?.timer) clearTimeout(session.timer);
     if (session) {
-      const escapedPeerId = sessionPeerIdForSender(session, sender, data) || deps.getSocketMeta(sender)?.peerId || data.peerId || "";
-      const reason = data.reason === "escape" || data.type === "battleEscape" ? "escape" : "";
-      broadcastBattleEnd(session, reason ? { reason, escapedPeerId } : {});
+      broadcastBattleEnd(session, { reason: "escape", escapedPeerId });
     }
     activeBattles.delete(key);
     pendingStarts.delete(key);
     return Boolean(session);
+  }
+
+  function endTeamBattlesForLeader(account = "", realm = {}, reason = "team_disbanded") {
+    const targetRealm = realmFromMeta(realm);
+    const leaderAccount = String(account || "");
+    let ended = 0;
+    for (const [key, session] of activeBattles) {
+      if (
+        session.realm?.serverId !== targetRealm.serverId
+        || Number(session.realm?.channelId) !== Number(targetRealm.channelId)
+        || !session.teamLeaderAccounts?.includes(leaderAccount)
+      ) continue;
+      if (session.timer) clearTimeout(session.timer);
+      broadcastBattleEnd(session, { reason });
+      activeBattles.delete(key);
+      pendingStarts.delete(key);
+      ended += 1;
+    }
+    return ended;
   }
 
   function handleDisconnect(peerId = "", realm = null) {
@@ -915,12 +1095,13 @@ function createRuntime(deps) {
   function handleRoomMessage(data, sender) {
     if (!data || typeof data !== "object") return false;
     if (data.type === "state") return handleState(data, sender);
+    if (data.type === "pveIdleEncounterRequest") return handlePveIdleEncounterRequest(sender);
     if (data.type === "teamPveStart") return handleTeamPveStart(data, sender);
     if (data.type === "battleStart") return handleBattleStart(data, sender);
     if (data.type === "teamBattleChoice") return handleTeamBattleChoice(data, sender);
-    if (data.type === "battleEnd") return handleBattleEnd(data, sender);
-    if (data.type === "battleEscape") return handleBattleEnd(data, sender);
-    if (data.type === "teamBattleEnd") return handleBattleEnd(data, sender);
+    if (data.type === "battleEnd") return handleBattleEnd(data, sender, false);
+    if (data.type === "battleEscape") return handleBattleEnd(data, sender, true);
+    if (data.type === "teamBattleEnd") return true;
     if (data.type === "battleAccepted" || data.type === "battleChoice" || data.type === "battleTurn" || data.type === "battleRejected") return true;
     return false;
   }
@@ -962,6 +1143,7 @@ function createRuntime(deps) {
       ...data,
       type: "teamPveStart",
       battleId,
+      encounterId: data.encounterId,
       leaderId: meta.peerId || data.leaderId || data.attackerId || "",
       attackerId: meta.peerId || data.attackerId || "",
       attackerAccount: account,
@@ -976,6 +1158,7 @@ function createRuntime(deps) {
   return {
     handleRoomMessage,
     handleDisconnect,
+    endTeamBattlesForLeader,
     startPvp,
     startPve
   };

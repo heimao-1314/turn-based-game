@@ -58,12 +58,19 @@ This is the trust seam for team PVP. Clients do not resolve group PVP locally.
 
 ## 1. Team State
 
-Client-side team membership is still stored in `app.js` state:
+Client-side team membership is a server-synchronized view stored in `app.js` state:
 
 - `state.team`
 - `state.followLeaderId`
 
-`team/runtime.js` is the helper layer around that state.
+`team/server.js` owns invitations and canonical membership. `team/runtime.js` is the browser helper layer around the synchronized view.
+
+### 身份与重连
+
+- 队伍的 canonical 身份是“认证账号 + 区服/线路”。`peerId` 只用于定位该账号当前的 WebSocket 连接和定向消息，不能作为成员资格或队长权限的依据。
+- 服务端按账号保存队长和成员关系；加入、离开、解散均从发送消息的认证连接取得账号，不信任客户端提交的成员名单、账号或旧 `peerId`。
+- 同一账号在断线宽限期内重连时，服务端会更新该账号当前的 `peerId` 并重新发送 `teamUpdate`，队伍关系保持不变。其他账号即使复用旧 `peerId`，也不会继承原成员或队长身份。
+- 宽限期结束后按正常断线规则清理：队长的队伍解散，成员从队伍移除；最后一名成员离开也会使该队解散。
 
 ## 2. Team Movement
 
@@ -71,18 +78,18 @@ Current movement behavior stays client-driven:
 
 - leader moves normally
 - followers sync toward the leader
-- team membership and map visibility continue to be transported through room `state` messages
+- membership is synchronized by server-generated `teamAccepted` and `teamUpdate` messages, not room `state` payloads
 
 ## 3. Team Monster Battle
 
-Current team monster battle is still leader-driven:
+普通野怪的组队战斗由服务端权威运行时处理：
 
-1. Leader starts a wild battle.
-2. Client builds the allied roster from local player + online team members.
-3. Leader client resolves the battle locally.
-4. Team battle messages are broadcast to teammates so they can enter, watch, and receive reward sync.
+1. 服务端仅向 canonical 队长签发普通野怪遭遇；普通挂机也只能请求服务端限流的遭遇。
+2. 队长消费一次性遭遇票据后，`联网战斗/runtime.js` 从服务端队伍状态展开同地图在线成员。
+3. 客户端只提交自己单位的 `teamBattleChoice`；回合和胜负由服务端计算。
+4. 胜利后，服务端为每位参战账号签发独立奖励票据，客户端不能自行传入奖励内容。
 
-This means team monster battle is still a synchronized local battle, not a server-authoritative combat session.
+客户端的 `state.team` 只是显示和跟随用途，不能创建、覆盖或扩展服务端 roster。
 
 ## 4. Team PVP
 
@@ -100,6 +107,12 @@ Current team PVP path is server-authoritative:
 10. The server broadcasts authoritative `teamBattleTurn` and later `teamBattleEnd`.
 
 This keeps the battle rule layer shared while moving authority for online team combat to the server.
+
+### 服务端终止边界
+
+- `teamBattleEnd` 是服务端发给参战者的状态事件，不是客户端可用的结束指令。客户端伪造该消息不会改变或终止服务端战斗会话。
+- 参战者只能通过认证连接发送 `battleEscape` 且 `reason` 为 `escape` 请求退出；是否结束会话由服务端校验后决定。
+- 当服务端确认队长执行 `teamDisband`、队长发送 `teamLeave` 或最后一名成员离开时，队伍运行时会调用可信的联网战斗终止路径。它只结束该队在同区服/线路内创建的组队战斗，并向全部参战者发送 `teamBattleEnd`，其中 `reason` 为 `team_disbanded`；显式 `pvpMode: "solo"` 的战斗不受影响。
 
 ## Core Concepts
 
@@ -152,8 +165,8 @@ Main integration file: `D:\gz\dx\dw\server.js`
 
 Current server responsibilities:
 
-- store latest player/team metadata in `socketMeta`
-- route room messages through `teamPvp.handleRoomMessage(...)`
+- own pending invitations and canonical team membership in `team/server.js`
+- project only the canonical team metadata into `socketMeta` for battle expansion
 - fall through to normal solo PVP runtime when no team expansion is needed
 
 ## Audit Notes
@@ -193,6 +206,6 @@ Prefer moving pure team state / messaging logic into `team/runtime.js` first. Ke
 
 ## Known Notes
 
-- team monster battle and team PVP currently use different authority models
+- normal team monster battle and team PVP both use the server-authoritative battle runtime
 - client-side team state is not fully extracted yet; `app.js` still owns the UI-heavy flow
 - `联网战斗/runtime.js` depends on room `state` messages being current enough to rebuild online team participation

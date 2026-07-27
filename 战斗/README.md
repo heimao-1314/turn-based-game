@@ -125,7 +125,11 @@ Treat it as an inactive prototype or extraction attempt. Do not extend it as if 
 
 ### `reward-ticket-runtime.js`
 
-Issues a one-time, short-lived reward ticket only after the server-authoritative PVE runtime confirms victory. The HTTP reward endpoint consumes this ticket and ignores client-supplied monster or quantity fields.
+Issues a one-time, short-lived reward ticket only after the server-authoritative PVE runtime confirms victory. It also persists a completed settlement result for idempotent HTTP retries and exposes pending tickets for reconnect delivery. A recent reward ticket also enforces a short server-side PVE start cooldown.
+
+### `reward-settlement-runtime.js` and `reward-delivery-runtime.js`
+
+`reward-settlement-runtime.js` applies a ticket's server-rolled reward and player progression update inside the ticket transaction. `reward-delivery-runtime.js` replays an unclaimed ticket to the authenticated socket after it resumes state synchronization. These modules keep normal wild-monster rewards out of client-side battle resolution.
 
 ## Active Runtime Flow
 

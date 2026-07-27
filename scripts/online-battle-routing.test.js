@@ -4,9 +4,18 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 
-function createRoutingHarness() {
+function createRoutingHarness({ playerStats, issuePveRewardTickets, consumePveEncounter, canStartPve, fetchPlayerRow, requestPveIdleEncounter } = {}) {
   const createRuntime = require(path.resolve(__dirname, "..", "联网战斗", "server.js"));
   const sent = [];
+  const defaultPlayerStats = {
+    hp: 100,
+    attack: 10,
+    defense: 1,
+    speed: 1,
+    mana: 1,
+    crit: 0,
+    critDamage: 100
+  };
   const sockets = new Map([
     ["attacker-socket", { peerId: "attacker-peer", account: "attacker-account", name: "Attacker", mapName: "field", team: { leaderId: "", members: [] }, clientMirror: null }],
     ["defender-socket", { peerId: "fresh-defender-peer", account: "defender-account", name: "Defender", mapName: "field", team: { leaderId: "", members: [] }, clientMirror: null }]
@@ -25,27 +34,67 @@ function createRoutingHarness() {
         x: 0,
         y: 0,
         direction: "down",
-        stats: { hp: 100, attack: 10, defense: 1, speed: 1, mana: 1, crit: 0, critDamage: 100 }
+        stats: playerStats || defaultPlayerStats
       },
       pet: null,
       mercenary: null
     }),
     activeMercenaryForRow: () => null,
-    fetchPlayerRow: (account) => ({
+    fetchPlayerRow: fetchPlayerRow || ((account) => ({
       account,
       name: account === "attacker-account" ? "Attacker" : "Defender",
       selection_json: "{}"
-    }),
+    })),
     findSocketByPeerId: (peerId) => [...sockets.entries()].find(([, meta]) => meta.peerId === peerId)?.[0] || null,
     findSocketByAccount: (account) => [...sockets.entries()].find(([, meta]) => meta.account === account)?.[0] || null,
     findSocketByName: (name) => [...sockets.entries()].find(([, meta]) => meta.name === name)?.[0] || null,
     getSocketMeta: (socket) => sockets.get(socket),
     setSocketMeta: (socket, meta) => sockets.set(socket, meta),
     sendSocketJson: (socket, payload) => sent.push({ socket, payload }),
+    issuePveRewardTickets,
+    consumePveEncounter,
+    canStartPve,
+    requestPveIdleEncounter,
     choiceMs: 100000
   });
 
   return { runtime, sent, sockets };
+}
+
+function createTeamDisbandBattleHarness() {
+  const { runtime: onlineBattle, sent, sockets } = createRoutingHarness();
+  const realm = { serverId: "team-disband-realm", channelId: 1 };
+  for (const socket of ["attacker-socket", "defender-socket"]) {
+    Object.assign(sockets.get(socket), realm);
+  }
+  sockets.set("member-socket", {
+    peerId: "member-peer",
+    account: "member-account",
+    name: "Member",
+    mapName: "field",
+    ...realm,
+    team: { leaderId: "", members: [] },
+    clientMirror: null
+  });
+  const disbands = [];
+  const { createTeamRuntime } = require(path.resolve(__dirname, "..", "\u961f\u4f0d", "server.js"));
+  const teamRuntime = createTeamRuntime({
+    findSocketByPeerId: (peerId) => [...sockets.entries()].find(([, meta]) => meta.peerId === peerId)?.[0] || null,
+    findSocketByAccount: (account) => [...sockets.entries()].find(([, meta]) => meta.account === account)?.[0] || null,
+    getSocketMeta: (socket) => sockets.get(socket),
+    setSocketMeta: (socket, meta) => sockets.set(socket, meta),
+    sendSocketJson: (socket, payload) => sent.push({ socket, payload }),
+    onTeamDisband: (event) => {
+      disbands.push(event);
+      return onlineBattle.endTeamBattlesForLeader(event.leaderAccount, event.realm);
+    }
+  });
+  return { onlineBattle, teamRuntime, sent, sockets, realm, disbands };
+}
+
+function formAttackerTeam(teamRuntime) {
+  assert.equal(teamRuntime.handleRoomMessage({ type: "teamJoinRequest", to: "attacker-peer" }, "member-socket"), true);
+  assert.equal(teamRuntime.handleRoomMessage({ type: "teamAccepted", to: "member-peer" }, "attacker-socket"), true);
 }
 
 test("team PvP battle start falls back to defender account when peerId is stale", () => {
@@ -70,6 +119,375 @@ test("team PvP battle start falls back to defender account when peerId is stale"
       { socket: "defender-socket", to: "fresh-defender-peer", role: "defender" }
     ]
   );
+});
+
+test("a defender account hint cannot be redirected through a reused stale peerId", () => {
+  const { runtime, sent, sockets } = createRoutingHarness();
+  sockets.set("reused-stale-peer-socket", {
+    peerId: "stale-defender-peer",
+    account: "unrelated-account",
+    name: "Unrelated",
+    mapName: "field",
+    team: { leaderId: "", members: [] },
+    clientMirror: null
+  });
+
+  assert.equal(runtime.handleRoomMessage({
+    type: "battleStart",
+    battleId: "account-first-defender",
+    attackerId: "attacker-peer",
+    defenderId: "stale-defender-peer",
+    defenderAccount: "defender-account",
+    defenderName: "Defender"
+  }, "attacker-socket"), true);
+
+  assert.deepEqual(
+    sent.filter((item) => item.payload.type === "teamBattleStart").map((item) => item.socket),
+    ["attacker-socket", "defender-socket"]
+  );
+  runtime.handleRoomMessage({ type: "battleEscape", battleId: "account-first-defender", reason: "escape" }, "attacker-socket");
+});
+
+test("idle PVE requests only ask the server encounter issuer", () => {
+  const requests = [];
+  const { runtime, sent } = createRoutingHarness({
+    requestPveIdleEncounter: (meta) => requests.push(meta)
+  });
+
+  assert.equal(runtime.handleRoomMessage({ type: "pveIdleEncounterRequest" }, "attacker-socket"), true);
+  assert.deepEqual(requests.map((meta) => ({
+    socket: meta.socket,
+    account: meta.account,
+    peerId: meta.peerId,
+    mapName: meta.mapName
+  })), [{
+    socket: "attacker-socket",
+    account: "attacker-account",
+    peerId: "attacker-peer",
+    mapName: "field"
+  }]);
+  assert.equal(sent.length, 0);
+});
+
+test("single-player server PVE starts and issues one owner-bound reward ticket after victory", () => {
+  const issuedTickets = [];
+  const consumedEncounters = [];
+  const { runtime, sent } = createRoutingHarness({
+    playerStats: {
+      hp: 9999999,
+      attack: 9999999,
+      defense: 9999999,
+      speed: 9999999,
+      mana: 1,
+      crit: 0,
+      critDamage: 100,
+      forceBasicAttack: true
+    },
+    issuePveRewardTickets: (ticket) => {
+      issuedTickets.push(ticket);
+      return "server-issued-solo-pve-ticket";
+    },
+    consumePveEncounter: ({ account, encounterId, monsterId, meta }) => {
+      consumedEncounters.push({ account, encounterId, monsterId, peerId: meta.peerId });
+      return encounterId === "solo-pve-encounter" ? { ok: true } : { ok: false, error: "pve_encounter_required" };
+    }
+  });
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "solo-pve-reward",
+    wildMonsterId: "amumu",
+    encounterId: "solo-pve-encounter",
+    monsterCount: 999,
+    enemies: [{
+      name: "forged enemy",
+      spriteId: 1,
+      battleStats: { hp: 1, attack: 0, defense: 0, speed: 1, mana: 0, crit: 0, critDamage: 100 }
+    }]
+  }), { ok: true, battleId: "solo-pve-reward" });
+
+  const starts = sent.filter((item) => item.payload.type === "teamBattleStart");
+  assert.deepEqual(starts.map((item) => ({
+    socket: item.socket,
+    to: item.payload.to,
+    pvp: item.payload.pvp,
+    teamBattleServer: item.payload.teamBattleServer,
+    roster: item.payload.roster.map((member) => member.account),
+    enemySpriteIds: item.payload.enemies.map((enemy) => enemy.spriteId),
+    monsterCount: item.payload.monsterCount
+  })), [{
+    socket: "attacker-socket",
+    to: "attacker-peer",
+    pvp: false,
+    teamBattleServer: true,
+    roster: ["attacker-account"],
+    enemySpriteIds: [895],
+    monsterCount: 1
+  }]);
+  assert.deepEqual(consumedEncounters, [{
+    account: "attacker-account",
+    encounterId: "solo-pve-encounter",
+    monsterId: "amumu",
+    peerId: "attacker-peer"
+  }]);
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "solo-pve-parallel",
+    wildMonsterId: "amumu",
+    encounterId: "unused-while-active"
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "solo-pve-parallel" });
+  assert.equal(sent.filter((item) => item.payload.type === "teamBattleStart").length, 1);
+  assert.equal(consumedEncounters.length, 1);
+
+  sent.length = 0;
+  assert.equal(runtime.handleRoomMessage({
+    type: "teamBattleChoice",
+    battleId: "solo-pve-reward",
+    choice: { actions: { Attacker: { type: "attack", target: "enemy-0-actor-895" } } }
+  }, "attacker-socket"), true);
+
+  assert.deepEqual(issuedTickets, [{
+    battleId: "solo-pve-reward",
+    account: "attacker-account",
+    monsterId: "amumu",
+    monsterCount: 1
+  }]);
+  const reward = sent.find((item) => item.payload.type === "teamBattleReward");
+  assert.deepEqual(reward && {
+    socket: reward.socket,
+    to: reward.payload.to,
+    battleId: reward.payload.battleId,
+    wildMonsterId: reward.payload.wildMonsterId,
+    monsterCount: reward.payload.monsterCount,
+    rewardTicket: reward.payload.rewardTicket
+  }, {
+    socket: "attacker-socket",
+    to: "attacker-peer",
+    battleId: "solo-pve-reward",
+    wildMonsterId: "amumu",
+    monsterCount: 1,
+    rewardTicket: "server-issued-solo-pve-ticket"
+  });
+
+  runtime.handleRoomMessage({
+    type: "teamBattleChoice",
+    battleId: "solo-pve-reward",
+    choice: { actions: { Attacker: { type: "attack", target: "enemy-0-actor-895" } } }
+  }, "attacker-socket");
+  assert.equal(issuedTickets.length, 1);
+});
+
+test("ordinary PVE rejects missing or failed server encounters before creating a session", () => {
+  const { runtime, sent } = createRoutingHarness();
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "missing-encounter-runtime",
+    wildMonsterId: "amumu",
+    encounterId: "forged"
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "missing-encounter-runtime" });
+  assert.deepEqual(sent.map((item) => [item.payload.type, item.payload.reason]), [
+    ["battleRejected", "pve_encounter_required"]
+  ]);
+
+  const attempts = [];
+  const rejected = createRoutingHarness({
+    consumePveEncounter: (payload) => {
+      attempts.push(payload);
+      return { ok: false, error: "pve_encounter_mismatch" };
+    }
+  });
+  assert.deepEqual(rejected.runtime.startPve("attacker-account", {
+    battleId: "invalid-encounter",
+    wildMonsterId: "phantom",
+    encounterId: "stale-encounter"
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "invalid-encounter" });
+  assert.deepEqual(rejected.sent.map((item) => [item.payload.type, item.payload.reason]), [
+    ["battleRejected", "pve_encounter_mismatch"]
+  ]);
+  assert.deepEqual(attempts.map((payload) => ({
+    account: payload.account,
+    encounterId: payload.encounterId,
+    monsterId: payload.monsterId,
+    peerId: payload.meta.peerId
+  })), [{
+    account: "attacker-account",
+    encounterId: "stale-encounter",
+    monsterId: "phantom",
+    peerId: "attacker-peer"
+  }]);
+  assert.equal(rejected.sent.some((item) => item.payload.type === "teamBattleStart"), false);
+});
+
+test("ordinary PVE validates its server-built roster before consuming an encounter", () => {
+  let consumed = 0;
+  const { runtime, sent } = createRoutingHarness({
+    fetchPlayerRow: () => null,
+    consumePveEncounter: () => {
+      consumed += 1;
+      return { ok: true };
+    }
+  });
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "offline-before-consume",
+    wildMonsterId: "amumu",
+    encounterId: "must-remain-usable"
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "offline-before-consume" });
+  assert.equal(consumed, 0);
+  assert.deepEqual(sent.map((item) => [item.payload.type, item.payload.reason]), [
+    ["battleRejected", "offline"]
+  ]);
+});
+
+test("ordinary wild battles require a server encounter, never claim locally, and retry a failed ticket claim", () => {
+  const appSource = fs.readFileSync(path.resolve(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /const encounterWildBattle = target\?\.wildMonsterId === "amumu" \|\| target\?\.wildMonsterId === "phantom";/);
+  assert.match(appSource, /if \(encounterWildBattle && !encounterId\) return;/);
+  assert.match(appSource, /const ordinaryServerWildBattle = battle\.wildMonsterId === "amumu" \|\| battle\.wildMonsterId === "phantom";/);
+  assert.match(appSource, /&& !ordinaryServerWildBattle && !battle\.rewardClaimed\) \{/);
+  assert.match(appSource, /const granted = await grantWildBattleReward\(msg\.wildMonsterId, msg\.monsterCount \|\| 1, msg\.rewardTicket\);/);
+  assert.match(appSource, /if \(!granted\) \{\s*state\.claimedTeamRewardIds\.delete\(rewardId\);\s*return;/);
+  assert.match(appSource, /const recoveredReward = msg\.recovered === true && isDirectedToMe\(msg\);\s*if \(!recoveredReward && !isActiveTeamBattleMessage\(msg\) && teamBattleInbox\?\.queue\(msg\)\)/);
+  assert.match(appSource, /if \(!recoveredReward && !isActiveTeamBattleMessage\(msg\) && teamBattleInbox\?\.queue\(msg\)\) \{[\s\S]*?\} else \{\s*await acceptTeamBattleReward\(msg\);\s*\}/);
+  assert.match(appSource, /if \(!options\.allowPreparedBattle && !recoveredReward && !isActiveTeamBattleMessage\(msg\)\) return;/);
+  const startBattleSource = appSource.slice(appSource.indexOf("async function startBattle"), appSource.indexOf("async function startWildBattle"));
+  assert.ok(startBattleSource.indexOf("if (serverAuthoritativeWildBattle)") < startBattleSource.indexOf("if (await refreshClientVersion"));
+  const startWildBattleSource = appSource.slice(appSource.indexOf("async function startWildBattle"), appSource.indexOf("function handleBattleRejected"));
+  assert.doesNotMatch(startWildBattleSource, /await Promise\.all\(\[loadSprite/);
+});
+
+test("only the canonical team leader may start a team PVE battle", () => {
+  const consumedEncounters = [];
+  const { runtime, sent, sockets } = createRoutingHarness({
+    consumePveEncounter: (payload) => {
+      consumedEncounters.push(payload);
+      return { ok: true };
+    }
+  });
+  const attacker = sockets.get("attacker-socket");
+  const leader = sockets.get("defender-socket");
+  attacker.leaderId = leader.peerId;
+  attacker.team = { leaderId: leader.peerId, members: [{ peerId: attacker.peerId, account: attacker.account, name: attacker.name }] };
+  leader.team = { leaderId: leader.peerId, members: [{ peerId: attacker.peerId, account: attacker.account, name: attacker.name }] };
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "member-forged-leader",
+    wildMonsterId: "amumu",
+    encounterId: "valid-but-not-leader",
+    leaderId: attacker.peerId
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "member-forged-leader" });
+  assert.equal(consumedEncounters.length, 0);
+  assert.deepEqual(sent.map((item) => [item.payload.type, item.payload.reason]), [
+    ["battleRejected", "team_leader_required"]
+  ]);
+});
+
+test("team PVE rejects before consuming an encounter when any participant is already in battle", () => {
+  const consumedEncounters = [];
+  const { runtime, sent, sockets } = createRoutingHarness({
+    consumePveEncounter: (payload) => {
+      consumedEncounters.push(payload);
+      return { ok: true };
+    }
+  });
+  const attacker = sockets.get("attacker-socket");
+  const member = {
+    peerId: "member-peer",
+    account: "member-account",
+    name: "Member",
+    mapName: "field",
+    leaderId: "attacker-peer",
+    team: { leaderId: "attacker-peer", members: [{ peerId: "member-peer", account: "member-account", name: "Member" }] },
+    clientMirror: null
+  };
+  sockets.set("member-socket", member);
+  attacker.team = { leaderId: attacker.peerId, members: [{ peerId: member.peerId, account: member.account, name: member.name }] };
+
+  assert.equal(runtime.handleRoomMessage({
+    type: "battleStart",
+    battleId: "member-active-pvp",
+    attackerId: member.peerId,
+    defenderId: "fresh-defender-peer",
+    pvpMode: "solo"
+  }, "member-socket"), true);
+  sent.length = 0;
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "team-member-active",
+    wildMonsterId: "amumu",
+    encounterId: "must-not-consume"
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "team-member-active" });
+  assert.equal(consumedEncounters.length, 0);
+  assert.deepEqual(sent.map((item) => [item.payload.type, item.payload.reason]), [
+    ["battleRejected", "battle_in_progress"]
+  ]);
+  runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "member-active-pvp" }, "member-socket");
+});
+
+test("a reconnect with a new peerId cannot start a second PVE for the same account", () => {
+  const { runtime, sent, sockets } = createRoutingHarness({
+    consumePveEncounter: () => ({ ok: true })
+  });
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "first-account-locked-pve",
+    wildMonsterId: "amumu",
+    encounterId: "first-encounter"
+  }), { ok: true, battleId: "first-account-locked-pve" });
+
+  sockets.delete("attacker-socket");
+  sockets.set("attacker-reconnected-socket", {
+    peerId: "attacker-reconnected-peer",
+    account: "attacker-account",
+    name: "Attacker",
+    mapName: "field",
+    team: { leaderId: "", members: [] },
+    clientMirror: null
+  });
+  sent.length = 0;
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "forged-parallel-after-reconnect",
+    wildMonsterId: "amumu",
+    encounterId: "second-encounter"
+  }), { ok: false, status: 409, error: "battle_start_rejected", battleId: "forged-parallel-after-reconnect" });
+  assert.deepEqual(sent.map((item) => [item.payload.type, item.payload.reason]), [
+    ["battleRejected", "battle_in_progress"]
+  ]);
+  runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "first-account-locked-pve" }, "attacker-reconnected-socket");
+});
+
+test("Afei boss victory does not issue an ordinary wild reward ticket", () => {
+  const issuedTickets = [];
+  const { runtime, sent } = createRoutingHarness({
+    playerStats: {
+      hp: 9999999,
+      attack: 9999999,
+      defense: 9999999,
+      speed: 9999999,
+      mana: 1,
+      crit: 0,
+      critDamage: 100,
+      skillId: "sword_guard",
+      skillIds: ["sword_guard"]
+    },
+    issuePveRewardTickets: (ticket) => {
+      issuedTickets.push(ticket);
+      return "must-not-be-issued";
+    }
+  });
+
+  assert.deepEqual(runtime.startPve("attacker-account", {
+    battleId: "afei-without-wild-ticket",
+    wildMonsterId: "afei"
+  }), { ok: true, battleId: "afei-without-wild-ticket" });
+  runtime.handleRoomMessage({
+    type: "teamBattleChoice",
+    battleId: "afei-without-wild-ticket",
+    choice: { actions: { Attacker: { type: "skill", skillId: "sword_guard" } } }
+  }, "attacker-socket");
+
+  assert.equal(issuedTickets.length, 0);
+  assert.equal(sent.some((item) => item.payload.type === "teamBattleReward"), false);
+  assert.equal(sent.some((item) => item.payload.type === "teamBattleEnd"), true);
 });
 
 test("cover login is default and classic login stays switchable from admin", () => {
@@ -177,6 +595,265 @@ test("team battle escape broadcasts an escape end to both sides", () => {
       { socket: "defender-socket", to: "fresh-defender-peer", reason: "escape", escapedPeerId: "attacker-peer" }
     ]
   );
+});
+
+test("trusted team disband ends the leader's active battle for every participant", () => {
+  const { runtime: onlineBattle, sent, sockets } = createRoutingHarness();
+  const { createTeamRuntime } = require(path.resolve(__dirname, "..", "\u961f\u4f0d", "server.js"));
+  const serverSource = fs.readFileSync(path.resolve(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /onTeamDisband:\s*\(\{\s*leaderAccount,\s*realm\s*\}\)\s*=>\s*onlineBattle\?\.endTeamBattlesForLeader\(leaderAccount,\s*realm\)/);
+  const realm = { serverId: "team-disband-realm", channelId: 1 };
+  for (const socket of ["attacker-socket", "defender-socket"]) {
+    Object.assign(sockets.get(socket), realm);
+  }
+  sockets.set("member-socket", {
+    peerId: "member-peer",
+    account: "member-account",
+    name: "Member",
+    mapName: "field",
+    ...realm,
+    team: { leaderId: "", members: [] },
+    clientMirror: null
+  });
+
+  const teamRuntime = createTeamRuntime({
+    findSocketByPeerId: (peerId) => [...sockets.entries()].find(([, meta]) => meta.peerId === peerId)?.[0] || null,
+    findSocketByAccount: (account) => [...sockets.entries()].find(([, meta]) => meta.account === account)?.[0] || null,
+    getSocketMeta: (socket) => sockets.get(socket),
+    setSocketMeta: (socket, meta) => sockets.set(socket, meta),
+    sendSocketJson: (socket, payload) => sent.push({ socket, payload }),
+    onTeamDisband: ({ leaderAccount, realm: disbandRealm }) => onlineBattle.endTeamBattlesForLeader(leaderAccount, disbandRealm)
+  });
+
+  teamRuntime.handleRoomMessage({ type: "teamJoinRequest", to: "attacker-peer" }, "member-socket");
+  teamRuntime.handleRoomMessage({ type: "teamAccepted", to: "member-peer" }, "attacker-socket");
+  sent.length = 0;
+
+  onlineBattle.handleRoomMessage({
+    type: "battleStart",
+    battleId: "team-disband-active",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket");
+  assert.equal(sent.filter((item) => item.payload.type === "teamBattleStart").length, 3);
+  sent.length = 0;
+
+  assert.equal(teamRuntime.handleRoomMessage({ type: "teamDisband" }, "attacker-socket"), true);
+  const ends = sent.filter((item) => item.payload.type === "teamBattleEnd");
+  assert.deepEqual(
+    ends.map((item) => ({ socket: item.socket, to: item.payload.to, battleId: item.payload.battleId, reason: item.payload.reason })),
+    [
+      { socket: "attacker-socket", to: "attacker-peer", battleId: "team-disband-active", reason: "team_disbanded" },
+      { socket: "member-socket", to: "member-peer", battleId: "team-disband-active", reason: "team_disbanded" },
+      { socket: "defender-socket", to: "fresh-defender-peer", battleId: "team-disband-active", reason: "team_disbanded" }
+    ]
+  );
+
+  sent.length = 0;
+  onlineBattle.handleRoomMessage({
+    type: "battleStart",
+    battleId: "team-disband-restart",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket");
+  assert.equal(sent.filter((item) => item.payload.type === "teamBattleStart").length, 2);
+  onlineBattle.handleRoomMessage({ type: "battleEscape", battleId: "team-disband-restart", reason: "escape" }, "attacker-socket");
+});
+
+test("team disband does not end a leader's active solo PvP battle", () => {
+  const { onlineBattle, teamRuntime, sent, disbands } = createTeamDisbandBattleHarness();
+  formAttackerTeam(teamRuntime);
+  sent.length = 0;
+
+  assert.equal(onlineBattle.handleRoomMessage({
+    type: "battleStart",
+    battleId: "team-leader-solo-survives-disband",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account",
+    pvpMode: "solo"
+  }, "attacker-socket"), true);
+  assert.deepEqual(
+    sent.filter((entry) => entry.payload.type === "teamBattleStart").map((entry) => entry.socket),
+    ["attacker-socket", "defender-socket"]
+  );
+  sent.length = 0;
+
+  assert.equal(teamRuntime.handleRoomMessage({ type: "teamDisband" }, "attacker-socket"), true);
+  assert.deepEqual(disbands, [{
+    leaderAccount: "attacker-account",
+    leaderId: "attacker-peer",
+    realm: { serverId: "team-disband-realm", channelId: 1 }
+  }]);
+  assert.equal(
+    sent.some((entry) => entry.payload.type === "teamBattleEnd" && entry.payload.reason === "team_disbanded"),
+    false
+  );
+
+  sent.length = 0;
+  assert.equal(onlineBattle.handleRoomMessage({
+    type: "battleEscape",
+    battleId: "team-leader-solo-survives-disband",
+    reason: "escape"
+  }, "attacker-socket"), true);
+  assert.deepEqual(
+    sent.filter((entry) => entry.payload.type === "teamBattleEnd").map((entry) => ({ socket: entry.socket, reason: entry.payload.reason })),
+    [
+      { socket: "attacker-socket", reason: "escape" },
+      { socket: "defender-socket", reason: "escape" }
+    ]
+  );
+});
+
+test("the final member leaving ends its active team battle through trusted disband", () => {
+  const { onlineBattle, teamRuntime, sent, sockets, disbands } = createTeamDisbandBattleHarness();
+  formAttackerTeam(teamRuntime);
+  sent.length = 0;
+
+  assert.equal(onlineBattle.handleRoomMessage({
+    type: "battleStart",
+    battleId: "final-member-leave-ends-team-battle",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket"), true);
+  assert.equal(sent.filter((entry) => entry.payload.type === "teamBattleStart").length, 3);
+  sent.length = 0;
+
+  assert.equal(teamRuntime.handleRoomMessage({ type: "teamLeave" }, "member-socket"), true);
+  assert.deepEqual(disbands, [{
+    leaderAccount: "attacker-account",
+    leaderId: "attacker-peer",
+    realm: { serverId: "team-disband-realm", channelId: 1 }
+  }]);
+  assert.deepEqual(sockets.get("attacker-socket").team, { leaderId: "", members: [] });
+  assert.deepEqual(sockets.get("member-socket").team, { leaderId: "", members: [] });
+  assert.deepEqual(
+    sent.filter((entry) => entry.payload.type === "teamBattleEnd").map((entry) => ({
+      socket: entry.socket,
+      to: entry.payload.to,
+      battleId: entry.payload.battleId,
+      reason: entry.payload.reason
+    })),
+    [
+      { socket: "attacker-socket", to: "attacker-peer", battleId: "final-member-leave-ends-team-battle", reason: "team_disbanded" },
+      { socket: "member-socket", to: "member-peer", battleId: "final-member-leave-ends-team-battle", reason: "team_disbanded" },
+      { socket: "defender-socket", to: "fresh-defender-peer", battleId: "final-member-leave-ends-team-battle", reason: "team_disbanded" }
+    ]
+  );
+
+  sent.length = 0;
+  assert.equal(onlineBattle.handleRoomMessage({
+    type: "battleStart",
+    battleId: "battle-after-final-member-leave",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account",
+    pvpMode: "solo"
+  }, "attacker-socket"), true);
+  assert.deepEqual(
+    sent.filter((entry) => entry.payload.type === "teamBattleStart").map((entry) => entry.socket),
+    ["attacker-socket", "defender-socket"]
+  );
+  onlineBattle.handleRoomMessage({ type: "battleEscape", battleId: "battle-after-final-member-leave", reason: "escape" }, "attacker-socket");
+});
+
+test("a different account reusing a participant peerId cannot control or end its battle", () => {
+  const { runtime, sent, sockets } = createRoutingHarness();
+  runtime.handleRoomMessage({
+    type: "battleStart",
+    battleId: "account-bound-session",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket");
+  sent.length = 0;
+
+  const originalAttacker = sockets.get("attacker-socket");
+  sockets.set("attacker-socket", { ...originalAttacker, account: "intruder-account", name: "Intruder" });
+  sockets.set("attacker-reconnected", { ...originalAttacker, peerId: "attacker-new-peer" });
+
+  runtime.handleRoomMessage({
+    type: "teamBattleChoice",
+    battleId: "account-bound-session",
+    choice: { actions: {} }
+  }, "attacker-socket");
+  runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "account-bound-session" }, "attacker-socket");
+  assert.equal(sent.length, 0);
+
+  runtime.handleRoomMessage({
+    type: "teamBattleChoice",
+    battleId: "account-bound-session",
+    choice: { actions: {} }
+  }, "attacker-reconnected");
+  runtime.handleRoomMessage({
+    type: "teamBattleChoice",
+    battleId: "account-bound-session",
+    choice: { actions: {} }
+  }, "defender-socket");
+
+  const turnRecipients = sent
+    .filter((item) => item.payload.type === "teamBattleTurn")
+    .map((item) => item.socket)
+    .sort();
+  assert.deepEqual(turnRecipients, ["attacker-reconnected", "defender-socket"]);
+});
+
+test("PVP rejects duplicate and parallel starts for an active account", () => {
+  const { runtime, sent } = createRoutingHarness();
+  const start = (battleId) => runtime.handleRoomMessage({
+    type: "battleStart",
+    battleId,
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket");
+
+  assert.equal(start("active-first"), true);
+  sent.length = 0;
+  assert.equal(start("active-second"), true);
+  assert.deepEqual(sent.map((item) => [item.socket, item.payload.type, item.payload.reason]), [
+    ["attacker-socket", "battleRejected", "battle_in_progress"]
+  ]);
+
+  sent.length = 0;
+  assert.equal(start("active-first"), true);
+  assert.deepEqual(sent.map((item) => [item.socket, item.payload.type, item.payload.reason]), [
+    ["attacker-socket", "battleRejected", "battle_in_progress"]
+  ]);
+});
+
+test("PVP requires both participants to report the same current map", () => {
+  const { runtime, sent, sockets } = createRoutingHarness();
+  sockets.set("defender-socket", { ...sockets.get("defender-socket"), mapName: "remote-map" });
+
+  runtime.handleRoomMessage({
+    type: "battleStart",
+    battleId: "cross-map",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket");
+
+  assert.deepEqual(sent.map((item) => [item.socket, item.payload.type, item.payload.reason]), [
+    ["attacker-socket", "battleRejected", "different_map"]
+  ]);
+
+  sent.length = 0;
+  sockets.set("attacker-socket", { ...sockets.get("attacker-socket"), mapName: "" });
+  sockets.set("defender-socket", { ...sockets.get("defender-socket"), mapName: "field" });
+  runtime.handleRoomMessage({
+    type: "battleStart",
+    battleId: "missing-map",
+    attackerId: "attacker-peer",
+    defenderId: "fresh-defender-peer",
+    defenderAccount: "defender-account"
+  }, "attacker-socket");
+  assert.deepEqual(sent.map((item) => [item.socket, item.payload.type, item.payload.reason]), [
+    ["attacker-socket", "battleRejected", "different_map"]
+  ]);
 });
 
 test("battle delivery follows account when a mobile client reconnects with a new peerId", () => {

@@ -14,6 +14,42 @@
  * @module TeamRuntime
  */
 (function (global) {
+  function createBattleInbox() {
+    const pendingByBattleId = new Map();
+
+    function battleIdFor(message = {}) {
+      return String(message?.battleId || "");
+    }
+
+    function begin(message = {}) {
+      const battleId = battleIdFor(message);
+      if (!battleId || pendingByBattleId.has(battleId)) return false;
+      pendingByBattleId.set(battleId, []);
+      return true;
+    }
+
+    function queue(message = {}) {
+      const battleId = battleIdFor(message);
+      const pending = pendingByBattleId.get(battleId);
+      if (!pending || !["teamBattleTurn", "teamBattleEnd", "teamBattleReward"].includes(message.type)) return false;
+      pending.push(message);
+      return true;
+    }
+
+    function take(battleId = "") {
+      const id = String(battleId || "");
+      const pending = pendingByBattleId.get(id) || [];
+      pendingByBattleId.delete(id);
+      return pending;
+    }
+
+    function cancel(battleId = "") {
+      return pendingByBattleId.delete(String(battleId || ""));
+    }
+
+    return { begin, queue, take, cancel };
+  }
+
   function createRuntime(deps) {
     function myName() {
       return deps.getPlayerName();
@@ -151,13 +187,13 @@
       return false;
     }
 
-    function controlledBattleFighters(battle, peerId = deps.getState().peerId) {
+    function controlledBattleFighters(battle, peerId = battle?.controlledPeerId || deps.getState().peerId) {
       if (!battle) return [];
       const friendlyTeam = battle.role === "defender" || battle.role === "team_defender" ? battle.enemyTeam : battle.playerTeam;
       return friendlyTeam.filter((fighter) => !fighter.defeated && isOwnedBattleFighter(fighter, peerId));
     }
 
-    function controlledFighterSteps(battle, peerId = deps.getState().peerId) {
+    function controlledFighterSteps(battle, peerId = battle?.controlledPeerId || deps.getState().peerId) {
       return controlledBattleFighters(battle, peerId).map((fighter) => deps.fighterRef(fighter));
     }
 
@@ -180,6 +216,7 @@
   }
 
   global.TeamRuntime = {
-    createRuntime
+    createRuntime,
+    createBattleInbox
   };
 })(window);

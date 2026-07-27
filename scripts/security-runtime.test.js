@@ -4,6 +4,7 @@ const { DatabaseSync } = require("node:sqlite");
 const { createAuthRuntime, legacyPasswordHash } = require("../src/server/auth/runtime.js");
 const { createRedeemCodeRuntime, codeHash } = require("../src/server/economy/redeem-code-runtime.js");
 const { createRewardTicketRuntime } = require("../战斗/reward-ticket-runtime.js");
+const { createRewardDeliveryRuntime } = require("../战斗/reward-delivery-runtime.js");
 
 function authDb() {
   const db = new DatabaseSync(":memory:");
@@ -50,4 +51,74 @@ test("server-issued battle reward ticket can only be consumed once by its owner"
   assert.ok(ticket);
   assert.deepEqual(runtime.consume("player", ticket), { ok: true, monsterId: "amumu", monsterCount: 1 });
   assert.equal(runtime.consume("player", ticket).error, "invalid_reward_ticket");
+});
+
+test("recent PVE reward ticket applies a server-side battle cooldown", () => {
+  let currentTime = Date.parse("2026-01-01T00:00:00.000Z");
+  const runtime = createRewardTicketRuntime({ db: new DatabaseSync(":memory:"), now: () => currentTime });
+  runtime.issue({ battleId: "battle-1", account: "player", monsterId: "amumu", monsterCount: 1 });
+  assert.deepEqual(runtime.canStart("player"), { ok: false, error: "battle_cooldown" });
+  currentTime += 5001;
+  assert.deepEqual(runtime.canStart("player"), { ok: true });
+});
+
+test("ticket settlement rolls back failures and replays an already committed result", () => {
+  const db = new DatabaseSync(":memory:");
+  db.exec("CREATE TABLE balances (account TEXT PRIMARY KEY, amount INTEGER NOT NULL DEFAULT 0)");
+  db.prepare("INSERT INTO balances (account) VALUES (?)").run("player");
+  const runtime = createRewardTicketRuntime({ db });
+  const ticket = runtime.issue({ battleId: "battle-atomic", account: "player", monsterId: "amumu", monsterCount: 1 });
+
+  const failed = runtime.claim("player", ticket, () => {
+    db.prepare("UPDATE balances SET amount = amount + 10 WHERE account = ?").run("player");
+    return { ok: false, error: "bad_monster_reward", status: 400 };
+  });
+  assert.deepEqual(failed, { ok: false, error: "bad_monster_reward", status: 400 });
+  assert.equal(db.prepare("SELECT amount FROM balances WHERE account = ?").get("player").amount, 0);
+  assert.equal(runtime.listPending("player").length, 1);
+
+  const settled = runtime.claim("player", ticket, () => {
+    db.prepare("UPDATE balances SET amount = amount + 10 WHERE account = ?").run("player");
+    return { ok: true, reward: { exp: 10 } };
+  });
+  assert.deepEqual(settled, { ok: true, result: { ok: true, reward: { exp: 10 } }, replayed: false });
+  assert.equal(db.prepare("SELECT amount FROM balances WHERE account = ?").get("player").amount, 10);
+
+  const replayed = runtime.claim("player", ticket, () => {
+    assert.fail("a claimed ticket must replay its persisted result instead of settling again");
+  });
+  assert.deepEqual(replayed, { ok: true, result: { ok: true, reward: { exp: 10 } }, replayed: true });
+  assert.equal(db.prepare("SELECT amount FROM balances WHERE account = ?").get("player").amount, 10);
+});
+
+test("pending reward tickets replay to a reconnected socket on a server throttle", () => {
+  let currentTime = 0;
+  const sent = [];
+  const runtime = createRewardDeliveryRuntime({
+    listPendingTickets: () => [{ id: "ticket-1", battleId: "battle-1", monsterId: "amumu", monsterCount: 1 }],
+    sendSocketJson: (socket, payload) => sent.push({ socket, payload }),
+    now: () => currentTime
+  });
+  const meta = { account: "player", peerId: "new-peer", serverId: "realm", channelId: 2 };
+
+  assert.equal(runtime.replay(meta, "socket"), 1);
+  assert.equal(runtime.replay(meta, "socket"), 0);
+  assert.deepEqual(sent, [{
+    socket: "socket",
+    payload: {
+      type: "teamBattleReward",
+      battleId: "battle-1",
+      to: "new-peer",
+      roster: [],
+      wildMonsterId: "amumu",
+      monsterCount: 1,
+      rewardTicket: "ticket-1",
+      rewardId: "ticket-1",
+      recovered: true
+    }
+  }]);
+  currentTime = 5001;
+  assert.equal(runtime.replay(meta, "socket"), 1);
+  runtime.handleDisconnect(meta);
+  assert.equal(runtime.replay(meta, "socket"), 1);
 });
