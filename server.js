@@ -5873,6 +5873,7 @@ server.on("upgrade", (req, socket) => {
       }
       if (data?.peerId) {
         const meta = socketMeta.get(socket) || {};
+        const peerChanged = meta.peerId !== String(data.peerId);
         meta.peerId = String(data.peerId);
         if (data.clientVersion) meta.clientVersion = String(data.clientVersion);
         if (data.type === "state" && data.mapName) {
@@ -5905,12 +5906,15 @@ server.on("upgrade", (req, socket) => {
               data.name = row.name;
             }
           }
+          data.team = meta.team || { leaderId: "", members: [] };
+          data.leaderId = data.team.leaderId || meta.leaderId || "";
           const nextMapName = String(data.mapName);
           if (meta.mapName && meta.mapName !== nextMapName) data.previousMapName = meta.mapName;
           meta.mapName = nextMapName;
           if ("hiddenPlayers" in data) meta.hiddenPlayers = Boolean(data.hiddenPlayers);
         }
         socketMeta.set(socket, meta);
+        if (peerChanged) teamRuntime.handlePeerConnected(meta.peerId, meta);
       }
 
       // === 带宽优化：处理存档增量消息（替代 HTTP POST /api/player）===
@@ -6125,6 +6129,22 @@ const onlineBattle = createOnlineBattleRuntime({
   setSocketMeta: (socket, meta) => socketMeta.set(socket, meta),
   issuePveRewardTickets: (ticket) => rewardTicketRuntime.issue(ticket),
   choiceMs: 15000
+});
+
+const teamRuntime = createTeamRuntime({
+  findSocketByPeerId,
+  findSocketByAccount,
+  getSocketMeta: (socket) => socketMeta.get(socket) || {},
+  setSocketMeta: (socket, meta) => socketMeta.set(socket, meta),
+  sendSocketJson: (socket, payload) => {
+    if (!socket || socket.destroyed) return;
+    const message = JSON.stringify(payload);
+    const frame = encodeFrame(message);
+    if (socket.write(frame)) {
+      recordRoomTraffic(payload.type || roomMessageType(message), "out", frame.length);
+    }
+  },
+  onTeamDisband: ({ leaderAccount, realm }) => onlineBattle?.endTeamBattlesForLeader(leaderAccount, realm)
 });
 
 const arenaRuntime = createArenaRuntime({
