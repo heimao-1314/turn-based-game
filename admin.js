@@ -251,7 +251,7 @@ const Servers = (() => {
     const el = $("#serverList");
     if (!el) return;
     if (!list.length) {
-      el.innerHTML = '<div class="selected-box">暂无服务器，请先创建服务器。</div>';
+      el.innerHTML = '<tr class="empty-row"><td colspan="7">暂无服务器，请先创建服务器。</td></tr>';
       return;
     }
 
@@ -262,17 +262,15 @@ const Servers = (() => {
       const onlineCount = count(server.onlineCount ?? server.online);
       const channelCount = count(server.channelCount || 6) || 6;
       return `
-        <div class="server-row">
-          <div class="server-info">
-            <div class="server-title">
-              <strong>${Core.escapeHtml(serverName(server))}</strong>
-              <span class="server-status ${enabled ? "server-status-enabled" : "server-status-disabled"}">${enabled ? "已启用" : "已停用"}</span>
-            </div>
-            <small>ID ${Core.escapeHtml(id || "未提供")}</small>
-            <small>角色 ${characterCount} / 在线 ${onlineCount} / 线路 ${channelCount}</small>
-          </div>
-          <button type="button" class="btn-sm ${enabled ? "btn-orange" : "btn-green"}" data-server-id="${Core.escapeHtml(id)}" data-server-enabled="${enabled ? "1" : "0"}" ${id ? "" : "disabled"}>${enabled ? "停用" : "启用"}</button>
-        </div>
+        <tr class="server-row">
+          <td><span class="status-dot ${enabled ? "status-online" : "status-offline"}"></span>${enabled ? "已启用" : "已停用"}</td>
+          <td><div class="player-cell"><span class="cell-avatar server-avatar">S</span><strong>${Core.escapeHtml(serverName(server))}</strong></div></td>
+          <td><span class="id-value">${Core.escapeHtml(id || "未提供")}</span></td>
+          <td>${characterCount.toLocaleString("zh-CN")}</td>
+          <td><strong class="online-value">${onlineCount.toLocaleString("zh-CN")}</strong></td>
+          <td>${channelCount}</td>
+          <td><button type="button" class="btn-sm ${enabled ? "btn-orange" : "btn-green"}" data-server-id="${Core.escapeHtml(id)}" data-server-enabled="${enabled ? "1" : "0"}" ${id ? "" : "disabled"}>${enabled ? "停用" : "启用"}</button></td>
+        </tr>
       `;
     }).join("");
 
@@ -286,14 +284,14 @@ const Servers = (() => {
 
   async function load({ silent = false } = {}) {
     const el = $("#serverList");
-    if (el && !list.length) el.innerHTML = '<div class="selected-box">正在读取服务器列表…</div>';
+    if (el && !list.length) el.innerHTML = '<tr class="empty-row"><td colspan="7">正在读取服务器列表...</td></tr>';
     try {
       const result = await Core.api("/api/admin/servers", { method: "GET" });
       list = Array.isArray(result.servers) ? result.servers : [];
       render();
       if (!silent) Core.message(`已读取 ${list.length} 个服务器`);
     } catch (err) {
-      if (el) el.innerHTML = `<div class="selected-box">服务器列表读取失败：${Core.escapeHtml(err.message)}</div>`;
+      if (el) el.innerHTML = `<tr class="empty-row"><td colspan="7">服务器列表读取失败：${Core.escapeHtml(err.message)}</td></tr>`;
       Core.message(`服务器列表读取失败：${err.message}`, true);
     }
   }
@@ -374,15 +372,16 @@ const Rankings = (() => {
     if (!el) return;
     const stat = $("#rankingStat")?.value || "power";
     el.innerHTML = list.length ? list.map((entry, i) => `
-      <div class="ranking-row ${entry.bannedAt ? "banned" : ""}" data-account="${Core.escapeHtml(entry.account)}">
-        <span>#${i + 1}</span>
-        <div>
-          <strong>${Core.escapeHtml(entry.name || entry.account)} ${entry.bannedAt ? "（已封）" : ""}</strong>
-          <small>${Core.escapeHtml(entry.account)} / Lv.${entry.level} / 龙魂 ${entry.dragonSoul} / ${statLine(entry.stats)}</small>
-        </div>
-        <span class="rank-value">${Core.escapeHtml(statLabel(stat))} ${entry.value || 0}</span>
-      </div>
-    `).join("") : '<div class="selected-box">暂无排行榜数据</div>';
+      <tr class="ranking-row ${entry.bannedAt ? "banned" : ""}" data-account="${Core.escapeHtml(entry.account)}">
+        <td><span class="rank-number rank-${i + 1}">#${i + 1}</span></td>
+        <td><div class="player-cell"><span class="cell-avatar rank-avatar">${Core.escapeHtml(String(entry.name || entry.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(entry.name || entry.account)}${entry.bannedAt ? "（已封）" : ""}</strong></div></td>
+        <td>${Core.escapeHtml(entry.account)}</td>
+        <td><strong class="level-value">Lv. ${Number(entry.level) || 1}</strong></td>
+        <td>${Number(entry.dragonSoul) || 1}</td>
+        <td><strong class="rank-value">${Core.escapeHtml(statLabel(stat))} ${(Number(entry.value) || 0).toLocaleString("zh-CN")}</strong></td>
+        <td><span class="detail-value" title="${Core.escapeHtml(statLine(entry.stats))}">${Core.escapeHtml(statLine(entry.stats))}</span></td>
+      </tr>
+    `).join("") : '<tr class="empty-row"><td colspan="7">暂无排行榜数据</td></tr>';
     el.querySelectorAll(".ranking-row").forEach((row) => {
       row.addEventListener("click", () => Players.select(row.dataset.account));
     });
@@ -481,16 +480,16 @@ const Anomalies = (() => {
     const el = $("#anomalyList");
     if (!el) return;
     el.innerHTML = list.length ? list.map((entry) => `
-      <div class="ranking-row ${entry.bannedAt ? "banned" : ""}" data-account="${Core.escapeHtml(entry.account)}">
-        <span>S${entry.severity || 1}</span>
-        <div>
-          <strong>${Core.escapeHtml(entry.name || entry.account)} ${entry.bannedAt ? "（已封）" : ""}</strong>
-          <small>${Core.escapeHtml(entry.account)} / ${Core.escapeHtml(typeLabel(entry.type))} / ${Core.escapeHtml(actionLabel(entry.action))} / ${Core.escapeHtml(entry.createdAt || "")}</small>
-          <small>${Core.escapeHtml(summary(entry.detail || {}))}</small>
-        </div>
-        <span class="rank-value">${Core.escapeHtml(typeLabel(entry.type))}</span>
-      </div>
-    `).join("") : '<div class="selected-box">暂无异常标记</div>';
+      <tr class="ranking-row ${entry.bannedAt ? "banned" : ""}" data-account="${Core.escapeHtml(entry.account)}">
+        <td><span class="severity-badge severity-${Math.max(1, Math.min(5, Number(entry.severity) || 1))}">S${Number(entry.severity) || 1}</span></td>
+        <td><div class="player-cell"><span class="cell-avatar anomaly-avatar">${Core.escapeHtml(String(entry.name || entry.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(entry.name || entry.account)}${entry.bannedAt ? "（已封）" : ""}</strong></div></td>
+        <td>${Core.escapeHtml(entry.account)}</td>
+        <td><strong class="anomaly-type">${Core.escapeHtml(typeLabel(entry.type))}</strong></td>
+        <td>${Core.escapeHtml(actionLabel(entry.action))}</td>
+        <td><span class="time-value">${Core.escapeHtml(entry.createdAt || "暂无记录")}</span></td>
+        <td><span class="detail-value anomaly-detail" title="${Core.escapeHtml(summary(entry.detail || {}))}">${Core.escapeHtml(summary(entry.detail || {}))}</span></td>
+      </tr>
+    `).join("") : '<tr class="empty-row"><td colspan="7">暂无异常标记</td></tr>';
     el.querySelectorAll(".ranking-row").forEach((row) => {
       row.addEventListener("click", () => Players.select(row.dataset.account));
     });
