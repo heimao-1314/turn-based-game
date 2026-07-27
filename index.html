@@ -60,6 +60,7 @@
           <button class="primary" type="submit">进入游戏</button>
         </form>
         <div id="coverDialog" class="cover-dialog hidden">
+          <div class="cover-dialog-canvas">
           <form id="coverLoginForm" class="cover-dialog-panel">
             <div id="coverDialogTitle" class="cover-menu-title">登录游戏</div>
             <div class="cover-menu-body">
@@ -78,8 +79,10 @@
             <button id="coverLoginConfirm" class="menu-framed-button compact" type="submit" form="coverLoginForm">确定</button>
             <button id="coverLoginBack" class="menu-framed-button compact" type="button">返回</button>
           </div>
+          </div>
         </div>
         <div id="coverInfoDialog" class="cover-dialog hidden">
+          <div class="cover-dialog-canvas">
           <div class="cover-dialog-panel">
             <div id="coverInfoTitle" class="cover-menu-title">帮助信息</div>
             <div class="cover-menu-body">
@@ -94,6 +97,7 @@
           <div class="cover-menu-actions">
             <button id="coverInfoConfirm" class="menu-framed-button compact" type="button">确定</button>
             <button id="coverInfoBack" class="menu-framed-button compact" type="button">返回</button>
+          </div>
           </div>
         </div>
       </section>
@@ -384,6 +388,8 @@
     <script src="bandwidth-optimizer/client/state-merger.js"></script>
     <script src="bandwidth-optimizer/client/local-simulator.js"></script>
     <script src="bandwidth-optimizer/client/bandwidth-optimizer.js"></script>
+        <script src="菜单UI/login-media-policy.js"></script>
+        <script src="菜单UI/login-media-runtime.js"></script>
         <script src="菜单UI/菜单界面.js?v=20260712-7"></script>
         <script src="map-admin-editor.js"></script>
         <script src="飞图小地图/区域飞图.js"></script>
