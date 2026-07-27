@@ -720,6 +720,7 @@ const state = {
   hiddenOnMap: new Set(),
   remoteBattleMarkers: new Map(),
   menuOpen: false,
+  endedRemoteBattleMarkerIds: new Set(),
   menuTab: 0,
   menuItem: 0,
   menuContextTitle: "",
@@ -2578,7 +2579,7 @@ async function upsertPeerFromMessage(msg) {
 function cleanupPeerBattleMarkers(peerId, battleId = "") {
   for (const [markerBattleId, marker] of state.remoteBattleMarkers) {
     const hasPeer = (marker.participants || []).some((participant) => participant.peerId === peerId);
-    if (hasPeer && (!battleId || markerBattleId !== battleId)) {
+    if (hasPeer && battleId && markerBattleId !== battleId) {
       state.remoteBattleMarkers.delete(markerBattleId);
     }
   }
@@ -3842,7 +3843,8 @@ function render(now = performance.now()) {
     ? []
     : [...state.peers.values()]
       .filter((peer) => (peer.mapName || "仓库") === state.mapName)
-      .flatMap((peer) => peer.pet ? [peer.pet, peer] : [peer]);
+      .flatMap((peer) => peer.pet ? [peer.pet, peer] : [peer])
+      .filter((actor) => !isRemoteBattleParticipant(actor));
   const markerActors = [...state.remoteBattleMarkers.values()]
     .filter((marker) => (marker.mapName || "仓库") === state.mapName);
   const localActors = localActorsOnCurrentMap();
@@ -4290,7 +4292,7 @@ function battleParticipantSnapshot(actor) {
     mapName: actor.mapName || state.mapName,
     wildMonsterId: actor.wildMonsterId || "",
     immortalBossId: actor.immortalBossId || "",
-    peerId: findPeerIdByActor(actor) || ""
+    peerId: isLocalBattleActor ? state.peerId : (findPeerIdByActor(actor) || "")
   };
 }
 
@@ -4301,6 +4303,7 @@ function battleMarkerSnapshotFor(target) {
     mapName: state.mapName
   };
   if (!marker) return null;
+  const isLocalBattleActor = actor === state.player || actor === state.pet || actor?.ownerPeerId === state.peerId;
   const participants = [state.player, state.pet, target, target?.pet, target?.mercenary, ...(target?.wildEnemies || [])]
     .map(battleParticipantSnapshot)
     .filter(Boolean);
@@ -9838,12 +9841,12 @@ function applyBattlePassives(team) {
 
 function hideBattleActors(target) {
   state.hiddenOnMap.clear();
-  [state.player, state.pet, target, target?.pet].filter(Boolean).forEach((actor) => state.hiddenOnMap.add(actor));
+  [state.player, state.pet, ...additionalActors].filter(Boolean).forEach((actor) => state.hiddenOnMap.add(actor));
   state.battleMarker = createActor({
     name: "战斗",
     spriteId: 23,
-    x: Math.round(((state.player.x + target.x) / 2) / 16) * 16,
-    y: Math.round(((state.player.y + target.y) / 2) / 16) * 16
+    x: marker.x,
+    y: marker.y
   });
   state.battleMarker.isBattleMarker = true;
   state.battleMarker.battleId = "";
@@ -9857,6 +9860,14 @@ function restoreBattleActors() {
 function battleMarkerSnapshot() {
   return state.battleMarker ? { x: state.battleMarker.x, y: state.battleMarker.y, mapName: state.mapName } : null;
 }
+  hideLocalBattleActorsAt({
+    x: Math.round(((state.player.x + target.x) / 2) / 16) * 16,
+    y: Math.round(((state.player.y + target.y) / 2) / 16) * 16
+  }, [target, target?.pet]);
+}
+
+function hideLocalBattleActorsAt(marker, additionalActors = []) {
+  if (!state.player || !marker) return;
 
 function battleActorSnapshot(actor) {
   return battleProtocol.battleActorSnapshot(actor);
@@ -9900,7 +9911,6 @@ function sendTeamBattleMessageReliable(type, battleId, payload = {}) {
 
 function sendBattleEndReliable(battleId, opponentPeerId = "") {
   if (opponentPeerId) sendRoomMessage({ type: "battleEnd", battleId, to: opponentPeerId });
-  sendRoomMessage({ type: "battleMarkerEnd", battleId });
 }
 
 function isTeamMessageForMe(msg) {
@@ -9913,22 +9923,45 @@ function isActiveTeamBattleMessage(msg) {
 
 async function showRemoteBattleMarker(msg) {
   const markerData = msg.marker;
-  if (!markerData) return;
+  const battleId = String(msg.battleId || "");
+  if (!markerData || !battleId || state.endedRemoteBattleMarkerIds.has(battleId)) return;
   await loadSprite(23);
   const marker = createActor({ name: "战斗", spriteId: 23, x: markerData.x, y: markerData.y });
   marker.mapName = markerData.mapName || state.mapName;
   marker.isBattleMarker = true;
-  marker.battleId = msg.battleId;
+  marker.battleId = battleId;
   marker.participants = markerData.participants || [];
-  state.remoteBattleMarkers.delete(msg.battleId);
-  state.remoteBattleMarkers.set(msg.battleId, marker);
+  for (const [existingBattleId, existingMarker] of state.remoteBattleMarkers) {
+    if (existingBattleId !== battleId && remoteBattleMarkersShareParticipant(existingMarker, marker)) {
+      state.remoteBattleMarkers.delete(existingBattleId);
+    }
+  }
+  state.remoteBattleMarkers.delete(battleId);
+  state.remoteBattleMarkers.set(battleId, marker);
   while (state.remoteBattleMarkers.size > MAX_REMOTE_BATTLE_MARKERS) {
     state.remoteBattleMarkers.delete(state.remoteBattleMarkers.keys().next().value);
   }
 }
 
 function removeRemoteBattleMarker(battleId) {
-  state.remoteBattleMarkers.delete(battleId);
+  const normalizedBattleId = String(battleId || "");
+  if (!normalizedBattleId) return;
+  state.remoteBattleMarkers.delete(normalizedBattleId);
+  addBoundedId(state.endedRemoteBattleMarkerIds, normalizedBattleId, MAX_REMOTE_BATTLE_MARKERS * 4);
+}
+
+function remoteBattleMarkersShareParticipant(first, second) {
+  const participantIds = new Set((first?.participants || []).map((participant) => participant.peerId).filter(Boolean));
+  return (second?.participants || []).some((participant) => participant.peerId && participantIds.has(participant.peerId));
+}
+  if (state.endedRemoteBattleMarkerIds.has(battleId)) return;
+
+function isRemoteBattleParticipant(actor) {
+  const peerId = actor?.ownerPeerId || findPeerIdByActor(actor);
+  if (!peerId) return false;
+  return [...state.remoteBattleMarkers.values()].some((marker) =>
+    (marker.participants || []).some((participant) => participant.peerId === peerId)
+  );
 }
 
 function battleRejectText(reason) {
@@ -9990,7 +10023,7 @@ function battleStatePayload({
 
 let battleTransitionRunId = 0;
 
-function playBattleTransition(onCovered, orientation = Math.random() > 0.5 ? "vertical" : "horizontal") {
+function playBattleTransition(onCovered, orientation = Math.random() > 0.5 ? "vertical" : "horizontal", onComplete = null) {
   const transition = $("#battleTransition");
   if (!transition) {
     onCovered?.();
@@ -10044,6 +10077,7 @@ function playBattleTransition(onCovered, orientation = Math.random() > 0.5 ? "ve
         closeTransform: "scaleY(1.02)"
       });
     }
+    onComplete?.();
 
     maxDuration = Math.max(maxDuration, duration);
     transition.appendChild(blade);
@@ -10124,6 +10158,7 @@ async function startBattle(target) {
     if (!realtimeReady(true)) return;
     if (isTeammatePeerId(targetPeerId)) {
       showMenuHint("不能挑战队友");
+        onComplete?.();
       return;
     }
     const peerVersion = state.peers.get(targetPeerId)?.clientVersion || "";
@@ -10373,6 +10408,10 @@ function allBattleFighters() {
 function findBattleFighterByRef(ref = "") {
   return allBattleFighters().find((fighter) => fighter.battleId === ref) || allBattleFighters().find((fighter) => fighter.name === ref) || null;
 }
+  if (msg.marker) {
+    hideLocalBattleActorsAt(msg.marker);
+    if (state.battleMarker) state.battleMarker.battleId = msg.battleId;
+  }
 
 function pickTarget(team, targetRef = "") {
   const candidates = alive(team);
@@ -11706,7 +11745,7 @@ function renderBattleTargets() {
   panel.innerHTML = `<span>${escapeHtml(battleChoiceStepText())}：点击目标，或用上下键切换后按 Enter，点返回可重选技能</span>`;
 }
 
-function closeBattle() {
+function closeBattle(notifyMarkerEnd = true) {
   const battleId = state.battle?.id;
   state.battle = null;
   if (battleId) removeRemoteBattleMarker(battleId);
@@ -11734,7 +11773,6 @@ function escapeBattle() {
     sendRoomMessage({ type: "battleEscape", battleId: battle.id, reason: "escape" });
   }
   if (!battle.teamBattleServer && !battle.arenaServer && battle.role === "attacker") sendBattleEndReliable(battle.id, battle.opponentPeerId);
-  else sendRoomMessage({ type: "battleMarkerEnd", battleId: battle.id });
   handleBattleEscape("self");
 }
 
@@ -11772,7 +11810,16 @@ function showBattleResult(winner) {
 }
 
 function endBattleToMap() {
-  playBattleTransition(closeBattle);
+  const battle = state.battle;
+  if (!battle || battle.endTransitionStarted) return;
+  battle.endTransitionStarted = true;
+  const battleId = battle.id;
+  playBattleTransition(
+    () => closeBattle(false),
+    undefined,
+    () => sendRoomMessage({ type: "battleMarkerEnd", battleId })
+  if (battleId && notifyMarkerEnd) sendRoomMessage({ type: "battleMarkerEnd", battleId });
+  );
 }
 
 function drawBattleScene() {
