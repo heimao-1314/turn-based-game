@@ -107,7 +107,7 @@ async function startBackgroundKeepAlive() {
 
 function setupBackgroundKeepAlive() {
   if (!backgroundKeepAlive.enabled || typeof window === "undefined") return;
-  if (isEdgeBrowser) return;
+  if (shouldUseStaticLoginImage()) return;
   const unlock = () => {
     startBackgroundKeepAlive();
   };
@@ -884,6 +884,10 @@ const isNativeBridge = Boolean(window.Capacitor?.isNativePlatform?.() || window.
 const isCapacitorLocalhost = ["localhost", "127.0.0.1"].includes(location.hostname) && !location.port;
 const isPackagedClient = ["file:", "capacitor:"].includes(location.protocol) || isNativeBridge || isCapacitorLocalhost;
 const isEdgeBrowser = /\bEdg\//.test(navigator.userAgent || "");
+
+function shouldUseStaticLoginImage() {
+  return window.LoginMediaPolicy?.shouldUseStaticImage(navigator.userAgent) ?? isEdgeBrowser;
+}
 function configuredServerOrigin() {
   const saved = localStorage.getItem("serverOrigin") || "";
   const configured = isPackagedClient ? (window.APP_CONFIG?.serverOrigin || saved) : "";
@@ -1028,6 +1032,7 @@ function showScreen(name) {
   Object.values(screens).forEach((screen) => screen.classList.remove("active"));
   screens[name].classList.add("active");
   $("#gatewayControlPad")?.classList.toggle("active", ["server", "line", "characters"].includes(name));
+  syncCoverLoginMedia(name === "auth");
 }
 
 function setLoading(active, text = "资源加载中...") {
@@ -1092,10 +1097,11 @@ async function loadLoginVisualSettings() {
 }
 
 function defaultLoginVisualSettings() {
+  const useStaticImage = shouldUseStaticLoginImage();
   return {
     mode: "cover",
-    mediaType: isEdgeBrowser ? "image" : "video",
-    mediaSrc: isEdgeBrowser ? "\u8d44\u6e90/\u56fe\u7247/\u767b\u5f55\u5c01\u9762.png" : "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4",
+    mediaType: useStaticImage ? "image" : "video",
+    mediaSrc: useStaticImage ? "\u8d44\u6e90/\u56fe\u7247/\u767b\u5f55\u5c01\u9762.png" : "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4",
     hotspotLeft: 65,
     hotspotWidth: 28,
     hotspotHeight: 5.2,
@@ -1106,8 +1112,9 @@ function defaultLoginVisualSettings() {
 
 function normalizeLoginVisualSettings(visual = {}, fallback = defaultLoginVisualSettings()) {
   const positions = Array.isArray(visual.positions) ? visual.positions : fallback.positions;
-  const mediaType = isEdgeBrowser ? "image" : (visual.mediaType === "image" ? "image" : "video");
-  const mediaSrc = isEdgeBrowser
+  const useStaticImage = shouldUseStaticLoginImage();
+  const mediaType = useStaticImage ? "image" : (visual.mediaType === "image" ? "image" : "video");
+  const mediaSrc = useStaticImage
     ? "\u8d44\u6e90/\u56fe\u7247/\u767b\u5f55\u5c01\u9762.png"
     : String(visual.mediaSrc || fallback.mediaSrc || "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4");
   return {
@@ -13017,30 +13024,11 @@ function applyCoverLoginVisualSettings() {
     stage.style.setProperty("--cover-arrow-left", `${visual.arrowLeft}%`);
     visual.positions.forEach((value, index) => stage.style.setProperty(`--cover-pos-${index}`, `${value}%`));
   }
-  const oldMedia = document.querySelector(".cover-bg");
-  if (oldMedia) {
-    const shouldVideo = visual.mediaType !== "image";
-    const currentTypeOk = shouldVideo ? oldMedia.tagName === "VIDEO" : oldMedia.tagName === "IMG";
-    if (!currentTypeOk || oldMedia.getAttribute("src") !== visual.mediaSrc) {
-      const media = shouldVideo ? document.createElement("video") : document.createElement("img");
-      media.className = `cover-bg ${shouldVideo ? "cover-video" : "cover-image"}`;
-      media.src = visual.mediaSrc;
-      media.setAttribute("aria-hidden", "true");
-      media.draggable = false;
-      if (shouldVideo) {
-        media.autoplay = true;
-        media.muted = true;
-        media.loop = true;
-        media.playsInline = true;
-        media.preload = "metadata";
-        media.setAttribute("webkit-playsinline", "true");
-      } else {
-        media.alt = "";
-      }
-      oldMedia.replaceWith(media);
-      if (shouldVideo) media.play?.().catch(() => {});
-    }
-  }
+  syncCoverLoginMedia(screens.auth.classList.contains("active"));
+}
+
+function syncCoverLoginMedia(active) {
+  window.LoginMediaRuntime?.syncCoverMedia(document.querySelector(".cover-stage"), state.loginVisual, active);
 }
 
 async function authenticateAccount({ account, password, mode = "login", autoRegister = false, messageEl = $("#authMessage") }) {
@@ -13866,6 +13854,7 @@ async function refreshClientVersion({ forceReload = false } = {}) {
 }
 
 window.addEventListener("beforeunload", () => {
+  window.LoginMediaRuntime?.disposeCoverMedia(document.querySelector(".cover-stage"));
   if (state.pendingBattleInvite) {
     const battleId = state.pendingBattleInvite.battleId;
     sendRoomMessage({ type: "battleMarkerEnd", battleId });
