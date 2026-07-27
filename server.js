@@ -40,6 +40,8 @@ const { createAuthRuntime } = require("./src/server/auth/runtime.js");
 const { createRedeemCodeRuntime } = require("./src/server/economy/redeem-code-runtime.js");
 const { createRewardTicketRuntime } = require("./战斗/reward-ticket-runtime.js");
 const { createTeamRuntime } = require("./队伍/server.js");
+const { createSocketWriteRuntime } = require("./src/server/realtime/socket-write-runtime.js");
+const { createWebSocketFrameRuntime, encodeControlFrame } = require("./src/server/realtime/websocket-frame-runtime.js");
 const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
@@ -53,7 +55,8 @@ try { if (bandwidthOptimizerEnabled) { const { createBandwidthOptimizer } = requ
 
 const root = process.pkg ? path.dirname(process.execPath) : __dirname;
 const port = Number(process.env.PORT || 6588);
-const WS_IDLE_CLOSE_MS = Number(process.env.WS_IDLE_CLOSE_MS || 90000);
+const WS_IDLE_CLOSE_MS = Number(process.env.WS_IDLE_CLOSE_MS || 120000);
+const WS_MAX_QUEUED_BYTES = Math.max(64 * 1024, Number(process.env.WS_MAX_QUEUED_BYTES || 2 * 1024 * 1024));
 const isProduction = process.env.NODE_ENV === "production";
 const sockets = new Set();
 const socketMeta = new Map();
@@ -80,6 +83,25 @@ const legacyDbPath = path.join(root, "players-db.json");
 const db = new DatabaseSync(dbPath);
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA busy_timeout = 5000;");
+const socketWriteRuntime = createSocketWriteRuntime({
+  maxQueuedBytes: WS_MAX_QUEUED_BYTES,
+  onWrite: (type, bytes) => recordRoomTraffic(type, "out", bytes),
+  onOverflow: (socket, detail) => {
+    const meta = socketMeta.get(socket) || {};
+    recordAnomalyOnce(meta.loginAccount || meta.account, "ws_backpressure_overflow", detail, 2, "disconnect", 60 * 1000);
+  }
+});
+const socketFrameRuntime = createWebSocketFrameRuntime({
+  onProtocolError: (socket, reason) => {
+    const meta = socketMeta.get(socket) || {};
+    recordAnomalyOnce(meta.loginAccount || meta.account, "ws_protocol_error", { reason }, 2, "disconnect", 60 * 1000);
+  }
+});
+function sendSocketJson(socket, payload) {
+  if (!socket || socket.destroyed) return false;
+  const message = JSON.stringify(payload);
+  return socketWriteRuntime.write(socket, encodeFrame(message), payload.type || roomMessageType(message));
+}
 let immortalCultivationRuntime = null;
 let madBragRuntime = null;
 function configSecret(name, fallback, weakValues = []) {
@@ -2079,7 +2101,6 @@ function itemColumnForId(id) {
 
 const redeemCodeRuntime = createRedeemCodeRuntime({ db, itemColumnForId });
 const rewardTicketRuntime = createRewardTicketRuntime({ db });
-
 function isUntradeableItemId(id) {
   return id === "phantom_fragment";
 }
@@ -3609,7 +3630,7 @@ function handleApi(req, res, url) {
         const notice = JSON.stringify({ type: "forceLogout", reason: "server_disabled" });
         for (const socket of sockets) {
           if (socket.destroyed || socketMeta.get(socket)?.serverId !== id) continue;
-          socket.write(encodeFrame(notice));
+          socketWriteRuntime.write(socket, encodeFrame(notice), "forceLogout");
           socket.end();
         }
       }
@@ -5789,7 +5810,7 @@ function handleApi(req, res, url) {
   });
 }
 
-server.on("upgrade", (req, socket) => {
+server.on("upgrade", (req, socket, head) => {
   const upgradeUrl = new URL(req.url || "", "http://localhost");
   if (upgradeUrl.pathname !== "/room" || req.headers.upgrade?.toLowerCase() !== "websocket") {
     socket.destroy();
@@ -5832,7 +5853,7 @@ server.on("upgrade", (req, socket) => {
   const previous = accountSockets.get(authenticatedAccount);
   if (previous && !previous.destroyed) {
     const notice = JSON.stringify({ type: "forceLogout", reason: "duplicate_login" });
-    previous.write(encodeFrame(notice));
+    socketWriteRuntime.write(previous, encodeFrame(notice), "forceLogout");
     previous.end();
   }
   sockets.add(socket);
@@ -5851,8 +5872,13 @@ server.on("upgrade", (req, socket) => {
     team: { leaderId: "", members: [] },
     leaderId: ""
   });
+  let socketClosed = false;
   const closeSocket = (reason = "closed") => {
+    if (socketClosed) return;
+    socketClosed = true;
     const meta = socketMeta.get(socket) || {};
+    socketWriteRuntime.forget(socket);
+    socketFrameRuntime.forget(socket);
     teamRuntime.handleDisconnect(meta.peerId || "", meta);
     onlineBattle.handleDisconnect(meta.peerId || "", socketRealm(meta));
     if (meta.account && accountSockets.get(meta.account) === socket) accountSockets.delete(meta.account);
@@ -5860,15 +5886,22 @@ server.on("upgrade", (req, socket) => {
     sockets.delete(socket);
     socketMeta.delete(socket);
   };
-  socket.on("data", (buffer) => {
+  const handleSocketData = (buffer) => {
     socket.lastSeenAt = Date.now();
-    for (const message of decodeFrames(buffer)) {
+    const decoded = socketFrameRuntime.push(socket, buffer);
+    if (decoded.protocolError) {
+      socket.destroy();
+      return;
+    }
+    for (const pingPayload of decoded.pingPayloads) {
+      socketWriteRuntime.write(socket, encodeControlFrame(0xA, pingPayload), "pong_control");
+    }
+    for (const message of decoded.messages) {
       const data = parseRoomMessage(message);
       const type = typeof data?.type === "string" && data.type ? data.type : roomMessageType(message);
       if (data?.type === "ping") {
         const pong = JSON.stringify({ type: "pong", ts: data.ts || Date.now() });
-        socket.write(encodeFrame(pong));
-        recordRoomTraffic("pong", "out", Buffer.byteLength(pong));
+        socketWriteRuntime.write(socket, encodeFrame(pong), "pong");
         continue;
       }
       if (data?.peerId) {
@@ -5885,8 +5918,7 @@ server.on("upgrade", (req, socket) => {
             const previous = accountSockets.get(account);
             if (previous && previous !== socket && !previous.destroyed) {
               const notice = JSON.stringify({ type: "forceLogout", reason: "duplicate_login" });
-              previous.write(encodeFrame(notice));
-              recordRoomTraffic("forceLogout", "out", Buffer.byteLength(notice));
+              socketWriteRuntime.write(previous, encodeFrame(notice), "forceLogout");
               previous.end();
             }
             if (meta.account && accountSockets.get(meta.account) === socket) accountSockets.delete(meta.account);
@@ -5938,11 +5970,11 @@ server.on("upgrade", (req, socket) => {
             db.prepare("UPDATE players SET " + updates.join(", ") + " WHERE account = ?").run(...values);
           }
           const ack = JSON.stringify({ t: "va", ok: true, v: data.v || 0 });
-          socket.write(encodeFrame(ack));
+          socketWriteRuntime.write(socket, encodeFrame(ack), "saveAck");
         } catch (err) {
           console.error("[BW-Opt] WS save error:", err.message);
           const ack = JSON.stringify({ t: "va", ok: false, error: "save_failed" });
-          socket.write(encodeFrame(ack));
+          socketWriteRuntime.write(socket, encodeFrame(ack), "saveAck");
         }
         continue;
       }
@@ -5953,7 +5985,7 @@ server.on("upgrade", (req, socket) => {
           const row = db.prepare("SELECT * FROM players WHERE account = ?").get(meta.account);
           if (row) {
             const fullState = JSON.stringify({ t: "sf", v: Date.now(), st: { level: row.level, exp: row.exp, dragonSoul: row.dragon_soul, petLevel: row.pet_level, petExp: row.pet_exp, x: row.x, y: row.y, mapName: row.map_name, name: row.name }, cs: "" });
-            socket.write(encodeFrame(fullState));
+            socketWriteRuntime.write(socket, encodeFrame(fullState), "stateFull");
           }
         }
         continue;
@@ -5964,7 +5996,10 @@ server.on("upgrade", (req, socket) => {
       if (onlineBattle.handleRoomMessage(data, socket)) continue;
       broadcast(message, socket, data);
     }
-  });
+    if (decoded.closeRequested && !socket.destroyed) socket.end();
+  };
+  socket.on("data", handleSocketData);
+  if (head?.length) handleSocketData(head);
   socket.on("close", () => closeSocket("closed"));
   socket.on("error", () => closeSocket("error"));
 });
@@ -5974,11 +6009,9 @@ function broadcast(message, sender, data = null) {
   const frame = encodeFrame(message);
   for (const client of sockets) {
     if (client !== sender && !client.destroyed && shouldForwardRoomMessage(data, sender, client)) {
-      if (client.write(frame)) {
-        recordRoomTraffic(type, "out", frame.length);
-      } else {
-        client.once("drain", () => recordRoomTraffic(type, "out", frame.length));
-      }
+      const senderPeerId = socketMeta.get(sender)?.peerId || data?.peerId || "";
+      const coalesceKey = data?.type === "state" && senderPeerId ? `state:${senderPeerId}` : "";
+      socketWriteRuntime.write(client, frame, type, { coalesceKey });
     }
   }
 }
@@ -6060,14 +6093,7 @@ const onlineBattle = createOnlineBattleRuntime({
   findSocketByPeerId,
   findSocketByAccount,
   findSocketByName,
-  sendSocketJson: (socket, payload) => {
-    if (!socket || socket.destroyed) return;
-    const message = JSON.stringify(payload);
-    const frame = encodeFrame(message);
-    if (socket.write(frame)) {
-      recordRoomTraffic(payload.type || roomMessageType(message), "out", frame.length);
-    }
-  },
+  sendSocketJson,
   getSocketMeta: (socket) => socketMeta.get(socket) || {},
   setSocketMeta: (socket, meta) => socketMeta.set(socket, meta),
   issuePveRewardTickets: (ticket) => rewardTicketRuntime.issue(ticket),
@@ -6079,14 +6105,7 @@ const teamRuntime = createTeamRuntime({
   findSocketByAccount,
   getSocketMeta: (socket) => socketMeta.get(socket) || {},
   setSocketMeta: (socket, meta) => socketMeta.set(socket, meta),
-  sendSocketJson: (socket, payload) => {
-    if (!socket || socket.destroyed) return;
-    const message = JSON.stringify(payload);
-    const frame = encodeFrame(message);
-    if (socket.write(frame)) {
-      recordRoomTraffic(payload.type || roomMessageType(message), "out", frame.length);
-    }
-  },
+  sendSocketJson,
   onTeamDisband: ({ leaderAccount, realm }) => onlineBattle?.endTeamBattlesForLeader(leaderAccount, realm)
 });
 
@@ -6144,38 +6163,6 @@ madBragRuntime = createMadBragRuntime({
     return materialSellPrice(id);
   }
 });
-
-function decodeFrames(buffer) {
-  const messages = [];
-  let offset = 0;
-  while (offset + 2 <= buffer.length) {
-    const first = buffer[offset++];
-    const second = buffer[offset++];
-    const opcode = first & 0x0f;
-    let length = second & 0x7f;
-    if (length === 126) {
-      if (offset + 2 > buffer.length) break;
-      length = buffer.readUInt16BE(offset);
-      offset += 2;
-    } else if (length === 127) {
-      if (offset + 8 > buffer.length) break;
-      length = Number(buffer.readBigUInt64BE(offset));
-      offset += 8;
-    }
-    const masked = (second & 0x80) !== 0;
-    const mask = masked ? buffer.slice(offset, offset + 4) : null;
-    if (masked) offset += 4;
-    if (offset + length > buffer.length) break;
-    const payload = Buffer.from(buffer.slice(offset, offset + length));
-    offset += length;
-    if (masked) {
-      for (let i = 0; i < payload.length; i++) payload[i] ^= mask[i % 4];
-    }
-    if (opcode === 8) break;
-    if (opcode === 1) messages.push(payload.toString("utf8"));
-  }
-  return messages;
-}
 
 function encodeFrame(message) {
   const payload = Buffer.from(message);

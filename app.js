@@ -755,6 +755,17 @@ const state = {
   stall: { active: false, items: [], item: null, price: 0, originalSpriteId: 0 },
   stallDraftItems: []
 };
+const realtimeHeartbeat = window.OnlineBattleClient?.createHeartbeatRuntime?.({
+  getSocket: () => state.socket,
+  getPeerId: () => state.peerId,
+  intervalMs: 10000,
+  timeoutMs: 90000,
+  onTimeout: (socket) => {
+    socket.close();
+    if (state.player) showMenuHint("实时连接已重连，请重试操作");
+  },
+  onSendError: (socket) => socket.close()
+});
 
 const BATTLE_CHOICE_SECONDS = 19;
 const BATTLE_CHOICE_MS = BATTLE_CHOICE_SECONDS * 1000;
@@ -2665,6 +2676,7 @@ function setupRealtime() {
     if (!msg || isOwnEchoRoomMessage(msg)) return;
     if (msg.type === "pong") {
       state.lastSocketPongAt = Date.now();
+      realtimeHeartbeat?.markPong();
       return;
     }
     if (msg.type === "forceLogout") {
@@ -2825,10 +2837,8 @@ function setupRealtime() {
 }
 
 function clearSocketHeartbeat() {
-  if (state.socketHeartbeatTimer) {
-    clearInterval(state.socketHeartbeatTimer);
-    state.socketHeartbeatTimer = null;
-  }
+  realtimeHeartbeat?.stop();
+  state.socketHeartbeatTimer = null;
 }
 
 function clearSocketReconnect() {
@@ -2850,21 +2860,7 @@ function scheduleRealtimeReconnect(delay = 0) {
 }
 
 function startSocketHeartbeat() {
-  clearSocketHeartbeat();
-  state.socketHeartbeatTimer = setInterval(() => {
-    if (!state.socket || state.socket.readyState !== WebSocket.OPEN) return;
-    const now = Date.now();
-    if (state.lastSocketPongAt && now - state.lastSocketPongAt > 30000) {
-      state.socket.close();
-      if (state.player) showMenuHint("实时连接已重连，请重试操作");
-      return;
-    }
-    try {
-      state.socket.send(JSON.stringify({ type: "ping", peerId: state.peerId, ts: now }));
-    } catch {
-      state.socket.close();
-    }
-  }, 10000);
+  realtimeHeartbeat?.start();
 }
 
 function isOwnEchoRoomMessage(msg) {
@@ -9840,10 +9836,18 @@ function applyBattlePassives(team) {
 }
 
 function hideBattleActors(target) {
+  hideLocalBattleActorsAt({
+    x: Math.round(((state.player.x + target.x) / 2) / 16) * 16,
+    y: Math.round(((state.player.y + target.y) / 2) / 16) * 16
+  }, [target, target?.pet]);
+}
+
+function hideLocalBattleActorsAt(marker, additionalActors = []) {
+  if (!state.player || !marker) return;
   state.hiddenOnMap.clear();
   [state.player, state.pet, ...additionalActors].filter(Boolean).forEach((actor) => state.hiddenOnMap.add(actor));
   state.battleMarker = createActor({
-    name: "战斗",
+    name: "\u6218\u6597",
     spriteId: 23,
     x: marker.x,
     y: marker.y
@@ -9860,14 +9864,6 @@ function restoreBattleActors() {
 function battleMarkerSnapshot() {
   return state.battleMarker ? { x: state.battleMarker.x, y: state.battleMarker.y, mapName: state.mapName } : null;
 }
-  hideLocalBattleActorsAt({
-    x: Math.round(((state.player.x + target.x) / 2) / 16) * 16,
-    y: Math.round(((state.player.y + target.y) / 2) / 16) * 16
-  }, [target, target?.pet]);
-}
-
-function hideLocalBattleActorsAt(marker, additionalActors = []) {
-  if (!state.player || !marker) return;
 
 function battleActorSnapshot(actor) {
   return battleProtocol.battleActorSnapshot(actor);
@@ -9926,6 +9922,7 @@ async function showRemoteBattleMarker(msg) {
   const battleId = String(msg.battleId || "");
   if (!markerData || !battleId || state.endedRemoteBattleMarkerIds.has(battleId)) return;
   await loadSprite(23);
+  if (state.endedRemoteBattleMarkerIds.has(battleId)) return;
   const marker = createActor({ name: "战斗", spriteId: 23, x: markerData.x, y: markerData.y });
   marker.mapName = markerData.mapName || state.mapName;
   marker.isBattleMarker = true;
@@ -9954,7 +9951,6 @@ function remoteBattleMarkersShareParticipant(first, second) {
   const participantIds = new Set((first?.participants || []).map((participant) => participant.peerId).filter(Boolean));
   return (second?.participants || []).some((participant) => participant.peerId && participantIds.has(participant.peerId));
 }
-  if (state.endedRemoteBattleMarkerIds.has(battleId)) return;
 
 function isRemoteBattleParticipant(actor) {
   const peerId = actor?.ownerPeerId || findPeerIdByActor(actor);
@@ -11747,6 +11743,7 @@ function renderBattleTargets() {
 
 function closeBattle(notifyMarkerEnd = true) {
   const battleId = state.battle?.id;
+  if (battleId && notifyMarkerEnd) sendRoomMessage({ type: "battleMarkerEnd", battleId });
   state.battle = null;
   if (battleId) removeRemoteBattleMarker(battleId);
   if (battleId) state.canceledBattleIds.delete(battleId);
@@ -11818,7 +11815,6 @@ function endBattleToMap() {
     () => closeBattle(false),
     undefined,
     () => sendRoomMessage({ type: "battleMarkerEnd", battleId })
-  if (battleId && notifyMarkerEnd) sendRoomMessage({ type: "battleMarkerEnd", battleId });
   );
 }
 

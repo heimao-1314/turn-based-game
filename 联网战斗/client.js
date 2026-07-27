@@ -39,7 +39,51 @@
     return token ? `${wsUrl}?${token}` : wsUrl;
   }
 
+  function createHeartbeatRuntime(options = {}) {
+    const intervalMs = Math.max(1000, Number(options.intervalMs) || 10000);
+    const timeoutMs = Math.max(intervalMs * 2, Number(options.timeoutMs) || 90000);
+    const now = typeof options.now === "function" ? options.now : Date.now;
+    let timer = null;
+    let pendingPingAt = 0;
+
+    function tick() {
+      const socket = options.getSocket?.();
+      if (!socket || socket.readyState !== 1) return;
+      const currentTime = now();
+      if (pendingPingAt && currentTime - pendingPingAt > timeoutMs) {
+        options.onTimeout?.(socket);
+        return;
+      }
+      if (pendingPingAt) return;
+      try {
+        socket.send(JSON.stringify({ type: "ping", peerId: options.getPeerId?.() || "", ts: currentTime }));
+        pendingPingAt = currentTime;
+      } catch {
+        options.onSendError?.(socket);
+      }
+    }
+
+    function start() {
+      stop();
+      tick();
+      timer = global.setInterval(tick, intervalMs);
+    }
+
+    function stop() {
+      if (timer) global.clearInterval(timer);
+      timer = null;
+      pendingPingAt = 0;
+    }
+
+    function markPong() {
+      pendingPingAt = 0;
+    }
+
+    return { start, stop, markPong, tick };
+  }
+
   global.OnlineBattleClient = {
-    roomWebSocketUrl
+    roomWebSocketUrl,
+    createHeartbeatRuntime
   };
 })(window);
