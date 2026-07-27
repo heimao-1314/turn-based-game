@@ -2737,6 +2737,7 @@ function setupRealtime() {
     }
     if (msg.type === "privateChat" && msg.to === state.peerId) {
       addPrivateChatLine(msg.name || "私聊", msg.text, false);
+      openPrivateChatDialog({ peerId: msg.peerId, name: msg.name || "私聊", text: msg.text });
     }
     if (msg.type === "chatError") {
       const hints = { rate_limited: "发言太快，请稍后再试", target_offline: "对方不在线", not_in_team: "当前不在队伍中", bad_target: "私聊目标无效", empty_message: "请输入聊天内容" };
@@ -4920,6 +4921,23 @@ function addPrivateChatLine(name, text, broadcast = true) {
   state.chatLines = state.chatLines.slice(-80);
   renderChatFeed();
   showChatFeedTemporarily();
+}
+
+function openPrivateChatDialog({ peerId, name, text }) {
+  const panel = $("#privateChatDialog");
+  panel.dataset.peerId = String(peerId || "");
+  panel.dataset.name = String(name || "私聊");
+  $("#privateChatMessage").textContent = `${name}：${text}`;
+  panel.classList.add("active");
+  panel.setAttribute("aria-hidden", "false");
+  decorateMenuFrame(panel);
+  panel.querySelectorAll(".menu-framed-button").forEach(decorateMenuFrame);
+}
+
+function closePrivateChatDialog() {
+  const panel = $("#privateChatDialog");
+  panel.classList.remove("active");
+  panel.setAttribute("aria-hidden", "true");
 }
 
 function openTeamMenu() {
@@ -12594,6 +12612,7 @@ function isInputUiActive() {
   return Boolean(document.activeElement && isTextInputTarget(document.activeElement))
     || state.roleStatsOpen
     || $("#chatForm")?.classList.contains("active")
+    || $("#privateChatDialog")?.classList.contains("active")
     || $("#renamePanel")?.classList.contains("active")
     || $("#passwordPanel")?.classList.contains("active")
     || $("#redeemPanel")?.classList.contains("active")
@@ -13756,6 +13775,7 @@ function closeHudPanels() {
   $("#statsPanel").classList.remove("active");
   $("#nearbyPanel").classList.remove("active");
   $("#chatHistoryPanel").classList.remove("active");
+  closePrivateChatDialog();
   $("#emojiPanel").classList.remove("active");
   $("#chatForm").classList.remove("active");
   state.privateChatTarget = null;
@@ -13849,6 +13869,14 @@ function setupChat() {
     $("#emojiPanel").classList.remove("active");
     state.privateChatTarget = null;
     $("#chatInput").value = "";
+  });
+  $("#privateChatClose").addEventListener("click", closePrivateChatDialog);
+  $("#privateChatReply").addEventListener("click", () => {
+    const panel = $("#privateChatDialog");
+    const peerId = String(panel.dataset.peerId || "");
+    const name = String(panel.dataset.name || "私聊");
+    closePrivateChatDialog();
+    if (peerId) openChatComposer("whisper", { peerId, name });
   });
 }
 
