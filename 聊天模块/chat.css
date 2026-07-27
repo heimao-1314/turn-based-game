@@ -23,7 +23,8 @@
 .chat-line-channel { color: #ffe36e; }
 .chat-line-nearby, .chat-line-whisper { color: #f6f2d2; }
 .private-chat-dialog { position: absolute; left: 50%; top: calc((min(430px, 100vw) * 20 / 15) / 2 + env(safe-area-inset-top)); z-index: 20; display: none; width: min(360px, calc(100vw - 32px)); transform: translate(-50%, -50%); background: rgba(20, 24, 18, 0.98); color: #f5e7a8; }
-.private-chat-dialog.active { display: grid; gap: 10px; padding: 0 12px 12px; }
+.private-chat-dialog[hidden] { display: none !important; }
+.private-chat-dialog.active:not([hidden]) { display: grid; gap: 10px; padding: 0 12px 12px; }
 .private-chat-title { margin: 0 -12px; padding: 9px 12px; border-bottom: 1px solid rgba(238, 206, 102, 0.32); background: rgba(58, 48, 22, 0.9); font-weight: 700; }
 .private-chat-message { max-height: 120px; overflow-y: auto; overflow-wrap: anywhere; color: #f6f2d2; }
 .private-chat-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }

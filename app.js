@@ -4928,6 +4928,7 @@ function openPrivateChatDialog({ peerId, name, text }) {
   panel.dataset.peerId = String(peerId || "");
   panel.dataset.name = String(name || "私聊");
   $("#privateChatMessage").textContent = `${name}：${text}`;
+  panel.hidden = false;
   panel.classList.add("active");
   panel.setAttribute("aria-hidden", "false");
   decorateMenuFrame(panel);
@@ -4937,6 +4938,7 @@ function openPrivateChatDialog({ peerId, name, text }) {
 function closePrivateChatDialog() {
   const panel = $("#privateChatDialog");
   panel.classList.remove("active");
+  panel.hidden = true;
   panel.setAttribute("aria-hidden", "true");
 }
 
@@ -13797,6 +13799,7 @@ function closeHudPanels() {
 
 function setupChat() {
   const emojiPanel = $("#emojiPanel");
+  closePrivateChatDialog();
   let emojiPage = 0;
   const applyEmojiPage = () => {
     emojiPanel.classList.toggle("ico-page", emojiPage === 1);
