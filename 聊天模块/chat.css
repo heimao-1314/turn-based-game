@@ -8,4 +8,13 @@
 .chat-menu-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; padding: 0 12px 12px; }
 .chat-menu-actions .menu-framed-button { min-height: 32px; }
 .emoji-panel { left: 50%; right: auto; top: calc((min(430px, 100vw) * 20 / 15) - 376px + env(safe-area-inset-top)); width: min(390px, calc(100vw - 20px)); transform: translateX(-50%); border-radius: 0; border-color: rgba(238, 206, 102, 0.38); background: rgba(20, 24, 18, 0.98); }
+.emoji-panel .emoji-page-1 { display: none; }
+.emoji-panel.ico-page .emoji-page-0 { display: none; }
+.emoji-panel.ico-page .emoji-page-1 { display: block; }
+.emoji-panel.ico-page { grid-template-columns: repeat(9, 1fr); }
+.emoji-panel .ico-emoji-choice, .ico-emoji-token { background-image: url("../资源/图片/ico.png"); background-size: 144px 80px; background-repeat: no-repeat; }
+.emoji-panel .ico-emoji-choice { background-color: rgba(255, 255, 255, 0.08); background-origin: content-box; background-clip: content-box; }
+.ico-emoji-token { display: inline-block; width: 16px; height: 16px; margin: 0 1px -3px; vertical-align: baseline; }
+.emoji-page-actions { grid-column: 1 / -1; display: flex; justify-content: center; }
+.emoji-page-actions button { min-width: 92px; min-height: 28px; padding: 3px 8px; color: #f5e7a8; background: rgba(58, 48, 22, 0.96); border: 1px solid rgba(238, 206, 102, 0.38); }
 .chat-history-panel { border: 1px solid rgba(238, 206, 102, 0.38); background: rgba(20, 24, 18, 0.96); }

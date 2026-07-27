@@ -4294,6 +4294,9 @@ function renderMessage(text) {
   }).replace(/\[e(\d+)\]/g, (_, id) => {
     const index = Math.max(0, Math.min(38, Number(id)));
     return `<i class="emoji-token" style="background-position:-${index * 18}px 0"></i>`;
+  }).replace(/\[ico(\d+)\]/g, (_, id) => {
+    const index = Math.max(0, Math.min(44, Number(id)));
+    return `<i class="ico-emoji-token" style="background-position:-${(index % 9) * 16}px -${Math.floor(index / 9) * 16}px"></i>`;
   });
 }
 
@@ -13764,9 +13767,16 @@ function closeHudPanels() {
 
 function setupChat() {
   const emojiPanel = $("#emojiPanel");
+  let emojiPage = 0;
+  const applyEmojiPage = () => {
+    emojiPanel.classList.toggle("ico-page", emojiPage === 1);
+    const pageToggle = $("#emojiPageToggle");
+    if (pageToggle) pageToggle.textContent = emojiPage === 0 ? "图标表情" : "普通表情";
+  };
   for (let index = 0; index < 39; index++) {
     const button = document.createElement("button");
     button.type = "button";
+    button.className = "emoji-choice emoji-page-0";
     button.style.backgroundPosition = `-${index * 18}px center`;
     button.addEventListener("click", () => {
       const input = $("#chatInput");
@@ -13776,6 +13786,31 @@ function setupChat() {
     });
     emojiPanel.appendChild(button);
   }
+  for (let index = 0; index < 45; index++) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "emoji-choice ico-emoji-choice emoji-page-1";
+    button.style.backgroundPosition = `-${(index % 9) * 16}px -${Math.floor(index / 9) * 16}px`;
+    button.addEventListener("click", () => {
+      const input = $("#chatInput");
+      input.value += `[ico${index}]`;
+      input.focus();
+      emojiPanel.classList.remove("active");
+    });
+    emojiPanel.appendChild(button);
+  }
+  const pageActions = document.createElement("div");
+  pageActions.className = "emoji-page-actions";
+  const pageToggle = document.createElement("button");
+  pageToggle.id = "emojiPageToggle";
+  pageToggle.type = "button";
+  pageToggle.addEventListener("click", () => {
+    emojiPage = emojiPage === 0 ? 1 : 0;
+    applyEmojiPage();
+  });
+  pageActions.appendChild(pageToggle);
+  emojiPanel.appendChild(pageActions);
+  applyEmojiPage();
   $("#emojiBtn").addEventListener("click", () => {
     emojiPanel.classList.toggle("active");
   });
