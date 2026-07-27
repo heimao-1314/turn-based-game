@@ -711,6 +711,7 @@ const state = {
   lastFullStateBroadcast: 0,
   chatLines: [],
   battle: null,
+  pveEncounter: null,
   pendingTeamPveBattleId: "",
   pendingBattleInvite: null,
   canceledBattleIds: new Set(),
@@ -719,8 +720,8 @@ const state = {
   battleMarker: null,
   hiddenOnMap: new Set(),
   remoteBattleMarkers: new Map(),
-  menuOpen: false,
   endedRemoteBattleMarkerIds: new Set(),
+  menuOpen: false,
   menuTab: 0,
   menuItem: 0,
   menuContextTitle: "",
@@ -2686,6 +2687,15 @@ function setupRealtime() {
       realtimeHeartbeat?.markPong();
       return;
     }
+    if (msg.type === "pveEncounter" && msg.to === state.peerId) {
+      state.pveEncounter = {
+        id: String(msg.encounterId || ""),
+        monsterId: String(msg.wildMonsterId || ""),
+        expiresAt: Date.parse(msg.expiresAt || "") || 0
+      };
+      if (state.idleHuntActive && state.idleHuntTarget === "wild" && !state.battle) startWildBattle();
+      return;
+    }
     if (msg.type === "forceLogout") {
       state.forceLoggedOut = true;
       showMenuHint("账号已在其他地方登录");
@@ -4287,6 +4297,7 @@ function getNearbyTargets() {
 
 function battleParticipantSnapshot(actor) {
   if (!actor) return null;
+  const isLocalBattleActor = actor === state.player || actor === state.pet || actor?.ownerPeerId === state.peerId;
   return {
     name: actor.name || "",
     spriteId: actor.spriteId || 0,
@@ -4306,7 +4317,6 @@ function battleMarkerSnapshotFor(target) {
     mapName: state.mapName
   };
   if (!marker) return null;
-  const isLocalBattleActor = actor === state.player || actor === state.pet || actor?.ownerPeerId === state.peerId;
   const participants = [state.player, state.pet, target, target?.pet, target?.mercenary, ...(target?.wildEnemies || [])]
     .map(battleParticipantSnapshot)
     .filter(Boolean);
@@ -9854,7 +9864,7 @@ function hideLocalBattleActorsAt(marker, additionalActors = []) {
   state.hiddenOnMap.clear();
   [state.player, state.pet, ...additionalActors].filter(Boolean).forEach((actor) => state.hiddenOnMap.add(actor));
   state.battleMarker = createActor({
-    name: "\u6218\u6597",
+    name: "战斗",
     spriteId: 23,
     x: marker.x,
     y: marker.y
@@ -10030,6 +10040,7 @@ function playBattleTransition(onCovered, orientation = Math.random() > 0.5 ? "ve
   const transition = $("#battleTransition");
   if (!transition) {
     onCovered?.();
+    onComplete?.();
     return;
   }
 
@@ -10080,7 +10091,6 @@ function playBattleTransition(onCovered, orientation = Math.random() > 0.5 ? "ve
         closeTransform: "scaleY(1.02)"
       });
     }
-    onComplete?.();
 
     maxDuration = Math.max(maxDuration, duration);
     transition.appendChild(blade);
@@ -10110,6 +10120,7 @@ function playBattleTransition(onCovered, orientation = Math.random() > 0.5 ? "ve
         if (runId !== battleTransitionRunId) return;
         transition.className = "battle-transition";
         transition.replaceChildren();
+        onComplete?.();
       }, maxDuration + 80);
     }, maxDuration + 50);
   });
@@ -10128,6 +10139,23 @@ function enterBattleAfterTransition(battleData) {
     if (state.battle.autoBattle) queueAutoBattleStep(120);
     broadcastState(true);
   });
+}
+
+function activePveEncounter(monsterId) {
+  const encounter = state.pveEncounter;
+  if (!encounter || encounter.expiresAt <= Date.now()) {
+    state.pveEncounter = null;
+    return null;
+  }
+  return encounter.monsterId === monsterId ? encounter : null;
+}
+
+function isEncounterWildBattle(target) {
+  return target?.wildMonsterId === "amumu" || target?.wildMonsterId === "phantom";
+}
+
+function isServerPveBattle(target) {
+  return isEncounterWildBattle(target) || target?.wildMonsterId === "afei";
 }
 
 async function startBattle(target) {
@@ -10161,7 +10189,6 @@ async function startBattle(target) {
     if (!realtimeReady(true)) return;
     if (isTeammatePeerId(targetPeerId)) {
       showMenuHint("不能挑战队友");
-        onComplete?.();
       return;
     }
     const peerVersion = state.peers.get(targetPeerId)?.clientVersion || "";
@@ -10219,18 +10246,27 @@ async function startBattle(target) {
   if (state.battleMarker) state.battleMarker.battleId = battleId;
   const marker = battleMarkerSnapshotFor(target);
   sendRoomMessage({ type: "battleMarker", battleId, marker });
-  if (target.wildMonsterId && (state.team.members || []).length) {
+  if (isServerPveBattle(target)) {
     if (!realtimeReady(true)) {
       restoreBattleActors();
       sendRoomMessage({ type: "battleMarkerEnd", battleId });
       return;
     }
+    const encounter = isEncounterWildBattle(target) ? activePveEncounter(target.wildMonsterId) : null;
+    if (isEncounterWildBattle(target) && !encounter) {
+      restoreBattleActors();
+      sendRoomMessage({ type: "battleMarkerEnd", battleId });
+      sendRoomMessage({ type: "pveIdleEncounterRequest" });
+      showMenuHint("等待服务器确认野怪遭遇...");
+      return;
+    }
     state.pendingTeamPveBattleId = battleId;
-    showMenuHint("等待服务器同步队伍战斗...");
+    showMenuHint("等待服务器同步 PVE 战斗...");
     try {
       const result = await postApi("/api/online-pve/start", {
         account: state.account,
         battleId,
+        encounterId: encounter?.id || "",
         leaderId: state.peerId,
         attackerId: state.peerId,
         roster: teamRoster,
@@ -10240,6 +10276,7 @@ async function startBattle(target) {
         marker
       });
       if (!result?.ok) throw new Error(result?.error || "battle_start_failed");
+      state.pveEncounter = null;
     } catch (error) {
       state.pendingTeamPveBattleId = "";
       if (state.battleMarker?.battleId === battleId) restoreBattleActors();
@@ -10340,6 +10377,10 @@ async function acceptTeamBattle(msg) {
   }
   await hydrateImageCache();
   if (msg.marker) await showRemoteBattleMarker({ battleId: msg.battleId, marker: msg.marker });
+  if (msg.marker) {
+    hideLocalBattleActorsAt(msg.marker);
+    if (state.battleMarker) state.battleMarker.battleId = msg.battleId;
+  }
   playBattleTransition(() => {
     const serverAutoBattle = msg.teamBattleServer === true && msg.pvp !== true && state.autoBattlePersistent === true;
     state.battle = {
@@ -10411,10 +10452,6 @@ function allBattleFighters() {
 function findBattleFighterByRef(ref = "") {
   return allBattleFighters().find((fighter) => fighter.battleId === ref) || allBattleFighters().find((fighter) => fighter.name === ref) || null;
 }
-  if (msg.marker) {
-    hideLocalBattleActorsAt(msg.marker);
-    if (state.battleMarker) state.battleMarker.battleId = msg.battleId;
-  }
 
 function pickTarget(team, targetRef = "") {
   const candidates = alive(team);
@@ -11096,7 +11133,8 @@ async function playBattleTurn(result) {
     battle.ending = true;
     showBattleResult(result.winner);
     const mySide = battle.role === "defender" ? "enemy" : "ally";
-    if (!battle.teamBattleServer && !battle.opponentPeerId && result.winner === mySide && battle.wildMonsterId && !battle.rewardClaimed) {
+    const localBossBattle = Boolean(battle.immortalBossId || elfKingVault.stageById(battle.wildMonsterId));
+    if (!battle.teamBattleServer && !battle.opponentPeerId && result.winner === mySide && localBossBattle && !battle.rewardClaimed) {
       battle.rewardClaimed = true;
       await grantWildBattleReward(battle.wildMonsterId, battle.monsterCount || battle.enemyTeam.length || 1);
     }

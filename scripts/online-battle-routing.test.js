@@ -340,19 +340,20 @@ test("ordinary PVE validates its server-built roster before consuming an encount
 
 test("ordinary wild battles require a server encounter, never claim locally, and retry a failed ticket claim", () => {
   const appSource = fs.readFileSync(path.resolve(__dirname, "..", "app.js"), "utf8");
-  assert.match(appSource, /const encounterWildBattle = target\?\.wildMonsterId === "amumu" \|\| target\?\.wildMonsterId === "phantom";/);
-  assert.match(appSource, /if \(encounterWildBattle && !encounterId\) return;/);
-  assert.match(appSource, /const ordinaryServerWildBattle = battle\.wildMonsterId === "amumu" \|\| battle\.wildMonsterId === "phantom";/);
-  assert.match(appSource, /&& !ordinaryServerWildBattle && !battle\.rewardClaimed\) \{/);
-  assert.match(appSource, /const granted = await grantWildBattleReward\(msg\.wildMonsterId, msg\.monsterCount \|\| 1, msg\.rewardTicket\);/);
-  assert.match(appSource, /if \(!granted\) \{\s*state\.claimedTeamRewardIds\.delete\(rewardId\);\s*return;/);
-  assert.match(appSource, /const recoveredReward = msg\.recovered === true && isDirectedToMe\(msg\);\s*if \(!recoveredReward && !isActiveTeamBattleMessage\(msg\) && teamBattleInbox\?\.queue\(msg\)\)/);
-  assert.match(appSource, /if \(!recoveredReward && !isActiveTeamBattleMessage\(msg\) && teamBattleInbox\?\.queue\(msg\)\) \{[\s\S]*?\} else \{\s*await acceptTeamBattleReward\(msg\);\s*\}/);
-  assert.match(appSource, /if \(!options\.allowPreparedBattle && !recoveredReward && !isActiveTeamBattleMessage\(msg\)\) return;/);
-  const startBattleSource = appSource.slice(appSource.indexOf("async function startBattle"), appSource.indexOf("async function startWildBattle"));
-  assert.ok(startBattleSource.indexOf("if (serverAuthoritativeWildBattle)") < startBattleSource.indexOf("if (await refreshClientVersion"));
-  const startWildBattleSource = appSource.slice(appSource.indexOf("async function startWildBattle"), appSource.indexOf("function handleBattleRejected"));
-  assert.doesNotMatch(startWildBattleSource, /await Promise\.all\(\[loadSprite/);
+  assert.match(appSource, /function isEncounterWildBattle\(target\)/);
+  assert.match(appSource, /return target\?\.wildMonsterId === "amumu" \|\| target\?\.wildMonsterId === "phantom";/);
+  assert.match(appSource, /function isServerPveBattle\(target\)/);
+  assert.match(appSource, /return isEncounterWildBattle\(target\) \|\| target\?\.wildMonsterId === "afei";/);
+  assert.match(appSource, /function activePveEncounter\(monsterId\)/);
+  assert.match(appSource, /const encounter = isEncounterWildBattle\(target\) \? activePveEncounter\(target\.wildMonsterId\) : null;/);
+  assert.match(appSource, /if \(isEncounterWildBattle\(target\) && !encounter\) \{/);
+  assert.match(appSource, /encounterId: encounter\?\.id \|\| ""/);
+  assert.match(appSource, /if \(isServerPveBattle\(target\)\) \{/);
+  assert.match(appSource, /sendRoomMessage\(\{ type: "pveIdleEncounterRequest" \}\);/);
+  assert.match(appSource, /await grantWildBattleReward\(msg\.wildMonsterId, msg\.monsterCount \|\| 1, msg\.rewardTicket\);/);
+  const localRewardSource = appSource.slice(appSource.indexOf("async function applyBattleTurn"), appSource.indexOf("function createBossActor"));
+  assert.match(localRewardSource, /const localBossBattle = Boolean\(battle\.immortalBossId \|\| elfKingVault\.stageById\(battle\.wildMonsterId\)\);/);
+  assert.match(localRewardSource, /&& localBossBattle && !battle\.rewardClaimed\) \{[\s\S]*?grantWildBattleReward\(battle\.wildMonsterId/);
 });
 
 test("only the canonical team leader may start a team PVE battle", () => {

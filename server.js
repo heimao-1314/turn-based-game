@@ -39,6 +39,7 @@ const { createAdminMapApi } = require("./地图系统/admin-map-api.js");
 const { createAuthRuntime } = require("./src/server/auth/runtime.js");
 const { createRedeemCodeRuntime } = require("./src/server/economy/redeem-code-runtime.js");
 const { createRewardTicketRuntime } = require("./战斗/reward-ticket-runtime.js");
+const { createEncounterRuntime } = require("./联网战斗/encounter-runtime.js");
 const { createTeamRuntime } = require("./队伍/server.js");
 const { createSocketWriteRuntime } = require("./src/server/realtime/socket-write-runtime.js");
 const { createWebSocketFrameRuntime, encodeControlFrame } = require("./src/server/realtime/websocket-frame-runtime.js");
@@ -2101,6 +2102,11 @@ function itemColumnForId(id) {
 
 const redeemCodeRuntime = createRedeemCodeRuntime({ db, itemColumnForId });
 const rewardTicketRuntime = createRewardTicketRuntime({ db });
+const encounterRuntime = createEncounterRuntime({
+  sendSocketJson,
+  recordAnomaly
+});
+
 function isUntradeableItemId(id) {
   return id === "phantom_fragment";
 }
@@ -5667,6 +5673,7 @@ function handleApi(req, res, url) {
       const session = authSessionFromToken(authTokenFromRequest(req, url, data));
       const result = onlineBattle.startPve(account, {
         battleId: data.battleId,
+        encounterId: data.encounterId,
         leaderId: data.leaderId,
         attackerId: data.attackerId,
         roster: data.roster,
@@ -5879,6 +5886,7 @@ server.on("upgrade", (req, socket, head) => {
     const meta = socketMeta.get(socket) || {};
     socketWriteRuntime.forget(socket);
     socketFrameRuntime.forget(socket);
+    encounterRuntime.handleDisconnect({ ...meta, socket });
     teamRuntime.handleDisconnect(meta.peerId || "", meta);
     onlineBattle.handleDisconnect(meta.peerId || "", socketRealm(meta));
     if (meta.account && accountSockets.get(meta.account) === socket) accountSockets.delete(meta.account);
@@ -5946,6 +5954,7 @@ server.on("upgrade", (req, socket, head) => {
           if ("hiddenPlayers" in data) meta.hiddenPlayers = Boolean(data.hiddenPlayers);
         }
         socketMeta.set(socket, meta);
+        if (data.type === "state" && data.mapName) encounterRuntime.observeState({ ...meta, socket }, data);
         if (peerChanged) teamRuntime.handlePeerConnected(meta.peerId, meta);
       }
 
@@ -6096,6 +6105,9 @@ const onlineBattle = createOnlineBattleRuntime({
   sendSocketJson,
   getSocketMeta: (socket) => socketMeta.get(socket) || {},
   setSocketMeta: (socket, meta) => socketMeta.set(socket, meta),
+  canStartPve: (account) => rewardTicketRuntime.canStart(account),
+  consumePveEncounter: (payload) => encounterRuntime.consume(payload),
+  requestPveIdleEncounter: (meta) => encounterRuntime.requestIdleEncounter(meta),
   issuePveRewardTickets: (ticket) => rewardTicketRuntime.issue(ticket),
   choiceMs: 15000
 });

@@ -207,6 +207,16 @@ Content-Type: application/json
 
 请求体只接受服务端通过 WebSocket `teamBattleReward` 下发的 `rewardTicket`。服务端会校验票据所属账号、有效期与未领取状态，并从票据而非客户端请求读取怪物和数量。可交易奖励仅能由服务端权威联网 PVE 结算发放；本地客户端战斗不会产生经济奖励。
 
+### 服务端 PvE 开战
+
+`
+POST /api/online-pve/start
+`
+
+**请求头:** 需要认证
+
+请求必须携带 WebSocket `pveEncounter` 下发的短期 `encounterId`。服务端会校验账号、区服、线路、地图、怪物类型和一次性使用状态，并自行重建野怪与参战阵容；客户端提交的敌方快照和数量不作为结算依据。
+
 ### 获取排行榜
 
 `
@@ -402,6 +412,7 @@ POST /api/admin/changelog
 | `teamInvite` | 组队邀请 |
 | `teamLeave` | 离开队伍 |
 | `teamBattleStart` | 组队战斗开始 |
+| `pveIdleEncounterRequest` | 请求服务端签发挂机野怪遭遇 |
 | `teamBattleTurn` | 组队战斗回合 |
 | `follow` | 跟随玩家 |
 | `unfollow` | 取消跟随 |
@@ -422,6 +433,8 @@ POST /api/admin/changelog
 | `battleTurn` | 收到战斗回合结果 |
 | `battleEnd` | 战斗结束 |
 | `teamUpdate` | 队伍状态更新 |
+| `pveEncounter` | 服务端签发的短期 PvE 遭遇票据 |
+| `teamBattleReward` | 服务端 PvE 胜利后的领奖票据 |
 | `announcement` | 系统公告 |
 
 ---
