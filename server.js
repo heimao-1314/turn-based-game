@@ -145,7 +145,7 @@ const types = {
   ".md": "text/markdown; charset=utf-8"
 };
 
-const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "飞图小地图", "bandwidth-optimizer"];
+const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "聊天模块", "飞图小地图", "bandwidth-optimizer"];
 const staticAssetExtensions = new Set([".chj", ".css", ".html", ".js", ".json", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webmanifest"]);
 const staticEntryFiles = new Set([
   "index.html",

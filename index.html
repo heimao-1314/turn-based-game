@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="font-theme.css" />
     <link rel="stylesheet" href="styles.css?v=20260713-camera-select-1" />
     <link rel="stylesheet" href="菜单UI/菜单界面.css?v=20260712-11" />
-    <link rel="stylesheet" href="聊天模块/chat.css?v=20260727-5" />
+    <link rel="stylesheet" href="聊天模块/chat.css?v=20260727-6" />
     <link rel="stylesheet" href="飞图小地图/区域飞图.css" />
     <script>
       if (/\bEdg\//.test(navigator.userAgent || "")) {
@@ -227,12 +227,14 @@
           </div>
           <div id="chatHistoryList"></div>
         </div>
-        <div id="privateChatDialog" class="private-chat-dialog" aria-hidden="true" hidden>
-          <div class="private-chat-title">收到悄悄话</div>
-          <div id="privateChatMessage" class="private-chat-message"></div>
-          <div class="private-chat-actions">
-            <button id="privateChatReply" class="menu-framed-button compact" type="button">回复</button>
-            <button id="privateChatClose" class="menu-framed-button compact" type="button">关闭</button>
+        <div id="privateChatDialog" class="battle-reward-panel private-chat-dialog" aria-hidden="true" hidden>
+          <div class="reward-dialog-title">收到悄悄话</div>
+          <div class="reward-dialog-content">
+            <div id="privateChatMessage" class="private-chat-message"></div>
+            <div class="private-chat-actions">
+              <button id="privateChatReply" class="menu-framed-button compact" type="button">回复</button>
+              <button id="privateChatClose" class="menu-framed-button compact" type="button">关闭</button>
+            </div>
           </div>
         </div>
         <div id="statsPanel" class="stats-panel">
@@ -408,7 +410,7 @@
         <script src="菜单UI/菜单界面.js?v=20260712-7"></script>
         <script src="map-admin-editor.js"></script>
         <script src="飞图小地图/区域飞图.js"></script>
-        <script src="app.js?v=20260727-chat-dialog-5"></script>
+        <script src="app.js?v=20260727-chat-reward-dialog-6"></script>
         <script src="全服竞技场/client.js"></script>
         <script src="仙气修炼/client.js"></script>
         <script src="疯狂吹牛/client.js"></script>

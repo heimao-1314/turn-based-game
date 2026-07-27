@@ -4931,7 +4931,7 @@ function openPrivateChatDialog({ peerId, name, text }) {
   panel.hidden = false;
   panel.classList.add("active");
   panel.setAttribute("aria-hidden", "false");
-  decorateMenuFrame(panel);
+  prepareRewardDialog(panel);
   panel.querySelectorAll(".menu-framed-button").forEach(decorateMenuFrame);
 }
 
@@ -9636,7 +9636,8 @@ function activeRewardDialog() {
 function closeActiveRewardDialog() {
   const panel = activeRewardDialog();
   if (!panel) return false;
-  if (panel.id === "infoDialogPanel") closeInfoDialog();
+  if (panel.id === "privateChatDialog") closePrivateChatDialog();
+  else if (panel.id === "infoDialogPanel") closeInfoDialog();
   else if (panel.id === "soulPowderRewardPanel") closeSoulPowderRewardPanel();
   else closeBattleRewardPanel();
   return true;
