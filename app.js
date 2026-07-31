@@ -2197,7 +2197,8 @@ function openStaticNpcMenu(npc) {
     return true;
   }
   if (npc.diziNpc) {
-    openDiziNpcMenu();
+    if (typeof window.openDiziNpcMenu === "function") window.openDiziNpcMenu();
+    else openDiziNpcMenuFallback();
     return true;
   }
   if (npc.wildMonsterId === "afei" || npc.immortalBossId || npc.elfKingVaultBossId) {
@@ -2223,6 +2224,65 @@ function staticNpcMenuKey(npc) {
 
 function suppressStaticNpcMenu(ms = 900) {
   state.staticNpcMenuSuppressUntil = Math.max(state.staticNpcMenuSuppressUntil || 0, performance.now() + ms);
+}
+
+async function openDiziNpcMenuFallback() {
+  state.menuMode = "dizi_npc_fallback";
+  state.menuItem = 0;
+  let status = null;
+  try { status = await apiGet("/api/daily-news/status"); } catch {}
+  setMenuAsSingleList("笛子", [
+    { label: "疯狂吹牛", icon: "1.39" },
+    { label: status?.hasReadToday ? "每日新闻（今日已阅读）" : "每日新闻（可得1阅读点）", icon: "1.49" },
+    { label: `阅读兑换（${status?.readingPoints || 0}点）`, icon: "1.11" }
+  ]);
+  bindCurrentMenuClicks(confirmDiziNpcFallback);
+}
+
+async function confirmDiziNpcFallback() {
+  if (state.menuMode === "dizi_npc_fallback") {
+    if (state.menuItem === 0) {
+      if (typeof window.openMadBragMenu === "function") return window.openMadBragMenu();
+      showMenuHint("疯狂吹牛模块加载失败");
+      return;
+    }
+    if (state.menuItem === 1) {
+      try {
+        const result = await postApi("/api/daily-news/read", {});
+        state.menuMode = "dizi_news_fallback";
+        setMenuAsSingleList("每日新闻", [
+          { label: result.gainedPoints ? "阅读完成，获得 1 点阅读点数" : "今日已阅读，明天再来", icon: "1.49", disabled: true },
+          ...String(result.text || "").split(/\r?\n/).filter(Boolean).map((line) => ({ label: line.slice(0, 96), icon: "1.49", disabled: true }))
+        ]);
+      } catch (error) {
+        showMenuHint(error.message === "daily_news_unavailable" ? "新闻暂时不可用" : "新闻读取失败");
+      }
+      return;
+    }
+    if (state.menuItem === 2) {
+      const result = await apiGet("/api/reading-exchange/catalog").catch(() => null);
+      if (!result) return showMenuHint("兑换列表读取失败");
+      state.readingExchangeItems = result.items || [];
+      state.menuMode = "dizi_exchange_fallback";
+      setMenuAsSingleList(`阅读兑换（${result.readingPoints || 0}点）`, state.readingExchangeItems.length
+        ? state.readingExchangeItems.map((item) => ({ label: `${item.name}（${item.cost}点）`, icon: item.icon || "1.49" }))
+        : [{ label: "暂无可兑换物品", icon: "1.49", disabled: true }]);
+      bindCurrentMenuClicks(confirmDiziNpcFallback);
+      return;
+    }
+  }
+  if (state.menuMode === "dizi_exchange_fallback") {
+    const item = state.readingExchangeItems?.[state.menuItem];
+    if (!item) return;
+    try {
+      const result = await postApi("/api/reading-exchange/redeem", { itemId: item.id });
+      await refreshBag().catch(() => null);
+      showMenuHint(`兑换成功：${result.item.name} x${result.item.quantity}`);
+      openDiziNpcMenuFallback();
+    } catch (error) {
+      showMenuHint(error.message === "not_enough_reading_points" ? "阅读点数不足" : "兑换失败");
+    }
+  }
 }
 
 function startStep(actor, direction, recordPath = false) {
@@ -5748,6 +5808,10 @@ function confirmMainMenuItem() {
   }
   if (["dizi_npc", "daily_news", "reading_exchange"].includes(state.menuMode)) {
     confirmDiziNpcMenu();
+    return true;
+  }
+  if (["dizi_npc_fallback", "dizi_news_fallback", "dizi_exchange_fallback"].includes(state.menuMode)) {
+    confirmDiziNpcFallback();
     return true;
   }
   if (state.menuMode && state.menuMode.startsWith("mad_brag")) {
@@ -13964,6 +14028,7 @@ function setupControls() {
         if (key === "confirm" || key === "nearby") return confirmMainMenuItem();
         if (key === "back" && state.menuMode === "lucky_box_roll") return backLuckyBoxRollMenu();
         if (key === "back" && ["dizi_npc", "daily_news", "reading_exchange"].includes(state.menuMode)) return backDiziNpcMenu();
+        if (key === "back" && ["dizi_npc_fallback", "dizi_news_fallback", "dizi_exchange_fallback"].includes(state.menuMode)) return openDiziNpcMenuFallback();
         if (key === "back" && state.menuMode.startsWith("mad_brag")) return backMadBragMenu();
         if (key === "back" && ["detail_settings", "model_scale"].includes(state.menuMode)) return backModelScaleMenu();
         if (key === "back") return closeMainMenu();
@@ -14201,6 +14266,7 @@ window.addEventListener('keydown', (event) => {
   bindTouchButton($("#mainMenuBack"), () => {
     if (state.menuMode === "lucky_box_roll") return backLuckyBoxRollMenu();
     if (["dizi_npc", "daily_news", "reading_exchange"].includes(state.menuMode)) return backDiziNpcMenu();
+    if (["dizi_npc_fallback", "dizi_news_fallback", "dizi_exchange_fallback"].includes(state.menuMode)) return openDiziNpcMenuFallback();
     if (state.menuMode?.startsWith("mad_brag")) return backMadBragMenu();
     if (["detail_settings", "model_scale", "model_scale_adjust"].includes(state.menuMode)) return backModelScaleMenu();
     return closeMainMenu();

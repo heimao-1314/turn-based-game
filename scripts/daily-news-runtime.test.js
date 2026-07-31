@@ -6,7 +6,11 @@ const createDailyNewsRuntime = require("../每日新闻/server.js");
 
 async function run() {
   const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
   assert.match(serverSource, /staticAssetRoots[\s\S]*?"每日新闻"/);
+  assert.match(indexSource, /每日新闻\/client\.js\?v=/);
+  assert.match(serverSource, /每日新闻/);
+  assert.match(fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8"), /openDiziNpcMenuFallback/);
 
   const db = new DatabaseSync(":memory:");
   db.exec(`
