@@ -2196,7 +2196,7 @@ function openStaticNpcMenu(npc) {
     openStorageMenu();
     return true;
   }
-  if (npc.diziNpc) {
+  if (isDiziNpc(npc)) {
     if (typeof window.openDiziNpcMenu === "function") window.openDiziNpcMenu();
     else openDiziNpcMenuFallback();
     return true;
@@ -2216,10 +2216,14 @@ function staticNpcMenuKey(npc) {
     npc.wildMonsterId || "",
     npc.immortalBossId || "",
     npc.elfKingVaultBossId || "",
-    npc.diziNpc ? "dizi" : "",
+    isDiziNpc(npc) ? "dizi" : "",
     Math.round(npc.x || 0),
     Math.round(npc.y || 0)
   ].join("|");
+}
+
+function isDiziNpc(npc) {
+  return npc?.npcId === "dizi" || npc?.diziNpc === true || npc?.name === "笛子" || npc?.name === "疯狂吹牛";
 }
 
 function suppressStaticNpcMenu(ms = 900) {
@@ -4102,6 +4106,7 @@ async function enterGame(initialSaved = null) {
   state.remotes[4].statRankingNpc = true;
   state.remotes[5].mapName = NEW_MARKET_MAP;
   state.remotes[5].staticNpc = true;
+  state.remotes[5].npcId = "dizi";
   state.remotes[5].diziNpc = true;
   state.remotes[6].mapName = "\u5e7b\u5f71\u72e9\u730e\u573a";
   state.remotes[6].staticNpc = true;
@@ -10156,6 +10161,7 @@ function createDiziNpc() {
   const npc = createActor({ name: "笛子", spriteId: 2015, x: 4 * 16, y: 12 * 16 });
   npc.mapName = NEW_MARKET_MAP;
   npc.staticNpc = true;
+  npc.npcId = "dizi";
   npc.diziNpc = true;
   npc.direction = "right";
   npc.frameIndex = 1;

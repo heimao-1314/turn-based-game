@@ -10,7 +10,9 @@ async function run() {
   assert.match(serverSource, /staticAssetRoots[\s\S]*?"每日新闻"/);
   assert.match(indexSource, /每日新闻\/client\.js\?v=/);
   assert.match(serverSource, /每日新闻/);
-  assert.match(fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8"), /openDiziNpcMenuFallback/);
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /openDiziNpcMenuFallback/);
+  assert.match(appSource, /npcId === "dizi"/);
 
   const db = new DatabaseSync(":memory:");
   db.exec(`
