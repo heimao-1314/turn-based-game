@@ -34,6 +34,7 @@ const createOnlineBattleRuntime = require("./联网战斗/server.js");
 const createArenaRuntime = require("./全服竞技场/server.js");
 const createImmortalCultivationRuntime = require("./仙气修炼/server.js");
 const createMadBragRuntime = require("./疯狂吹牛/server.js");
+const createDailyNewsRuntime = require("./每日新闻/server.js");
 const { createMapRegistry } = require("./地图系统/map-registry.js");
 const { createAdminMapApi } = require("./地图系统/admin-map-api.js");
 const { createAuthRuntime } = require("./src/server/auth/runtime.js");
@@ -613,7 +614,7 @@ const mapRegistry = createMapRegistry({ root });
 const adminMapApi = createAdminMapApi({ registry: mapRegistry, checkAdmin: checkMapAdmin, sendJson });
 mapRegistry.scanMaps();
 
-function handleHttpRequest(req, res) {
+async function handleHttpRequest(req, res) {
   const url = new URL(req.url, "http://localhost");
   if (req.method === "OPTIONS") {
     writeCorsHeaders(res, 204);
@@ -626,7 +627,7 @@ function handleHttpRequest(req, res) {
   }
   if (url.pathname.startsWith("/api/")) {
     try {
-      handleApi(req, res, url);
+      await handleApi(req, res, url);
     } catch (error) {
       console.error("[api-error]", error);
       if (!res.headersSent) sendJson(res, 500, { ok: false, error: "server_error" });
@@ -695,7 +696,7 @@ function readJsonBody(req, callback) {
       return;
     }
     try {
-      callback(data);
+      Promise.resolve(callback(data)).catch((error) => callback(null, error));
     } catch (error) {
       callback(null, error);
     }
@@ -2846,6 +2847,7 @@ function ensurePlayerColumns() {
   addColumn("silver", "silver INTEGER NOT NULL DEFAULT 0");
   addColumn("yuanbao", "yuanbao INTEGER NOT NULL DEFAULT 0");
   addColumn("lucky_box_items_json", "lucky_box_items_json TEXT NOT NULL DEFAULT '{}'");
+  addColumn("reading_points", "reading_points INTEGER NOT NULL DEFAULT 0");
   addColumn("forge_gem", "forge_gem INTEGER NOT NULL DEFAULT 0");
   fragmentItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   skillCardItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
@@ -3036,7 +3038,7 @@ function migrateLegacyDb() {
   }
 }
 
-function handleApi(req, res, url) {
+async function handleApi(req, res, url) {
   if (req.method === "GET" && adminMapApi.handleGet(req, res, url)) return;
   if (req.method === "GET" && url.pathname === "/api/changelog") {
     const log = updateLogSetting();
@@ -3401,6 +3403,20 @@ function handleApi(req, res, url) {
     sendJson(res, 200, madBragRuntime.rankings(account));
     return;
   }
+  if (req.method === "GET" && url.pathname === "/api/daily-news/status") {
+    const account = requireAuthAccount(req, res, url);
+    if (!account) return;
+    const result = dailyNewsRuntime.status(account);
+    sendJson(res, result.ok ? 200 : result.status || 500, result);
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/reading-exchange/catalog") {
+    const account = requireAuthAccount(req, res, url);
+    if (!account) return;
+    const result = dailyNewsRuntime.catalog(account);
+    sendJson(res, result.ok ? 200 : result.status || 500, result);
+    return;
+  }
   if (req.method === "GET" && url.pathname === "/api/phantom/status") {
     const account = accountFromAuthToken(authTokenFromRequest(req, url)) || "";
     const row = account ? db.prepare("SELECT name, server_id, phantom_points, equipped_title, claimed_titles_json, phantom_fragment FROM players WHERE account = ?").get(account) : null;
@@ -3430,7 +3446,7 @@ function handleApi(req, res, url) {
     sendJson(res, 405, { ok: false, error: "method_not_allowed" });
     return;
   }
-  readJsonBody(req, (data, error) => {
+  readJsonBody(req, async (data, error) => {
     if (error) {
       console.error("[api-error]", error);
       sendJson(res, 500, { ok: false, error: "server_error" });
@@ -4069,6 +4085,16 @@ function handleApi(req, res, url) {
     }
     if (url.pathname === "/api/mad-brag/answer") {
       const result = madBragRuntime.answer(account, data.challengeId, data.choice);
+      sendJson(res, result.ok ? 200 : result.status || 500, result);
+      return;
+    }
+    if (url.pathname === "/api/daily-news/read") {
+      const result = await dailyNewsRuntime.read(account);
+      sendJson(res, result.ok ? 200 : result.status || 500, result);
+      return;
+    }
+    if (url.pathname === "/api/reading-exchange/redeem") {
+      const result = dailyNewsRuntime.redeem(account, data.itemId);
       sendJson(res, result.ok ? 200 : result.status || 500, result);
       return;
     }
@@ -6293,6 +6319,8 @@ madBragRuntime = createMadBragRuntime({
     return materialSellPrice(id);
   }
 });
+
+const dailyNewsRuntime = createDailyNewsRuntime({ db });
 
 function encodeFrame(message) {
   const payload = Buffer.from(message);

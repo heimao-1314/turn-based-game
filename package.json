@@ -6,6 +6,7 @@
     "start": "node server.js",
     "test:online-battle": "node scripts/online-battle-routing.test.js",
     "test:sharding": "node scripts/server-sharding.test.js",
-    "test:security": "node --test scripts/security-runtime.test.js"
+    "test:security": "node --test scripts/security-runtime.test.js",
+    "test:daily-news": "node scripts/daily-news-runtime.test.js"
   }
 }

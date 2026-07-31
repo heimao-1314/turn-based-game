@@ -45,6 +45,17 @@
 
 ---
 
+## 每日新闻与阅读兑换
+
+以下接口均需要玩家 Bearer 会话。每日新闻由服务端获取，玩家按上海自然日首次阅读时获得 1 点阅读点数。
+
+- `GET /api/daily-news/status`：返回当日是否已读与 `readingPoints`。
+- `POST /api/daily-news/read`：读取新闻；首次返回 `gainedPoints: 1`，重复读取返回 `0`。
+- `GET /api/reading-exchange/catalog`：返回可扩展的兑换目录。
+- `POST /api/reading-exchange/redeem`：body `{ "itemId": "lucky_box" }`；服务端原子扣点并发放物品。
+
+---
+
 ## 认证系统
 
 ### 检查账号是否存在

@@ -2196,8 +2196,8 @@ function openStaticNpcMenu(npc) {
     openStorageMenu();
     return true;
   }
-  if (npc.madBragNpc) {
-    openMadBragMenu();
+  if (npc.diziNpc) {
+    openDiziNpcMenu();
     return true;
   }
   if (npc.wildMonsterId === "afei" || npc.immortalBossId || npc.elfKingVaultBossId) {
@@ -2215,7 +2215,7 @@ function staticNpcMenuKey(npc) {
     npc.wildMonsterId || "",
     npc.immortalBossId || "",
     npc.elfKingVaultBossId || "",
-    npc.madBragNpc ? "mad_brag" : "",
+    npc.diziNpc ? "dizi" : "",
     Math.round(npc.x || 0),
     Math.round(npc.y || 0)
   ].join("|");
@@ -4021,7 +4021,7 @@ async function enterGame(initialSaved = null) {
     createActor({ name: "罗克萨斯", spriteId: 2000, x: 4 * 16, y: 9 * 16 }),
     createRoleChangeNpc(),
     createStatRankingNpc(),
-    createMadBragNpc(),
+    createDiziNpc(),
     createPhantomNpc(),
     createAfeiBossNpc(),
     ...createImmortalBossNpcs(),
@@ -4042,7 +4042,7 @@ async function enterGame(initialSaved = null) {
   state.remotes[4].statRankingNpc = true;
   state.remotes[5].mapName = NEW_MARKET_MAP;
   state.remotes[5].staticNpc = true;
-  state.remotes[5].madBragNpc = true;
+  state.remotes[5].diziNpc = true;
   state.remotes[6].mapName = "\u5e7b\u5f71\u72e9\u730e\u573a";
   state.remotes[6].staticNpc = true;
   state.remotes[6].phantomNpc = true;
@@ -5744,6 +5744,10 @@ function confirmMainMenuItem() {
   }
   if (state.menuMode === "arena_challenge") {
     confirmArenaChallengeMenu();
+    return true;
+  }
+  if (["dizi_npc", "daily_news", "reading_exchange"].includes(state.menuMode)) {
+    confirmDiziNpcMenu();
     return true;
   }
   if (state.menuMode && state.menuMode.startsWith("mad_brag")) {
@@ -10084,11 +10088,11 @@ function createStatRankingNpc() {
   return npc;
 }
 
-function createMadBragNpc() {
-  const npc = createActor({ name: "疯狂吹牛", spriteId: 2015, x: 4 * 16, y: 12 * 16 });
+function createDiziNpc() {
+  const npc = createActor({ name: "笛子", spriteId: 2015, x: 4 * 16, y: 12 * 16 });
   npc.mapName = NEW_MARKET_MAP;
   npc.staticNpc = true;
-  npc.madBragNpc = true;
+  npc.diziNpc = true;
   npc.direction = "right";
   npc.frameIndex = 1;
   npc.frameFlip = true;
@@ -13959,6 +13963,7 @@ function setupControls() {
         if (key === "down" || key === "right") return moveMainMenuItem(1);
         if (key === "confirm" || key === "nearby") return confirmMainMenuItem();
         if (key === "back" && state.menuMode === "lucky_box_roll") return backLuckyBoxRollMenu();
+        if (key === "back" && ["dizi_npc", "daily_news", "reading_exchange"].includes(state.menuMode)) return backDiziNpcMenu();
         if (key === "back" && state.menuMode.startsWith("mad_brag")) return backMadBragMenu();
         if (key === "back" && ["detail_settings", "model_scale"].includes(state.menuMode)) return backModelScaleMenu();
         if (key === "back") return closeMainMenu();
@@ -14195,6 +14200,7 @@ window.addEventListener('keydown', (event) => {
   bindTouchButton($("#mainMenuConfirm"), confirmMainMenuItem);
   bindTouchButton($("#mainMenuBack"), () => {
     if (state.menuMode === "lucky_box_roll") return backLuckyBoxRollMenu();
+    if (["dizi_npc", "daily_news", "reading_exchange"].includes(state.menuMode)) return backDiziNpcMenu();
     if (state.menuMode?.startsWith("mad_brag")) return backMadBragMenu();
     if (["detail_settings", "model_scale", "model_scale_adjust"].includes(state.menuMode)) return backModelScaleMenu();
     return closeMainMenu();
