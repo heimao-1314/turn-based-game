@@ -1,8 +1,13 @@
 const assert = require("node:assert/strict");
 const { DatabaseSync } = require("node:sqlite");
+const fs = require("node:fs");
+const path = require("node:path");
 const createDailyNewsRuntime = require("../每日新闻/server.js");
 
 async function run() {
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /staticAssetRoots[\s\S]*?"每日新闻"/);
+
   const db = new DatabaseSync(":memory:");
   db.exec(`
     CREATE TABLE players (
