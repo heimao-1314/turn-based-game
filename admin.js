@@ -611,6 +611,7 @@ const roleCatalog = window.CareerTree.adminRoleCatalog;
     $("#petLevelInput").value = player.petLevel;
     $("#petExpInput").value = player.petExp;
     $("#silverInput").value = player.silver || 0;
+    $("#yuanbaoInput").value = player.yuanbao || 0;
     setRoleInputs(player.selection || {});
   }
 
@@ -642,6 +643,7 @@ const roleCatalog = window.CareerTree.adminRoleCatalog;
           petLevel: $("#petLevelInput").value,
           petExp: $("#petExpInput").value,
           silver: $("#silverInput").value,
+          yuanbao: $("#yuanbaoInput").value,
           selection: currentSelection()
         }))
       });
@@ -670,6 +672,21 @@ const roleCatalog = window.CareerTree.adminRoleCatalog;
       await Players.load();
     } catch (err) {
       Core.message(`发放失败：${err.message}`, true);
+    }
+  }
+
+  async function grantYuanbao() {
+    const sel = Players.getSelected();
+    if (!sel) return Core.message("请先选择玩家", true);
+    try {
+      await Core.api("/api/admin/grant-yuanbao", {
+        method: "POST",
+        body: JSON.stringify(Core.authBody({ targetAccount: sel.account, amount: $("#amountInput").value }))
+      });
+      Core.message("元宝发放成功");
+      await Players.load();
+    } catch (err) {
+      Core.message(`元宝发放失败：${err.message}`, true);
     }
   }
 
@@ -786,7 +803,7 @@ const roleCatalog = window.CareerTree.adminRoleCatalog;
 
   return {
     setRoleInputs, fillForm, loadCatalog,
-    saveStats, grantItem, clearItem, grantPhantomTitle,
+    saveStats, grantItem, grantYuanbao, clearItem, grantPhantomTitle,
     resetPassword, resetPhantomPoints, resetItems, setBan
   };
 })();
@@ -1101,6 +1118,7 @@ const Init = (() => {
     /* 玩家操作 */
     $("#saveStatsBtn")?.addEventListener("click", Operations.saveStats);
     $("#grantBtn")?.addEventListener("click", Operations.grantItem);
+    $("#grantYuanbaoBtn")?.addEventListener("click", Operations.grantYuanbao);
     $("#clearItemBtn")?.addEventListener("click", Operations.clearItem);
     $("#grantPhantomTitleBtn")?.addEventListener("click", Operations.grantPhantomTitle);
     $("#resetPasswordBtn")?.addEventListener("click", Operations.resetPassword);

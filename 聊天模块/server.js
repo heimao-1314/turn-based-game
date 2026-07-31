@@ -72,7 +72,20 @@ function createChatRuntime({ sockets, socketMeta, sendSocketJson, recordAnomalyO
     return true;
   }
 
-  return { handleRoomMessage };
+  function broadcastSystemAnnouncement({ serverId, text }) {
+    const message = normalizeText(text);
+    if (!serverId || !message) return false;
+    const payload = { type: "systemAnnouncement", channel: "server", name: "系统公告", text: message };
+    let delivered = false;
+    for (const socket of sockets) {
+      const meta = socketMeta.get(socket) || {};
+      if (socket.destroyed || meta.serverId !== serverId) continue;
+      delivered = sendSocketJson(socket, payload) || delivered;
+    }
+    return delivered;
+  }
+
+  return { handleRoomMessage, broadcastSystemAnnouncement };
 }
 
 module.exports = { createChatRuntime };

@@ -38,6 +38,7 @@
       const role = actor.isPet ? "pet" : actor.isMercenary ? "mercenary" : "actor";
       return {
         battleId: `${side}-${index}-${role}-${actor.spriteId}`,
+        battleIndex: index,
         name: actor.name,
         side,
         actor,
@@ -271,7 +272,9 @@
     }
 
     function selectSkillTargets(defenderTeam, targetName, skill) {
-      const candidates = deps.alive(defenderTeam);
+      // Team order is the authoritative formation order; index 0 is the
+      // front-row/topmost slot used by the battle renderer.
+      const candidates = deps.alive(defenderTeam).slice().sort((a, b) => (a.battleIndex || 0) - (b.battleIndex || 0));
       if (skill.targetRule === "all") return candidates;
       if (skill.targetCount && skill.targetCount > 1) {
         const first = deps.pickTarget(defenderTeam, targetName);

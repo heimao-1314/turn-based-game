@@ -7,9 +7,10 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0f1713" />
     <link rel="stylesheet" href="font-theme.css" />
-    <link rel="stylesheet" href="styles.css?v=20260713-camera-select-1" />
+    <link rel="stylesheet" href="styles.css?v=20260730-lucky-item-visual-5" />
     <link rel="stylesheet" href="菜单UI/菜单界面.css?v=20260712-11" />
-    <link rel="stylesheet" href="聊天模块/chat.css?v=20260727-6" />
+    <link rel="stylesheet" href="菜单UI/item-quantity-display.css?v=20260731-1" />
+    <link rel="stylesheet" href="聊天模块/chat.css?v=20260729-8" />
     <link rel="stylesheet" href="飞图小地图/区域飞图.css" />
     <script>
       if (/\bEdg\//.test(navigator.userAgent || "")) {
@@ -220,12 +221,17 @@
           <strong>附近角色</strong>
           <div id="nearbyList"></div>
         </div>
-        <div id="chatHistoryPanel" class="chat-history-panel">
-          <div class="stats-head">
-            <strong>聊天记录</strong>
-            <button id="chatHistoryClose" class="menu-framed-button compact" type="button">关闭</button>
+        <div id="chatHistoryPanel" class="chat-history-panel" aria-label="聊天记录" aria-hidden="true">
+          <div id="chatHistoryTabs" class="chat-history-tabs main-menu-tabs tab-deck" role="tablist">
+            <button type="button" data-chat-history-channel="all" role="tab">全部</button>
+            <button type="button" data-chat-history-channel="nearby" role="tab">同屏</button>
+            <button type="button" data-chat-history-channel="server" role="tab">全服</button>
+            <button type="button" data-chat-history-channel="channel" role="tab">全线</button>
+            <button type="button" data-chat-history-channel="team" role="tab">家族</button>
+            <button type="button" data-chat-history-channel="whisper" role="tab">私聊</button>
           </div>
-          <div id="chatHistoryList"></div>
+          <div id="chatHistoryList" class="chat-history-list" role="tabpanel"></div>
+          <button id="chatHistoryHint" class="chat-history-hint menu-framed-button" type="button"><i class="chat-history-hint-icon" aria-hidden="true"></i><span class="chat-history-hint-bracket">&lt;</span><span>按左右翻页,按 0 切换频道</span><span class="chat-history-hint-bracket">&gt;</span><i class="chat-history-hint-icon" aria-hidden="true"></i></button>
         </div>
         <div id="privateChatDialog" class="battle-reward-panel private-chat-dialog" aria-hidden="true" hidden>
           <div class="reward-dialog-title">收到悄悄话</div>
@@ -253,6 +259,19 @@
           <div id="mainMenuTabs" class="main-menu-tabs"></div>
           <div id="mainMenuList" class="main-menu-list"></div>
         </div>
+        <section id="luckyBoxOverlay" class="lucky-box-overlay" aria-hidden="true">
+          <div class="lucky-box-dialog" role="dialog" aria-label="好运宝箱抽奖">
+            <header class="lucky-box-title lucky-box-frame">
+              <span class="lucky-box-title-icon" aria-hidden="true"></span>
+              <strong>抽奖中</strong>
+              <span class="lucky-box-title-icon" aria-hidden="true"></span>
+            </header>
+            <div class="lucky-box-rewards lucky-box-frame">
+              <div id="luckyBoxRewardRows" class="lucky-box-reward-rows"></div>
+            </div>
+            <footer id="luckyBoxActions" class="lucky-box-actions lucky-box-frame"></footer>
+          </div>
+        </section>
         <div class="main-menu-footer">
           <button id="mainMenuConfirm" class="menu-framed-button" type="button">确定</button>
           <button id="mainMenuBack" class="menu-framed-button" type="button">返回</button>
@@ -405,12 +424,16 @@
     <script src="bandwidth-optimizer/client/state-merger.js"></script>
     <script src="bandwidth-optimizer/client/local-simulator.js"></script>
     <script src="bandwidth-optimizer/client/bandwidth-optimizer.js"></script>
-        <script src="菜单UI/login-media-policy.js?v=20260727-login-media-1"></script>
+    <script src="菜单UI/login-media-policy.js?v=20260727-login-media-1"></script>
         <script src="菜单UI/login-media-runtime.js?v=20260727-login-media-1"></script>
         <script src="菜单UI/菜单界面.js?v=20260712-7"></script>
+        <script src="菜单UI/quick-menu-hotkeys.js?v=20260801-1"></script>
+        <script src="菜单UI/item-quantity-display.js?v=20260731-1"></script>
+        <script src="聊天模块/chat-history-ui.js?v=20260729-2"></script>
         <script src="map-admin-editor.js"></script>
         <script src="飞图小地图/区域飞图.js"></script>
-        <script src="app.js?v=20260727-browser-credential-7"></script>
+        <script src="好运宝箱/shared.js"></script>
+        <script src="app.js?v=20260801-quick-menu-hotkeys-3"></script>
         <script src="全服竞技场/client.js"></script>
         <script src="仙气修炼/client.js"></script>
         <script src="疯狂吹牛/client.js"></script>

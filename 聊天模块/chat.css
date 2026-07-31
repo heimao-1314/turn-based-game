@@ -1,5 +1,5 @@
 /* Chat surfaces reuse the in-game menu frame and action treatment. */
-.chat-form { left: 50%; right: auto; top: calc((min(430px, 100vw) * 20 / 15) - 244px + env(safe-area-inset-top)); width: min(390px, calc(100vw - 20px)); padding: 0; transform: translateX(-50%); grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; gap: 0; background: rgba(20, 24, 18, 0.96); color: #f5e7a8; }
+.chat-form { left: 50%; right: auto; top: calc((min(430px, 100vw) * 20 / 15) - 244px + env(safe-area-inset-top)); z-index: 30; width: min(420px, calc(100vw - 28px)); padding: 0; transform: translateX(-50%); grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; gap: 0; background: rgba(20, 24, 18, 0.96); color: #f5e7a8; }
 .chat-menu-title, .chat-menu-body, .chat-menu-actions { position: relative; z-index: 1; }
 .chat-menu-title { display: flex; align-items: baseline; justify-content: space-between; min-height: 36px; padding: 8px 12px; border-bottom: 1px solid rgba(238, 206, 102, 0.32); background: rgba(58, 48, 22, 0.9); font-size: 14px; }
 #chatChannelHint { color: #b9cda8; font-size: 12px; }
@@ -17,7 +17,100 @@
 .ico-emoji-token { display: inline-block; width: 16px; height: 16px; margin: 0 1px -3px; vertical-align: baseline; }
 .emoji-page-actions { grid-column: 1 / -1; display: flex; justify-content: center; }
 .emoji-page-actions button { min-width: 92px; min-height: 28px; padding: 3px 8px; color: #f5e7a8; background: rgba(58, 48, 22, 0.96); border: 1px solid rgba(238, 206, 102, 0.38); }
-.chat-history-panel { border: 1px solid rgba(238, 206, 102, 0.38); background: rgba(20, 24, 18, 0.96); }
+.chat-history-panel {
+  position: absolute;
+  left: 50%;
+  top: max(6px, env(safe-area-inset-top));
+  bottom: auto;
+  z-index: 15;
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  width: min(420px, calc(100vw - 28px));
+  height: calc(var(--game-view-height) - 6px);
+  max-height: none;
+  padding: 0;
+  background: transparent;
+  color: #f5e7a8;
+  overflow: hidden;
+  transform: translateX(-50%);
+}
+.chat-history-panel.active { display: flex; }
+.chat-history-tabs.tab-deck { flex: 0 0 auto; }
+.chat-history-list {
+  position: relative;
+  z-index: 40;
+  display: grid;
+  align-content: start;
+  flex: 1 1 0;
+  min-height: 0;
+  gap: 6px;
+  margin-top: -16px;
+  padding: 18px 12px 10px;
+  overflow-y: auto;
+  background: transparent;
+}
+.chat-history-list::before,
+.chat-history-hint::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 3px;
+  background: rgba(7, 12, 12, 0.9);
+  pointer-events: none;
+}
+.chat-history-list .chat-line {
+  position: relative;
+  z-index: 2;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+.chat-history-list .chat-item-token strong {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+.chat-history-list .chat-line.chat-history-selectable { cursor: pointer; }
+.chat-history-list .chat-line.selected {
+  background: rgba(217, 184, 79, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(238, 206, 102, 0.5);
+}
+.chat-history-empty { color: #b9cda8; text-align: center; }
+.chat-history-hint {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  display: flex;
+  flex: 0 0 34px;
+  margin-top: 0.5px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  height: 34px;
+  min-height: 34px;
+  padding: 6px 10px;
+  color: #ff5c5c;
+  font-size: 13px;
+  background: transparent;
+}
+.chat-history-hint .chat-history-hint-icon {
+  position: relative;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  background: url("../资源/图片/ico.png") -48px -32px / 144px 80px no-repeat;
+  image-rendering: pixelated;
+}
+.chat-history-hint span { position: relative; z-index: 2; }
+.chat-history-hint-bracket { font-weight: 900; }
 .chat-channel-tag { margin-right: 2px; font-weight: 700; }
 .chat-line-server { color: #ff6a6a; }
 .chat-line-channel { color: #ffe36e; }

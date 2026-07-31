@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员后台 - macOS Desktop Studio Edition</title>
+  <style>
+    /* ==========================================================================
+       macOS / Apple Vision Studio Glassmorphism Design System (PC Native)
+       ========================================================================== */
+    :root {
+      --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      
+      /* Glassmorphism Color Palette - Light */
+      --glass-base: rgba(255, 255, 255, 0.48);
+      --glass-sidebar: rgba(246, 246, 248, 0.55);
+      --glass-card: rgba(255, 255, 255, 0.62);
+      --glass-card-hover: rgba(255, 255, 255, 0.82);
+      --glass-card-active: rgba(255, 255, 255, 0.95);
+      --glass-border: rgba(255, 255, 255, 0.65);
+      --glass-border-dark: rgba(0, 0, 0, 0.08);
+      
+      --glass-blur-heavy: blur(40px) saturate(210%);
+      --glass-blur-md: blur(25px) saturate(180%);
+      --glass-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.1);
+      --glass-shadow-card: 0 8px 24px -6px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0,0,0,0.02);
+
+      --accent-blue: #007aff;
+      --accent-blue-gradient: linear-gradient(135deg, #007aff, #00c6ff);
+      --accent-green: #34c759;
+      --accent-orange: #ff9500;
+      --accent-red: #ff3b30;
+      --accent-purple: #af52de;
+      --accent-pink: #ff2d55;
+
+      --text-primary: #1d1d1f;
+      --text-secondary: #515154;
+      --text-muted: #8e8e93;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-pill: 999px;
+    }
+
+    body.dark-mode {
+      --glass-base: rgba(28, 28, 32, 0.58);
+      --glass-sidebar: rgba(20, 20, 24, 0.65);
+      --glass-card: rgba(38, 38, 44, 0.65);
+      --glass-card-hover: rgba(50, 50, 58, 0.8);
+      --glass-card-active: rgba(65, 65, 75, 0.9);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-border-dark: rgba(0, 0, 0, 0.4);
+      --glass-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+      
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --text-muted: #6e6e73;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #e4e9f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Ambient Desktop Wallpaper Glows */
+    .wallpaper {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 10% 20%, #e0c3fc 0%, #8ec5fc 100%);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.7;
+      animation: orbFloat 22s infinite alternate ease-in-out;
+    }
+
+    .orb-1 {
+      width: 650px;
+      height: 650px;
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+      top: -150px;
+      left: -100px;
+    }
+
+    .orb-2 {
+      width: 700px;
+      height: 700px;
+      background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+      bottom: -200px;
+      right: -100px;
+      animation-delay: -7s;
+    }
+
+    .orb-3 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%);
+      top: 30%;
+      left: 40%;
+      animation-delay: -14s;
+    }
+
+    @keyframes orbFloat {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, 40px) scale(1.05); }
+      100% { transform: translate(-30px, 60px) scale(0.95); }
+    }
+
+    /* ==========================================================================
+       macOS Desktop Studio Window Container
+       ========================================================================== */
+    .desktop-app {
+      position: relative;
+      z-index: 10;
+      width: 95vw;
+      height: 92vh;
+      max-width: 1680px;
+      max-height: 1050px;
+      min-width: 1100px;
+      min-height: 680px;
+      
+      background: var(--glass-base);
+      backdrop-filter: var(--glass-blur-heavy);
+      -webkit-backdrop-filter: var(--glass-blur-heavy);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--glass-shadow);
+      
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* macOS Window Title Bar */
+    .window-titlebar {
+      height: 48px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--glass-border-dark);
+      background: rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .traffic-lights {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100px;
+    }
+
+    .traffic-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .traffic-close { background: #ff5f56; border: 0.5px solid #e0443e; }
+    .traffic-minimize { background: #ffbd2e; border: 0.5px solid #dea123; }
+    .traffic-maximize { background: #27c93f; border: 0.5px solid #1aab29; }
+
+    .window-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-badge {
+      font-size: 11px;
+      background: rgba(0, 122, 255, 0.12);
+      color: var(--accent-blue);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+    }
+
+    .window-controls-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ==========================================================================
+       Window Workspace Layout (3-Column Desktop Grid)
+       ========================================================================== */
+    .window-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 240px 1fr 340px;
+      overflow: hidden;
+    }
+
+    /* Column 1: macOS Glass Sidebar */
+    .sidebar {
+      background: var(--glass-sidebar);
+      border-right: 1px solid var(--glass-border-dark);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      padding: 0 10px;
+      margin-bottom: 6px;
+    }
+
+    .nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.35);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 122, 255, 0.3);
+    }
+
+    .nav-item svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user-card {
+      margin-top: auto;
+      background: rgba(255, 255, 255, 0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent-blue-gradient);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Column 2: Main Studio Workspace */
+    .main-workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 20px 24px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Workspace Metrics Toolbar Header */
+    .studio-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-heading h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+    }
+
+    .page-heading p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .metric-card {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--glass-shadow-card);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: var(--glass-blur-md);
+    }
+
+    .metric-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .metric-val {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .metric-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    /* Controls Bar: Search + Filter */
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .search-box-pc {
+      position: relative;
+      flex: 1;
+      max-width: 420px;
+    }
+
+    .pc-input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+      backdrop-filter: blur(15px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pc-input:focus {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.18);
+    }
+
+    .search-icon-pc {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Studio Data Table (PC Glass Grid) */
+    .table-container {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--glass-shadow-card);
+      backdrop-filter: var(--glass-blur-md);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+    }
+
+    .pc-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    .pc-table th {
+      position: sticky;
+      top: 0;
+      background: rgba(245, 247, 252, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--glass-border-dark);
+      z-index: 5;
+    }
+
+    .pc-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      color: var(--text-primary);
+      vertical-align: middle;
+      transition: background 0.15s ease;
+    }
+
+    .pc-table tbody tr {
+      cursor: pointer;
+    }
+
+    .pc-table tbody tr:hover {
+      background: var(--glass-card-hover);
+    }
+
+    .pc-table tbody tr.selected {
+      background: rgba(0, 122, 255, 0.08);
+    }
+
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cell-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .status-online { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+    .status-offline { background: var(--text-muted); }
+
+    /* Buttons macOS style */
+    .btn {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: white;
+      border: none;
+      box-shadow: 0 3px 10px rgba(0, 122, 255, 0.28);
+    }
+
+    .btn-primary:hover {
+      background: #0062cc;
+      box-shadow: 0 5px 16px rgba(0, 122, 255, 0.38);
+    }
+
+    .btn-danger {
+      background: rgba(255, 59, 48, 0.12);
+      color: var(--accent-red);
+      border: 1px solid rgba(255, 59, 48, 0.25);
+    }
+
+    .btn-danger:hover {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    /* Column 3: macOS Inspector Side Panel */
+    .inspector-panel {
+      background: var(--glass-sidebar);
+      border-left: 1px solid var(--glass-border-dark);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    .inspector-card {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--glass-shadow-card);
+    }
+
+    .inspector-user-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .inspector-big-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #007aff, #00c6ff);
+      color: white;
+      font-size: 26px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(0, 122, 255, 0.28);
+    }
+
+    .inspector-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .inspector-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .info-key {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .info-val {
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: right;
+      word-break: break-all;
+    }
+
+    .quick-gm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    /* Modal Glass Overlay */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(20px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-glass-card {
+      width: 380px;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(45px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Desktop Wallpaper Glows -->
+  <div class="wallpaper">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- macOS Desktop App Window -->
+  <div class="desktop-app">
+
+    <!-- Title Bar -->
+    <header class="window-titlebar">
+      <div class="traffic-lights">
+        <span class="traffic-btn traffic-close" onclick="alert('提示：模拟关闭窗口')"></span>
+        <span class="traffic-btn traffic-minimize"></span>
+        <span class="traffic-btn traffic-maximize"></span>
+      </div>
+
+      <div class="window-title">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+        <span>企鹅村 - 游戏服务端管理控制台</span>
+        <span class="title-badge">v2.4 PC Studio</span>
+      </div>
+
+      <div class="window-controls-right">
+        <button class="btn" id="themeBtn" onclick="toggleDarkMode()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          深色模式
+        </button>
+      </div>
+    </header>
+
+    <!-- Workspace Body (3 Columns Layout) -->
+    <div class="window-body">
+
+      <!-- Column 1: Navigation Sidebar -->
+      <aside class="sidebar">
+        <div>
+          <div class="sidebar-section-title">核心管理</div>
+          <nav class="nav-group">
+            <a class="nav-item active" onclick="selectNav(this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              玩家管理
+            </a>
+            <a class="nav-item" onclick="selectNav(this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line></svg>
+              服务器集群
+            </a>
+            <a class="nav-item" onclick="selectNav(this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              排行榜分析
+            </a>
+          </nav>
+        </div>
+
+        <div>
+          <div class="sidebar-section-title">安全与运维</div>
+          <nav class="nav-group">
+            <a class="nav-item" onclick="selectNav(this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line></svg>
+              异常监测 (Anti-Cheat)
+            </a>
+            <a class="nav-item" onclick="selectNav(this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path></svg>
+              系统审计日志
+            </a>
+            <a class="nav-item" onclick="selectNav(this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path></svg>
+              全局参数配置
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-user-card">
+          <div class="user-avatar">A</div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size: 13px; font-weight:700;">Root Admin</div>
+            <div style="font-size: 11px; color: var(--text-muted);">127.0.0.1 (本机)</div>
+          </div>
+          <button class="btn btn-danger" style="padding: 5px 10px; font-size: 11px;" onclick="showLoginModal()">退出</button>
+        </div>
+      </aside>
+
+      <!-- Column 2: Main Studio Table & Controls -->
+      <main class="main-workspace">
+
+        <!-- Top Heading & Quick Metrics -->
+        <div class="studio-header">
+          <div class="page-heading">
+            <h1>玩家档案控制台</h1>
+            <p>实时监控并管理企鹅村 (penguin_village) 服务器玩家数据</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="alert('正在从服务端刷新同步数据…')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
+              同步数据
+            </button>
+          </div>
+        </div>
+
+        <div class="stats-bar">
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #007aff, #00c6ff);">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            </div>
+            <div>
+              <div class="metric-val">105</div>
+              <div class="metric-lbl">总注册角色</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #34c759, #30d158);">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            </div>
+            <div>
+              <div class="metric-val">42</div>
+              <div class="metric-lbl">当前在线玩家</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #ff9500, #ffcc00);">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+            </div>
+            <div>
+              <div class="metric-val">2.33 万亿</div>
+              <div class="metric-lbl">经济流转银币</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #af52de, #ff2d55);">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line></svg>
+            </div>
+            <div>
+              <div class="metric-val">99.9%</div>
+              <div class="metric-lbl">服务端稳定性</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Controls Filter -->
+        <div class="table-toolbar">
+          <div class="search-box-pc">
+            <svg class="search-icon-pc" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" class="pc-input" id="tableSearch" placeholder="搜索玩家昵称、账号 ID 或常用 IP…" oninput="filterTable()">
+          </div>
+
+          <div style="display:flex; gap: 8px;">
+            <button class="btn" onclick="filterOnlineOnly(true)">只看在线</button>
+            <button class="btn" onclick="filterOnlineOnly(false)">全部玩家</button>
+          </div>
+        </div>
+
+        <!-- Main Desktop Glass Table -->
+        <div class="table-container">
+          <div class="table-scroll">
+            <table class="pc-table" id="playerTable">
+              <thead>
+                <tr>
+                  <th>状态</th>
+                  <th>角色昵称</th>
+                  <th>所属账号</th>
+                  <th>等级</th>
+                  <th>龙魂</th>
+                  <th>银币持有量</th>
+                  <th>常用 IP</th>
+                  <th>登录次数</th>
+                  <th>最近活动时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+                <tr class="selected" onclick="inspectPlayer(this, 'GGbang', '1234', '100', '100', '1,129,640', '2409:8a55:ed7:ab91:5921:dbea:543b:fa7b', '10,311', '2026-05-17 12:20:50')">
+                  <td><span class="status-dot status-online"></span>在线</td>
+                  <td>
+                    <div class="player-cell">
+                      <div class="cell-avatar">G</div>
+                      <strong>GGbang</strong>
+                    </div>
+                  </td>
+                  <td>1234</td>
+                  <td><span style="font-weight:700; color:var(--accent-blue);">Lv. 100</span></td>
+                  <td>100</td>
+                  <td style="font-weight: 700; color:var(--accent-orange);">1,129,640</td>
+                  <td style="font-size:11px; color:var(--text-muted);">2409:8a55:ed7...</td>
+                  <td>10,311 次</td>
+                  <td style="font-size:12px; color:var(--text-muted);">2026-05-17 12:20</td>
+                </tr>
+
+                <tr onclick="inspectPlayer(this, '★【绝世】兔兔', 'usagi', '100', '100', '2,324,945,024,059', '240e:3bb:a82:f3e0:d4ba:ac9e:e1b1:d585', '1,592,845', '2026-05-21 00:49:44')">
+                  <td><span class="status-dot status-online"></span>在线</td>
+                  <td>
+                    <div class="player-cell">
+                      <div class="cell-avatar" style="background: linear-gradient(135deg,#ff9500,#ff2d55);">兔</div>
+                      <strong>★【绝世】兔兔</strong>
+                    </div>
+                  </td>
+                  <td>usagi</td>
+                  <td><span style="font-weight:700; color:var(--accent-blue);">Lv. 100</span></td>
+                  <td>100</td>
+                  <td style="font-weight: 700; color:var(--accent-orange);">2,324,945,024,059</td>
+                  <td style="font-size:11px; color:var(--text-muted);">240e:3bb:a82...</td>
+                  <td>1,592,845 次</td>
+                  <td style="font-size:12px; color:var(--text-muted);">2026-05-21 00:49</td>
+                </tr>
+
+                <tr onclick="inspectPlayer(this, '绝世王者荣耀', '123', '100', '100', '600,114', '127.0.0.1 (内网/本机)', '89,260', '2026-07-27 10:04:29')">
+                  <td><span class="status-dot status-online"></span>在线</td>
+                  <td>
+                    <div class="player-cell">
+                      <div class="cell-avatar" style="background: linear-gradient(135deg,#af52de,#5856d6);">王</div>
+                      <strong>绝世王者荣耀</strong>
+                    </div>
+                  </td>
+                  <td>123</td>
+                  <td><span style="font-weight:700; color:var(--accent-blue);">Lv. 100</span></td>
+                  <td>100</td>
+                  <td style="font-weight: 700; color:var(--accent-orange);">600,114</td>
+                  <td style="font-size:11px; color:var(--text-muted);">127.0.0.1 (本机)</td>
+                  <td>89,260 次</td>
+                  <td style="font-size:12px; color:var(--text-muted);">2026-07-27 10:04</td>
+                </tr>
+
+                <tr onclick="inspectPlayer(this, '万津莫', '145632', '100', '100', '3,603,780', '2408:821b:9a32:f790:c8a1:4d82:532c:c720', '7,507', '2026-05-17 10:10:07')">
+                  <td><span class="status-dot status-offline"></span>离线</td>
+                  <td>
+                    <div class="player-cell">
+                      <div class="cell-avatar" style="background: linear-gradient(135deg,#34c759,#30d158);">万</div>
+                      <strong>万津莫</strong>
+                    </div>
+                  </td>
+                  <td>145632</td>
+                  <td><span style="font-weight:700; color:var(--accent-blue);">Lv. 100</span></td>
+                  <td>100</td>
+                  <td style="font-weight: 700; color:var(--accent-orange);">3,603,780</td>
+                  <td style="font-size:11px; color:var(--text-muted);">2408:821b:9a32...</td>
+                  <td>7,507 次</td>
+                  <td style="font-size:12px; color:var(--text-muted);">2026-05-17 10:10</td>
+                </tr>
+
+                <tr onclick="inspectPlayer(this, '【绝世】九霄御龙枪神', 'jiuxiao03', '100', '100', '999,999,999', '2001:e68:540d:5ae:c9cb:a4b9:a2a9:8c0d', '7,638', '2026-05-21 00:49:42')">
+                  <td><span class="status-dot status-online"></span>在线</td>
+                  <td>
+                    <div class="player-cell">
+                      <div class="cell-avatar" style="background: linear-gradient(135deg,#ff3b30,#ff9500);">九</div>
+                      <strong>【绝世】九霄御龙枪神</strong>
+                    </div>
+                  </td>
+                  <td>jiuxiao03</td>
+                  <td><span style="font-weight:700; color:var(--accent-blue);">Lv. 100</span></td>
+                  <td>100</td>
+                  <td style="font-weight: 700; color:var(--accent-orange);">999,999,999</td>
+                  <td style="font-size:11px; color:var(--text-muted);">2001:e68:540d...</td>
+                  <td>7,638 次</td>
+                  <td style="font-size:12px; color:var(--text-muted);">2026-05-21 00:49</td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- Column 3: macOS Inspector Side Panel -->
+      <aside class="inspector-panel">
+        
+        <div class="inspector-card">
+          <div class="inspector-user-header">
+            <div class="inspector-big-avatar" id="insAvatar">G</div>
+            <div class="inspector-name" id="insName">GGbang</div>
+            <div class="inspector-sub" id="insSub">账号 1234 • 企鹅村 (penguin_village)</div>
+          </div>
+
+          <div class="info-list">
+            <div class="info-row">
+              <span class="info-key">角色 ID</span>
+              <span class="info-val" id="insId">1234</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">角色等级</span>
+              <span class="info-val" id="insLevel">Lv. 100</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">龙魂点数</span>
+              <span class="info-val" id="insDragon">100</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">银币余额</span>
+              <span class="info-val" style="color:var(--accent-orange);" id="insSilver">1,129,640</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">常用 IP</span>
+              <span class="info-val" style="font-size:11px;" id="insIp">2409:8a55:ed7:ab91:5921:dbea:543b:fa7b</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">登录统计</span>
+              <span class="info-val" id="insLogins">10,311 次</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">最近上线</span>
+              <span class="info-val" id="insLastTime">2026-05-17 12:20:50</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-card">
+          <div style="font-size:13px; font-weight:700; margin-bottom: 12px;">快捷 GM 指令</div>
+          <div class="quick-gm-actions">
+            <button class="btn" onclick="prompt('设置新银币数:', '10000000')">修改银币</button>
+            <button class="btn" onclick="prompt('设置新等级:', '100')">修改等级</button>
+            <button class="btn" onclick="alert('奖励已成功发送至该玩家邮箱')">发奖励</button>
+            <button class="btn" onclick="alert('角色属性已充值更新')">重置属性</button>
+          </div>
+          <div style="display:flex; gap:10px; margin-top: 12px;">
+            <button class="btn btn-danger" style="flex:1; justify-content:center;" onclick="confirm('确认踢该玩家下线？')">强制下线</button>
+            <button class="btn btn-danger" style="flex:1; justify-content:center;" onclick="confirm('确认封禁此账号？')">封禁账号</button>
+          </div>
+        </div>
+
+        <!-- Audit Log Glass Box -->
+        <div class="inspector-card">
+          <div style="font-size:12px; font-weight:700; margin-bottom: 8px;">操作审计日志</div>
+          <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            • 12:20:50 管理员对该玩家调取数据<br>
+            • 11:40:12 玩家完成副本“企鹅村”<br>
+            • 10:15:00 充值校验通过 +50,000 银币
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Login Modal Simulation -->
+  <div class="modal-backdrop" id="loginModal">
+    <div class="modal-glass-card">
+      <div class="inspector-big-avatar" style="margin: 0 auto 16px;">
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+        </svg>
+      </div>
+      <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">管理员验证</h2>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">本机访问仅需口令；外网访问请输入管理员账号和密码</p>
+      
+      <form onsubmit="event.preventDefault(); hideLoginModal();">
+        <input class="pc-input" style="border-radius: 10px; margin-bottom: 10px;" placeholder="管理员账号（本机可留空）">
+        <input class="pc-input" type="password" style="border-radius: 10px; margin-bottom: 16px;" placeholder="管理员口令">
+        <button class="btn btn-primary" type="submit" style="width: 100%; padding: 10px; justify-content: center; font-size: 14px;">解 锁 登 录</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Inspect Player Callback
+    function inspectPlayer(rowEl, name, id, level, dragon, silver, ip, logins, lastTime) {
+      document.querySelectorAll('#playerTable tbody tr').forEach(r => r.classList.remove('selected'));
+      rowEl.classList.add('selected');
+
+      document.getElementById('insAvatar').innerText = name.charAt(0);
+      document.getElementById('insName').innerText = name;
+      document.getElementById('insSub').innerText = '账号 ' + id + ' • 企鹅村 (penguin_village)';
+      document.getElementById('insId').innerText = id;
+      document.getElementById('insLevel').innerText = 'Lv. ' + level;
+      document.getElementById('insDragon').innerText = dragon;
+      document.getElementById('insSilver').innerText = silver;
+      document.getElementById('insIp').innerText = ip;
+      document.getElementById('insLogins').innerText = logins + ' 次';
+      document.getElementById('insLastTime').innerText = lastTime;
+    }
+
+    // Nav Switcher
+    function selectNav(itemEl) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      itemEl.classList.add('active');
+    }
+
+    // Filter Table
+    function filterTable() {
+      const query = document.getElementById('tableSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#playerTable tbody tr');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    function filterOnlineOnly(onlineOnly) {
+      const rows = document.querySelectorAll('#playerTable tbody tr');
+      rows.forEach(row => {
+        if (!onlineOnly) {
+          row.style.display = '';
+        } else {
+          const isOnline = row.innerText.includes('在线');
+          row.style.display = isOnline ? '' : 'none';
+        }
+      });
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('themeBtn').innerHTML = isDark
+        ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg> 浅色模式`
+        : `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> 深色模式`;
+    }
+
+    // Login Modal Handlers
+    function showLoginModal() {
+      document.getElementById('loginModal').classList.add('show');
+    }
+
+    function hideLoginModal() {
+      document.getElementById('loginModal').classList.remove('show');
+    }
+  </script>
+
+</body>
+</html>

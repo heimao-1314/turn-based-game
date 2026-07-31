@@ -48,6 +48,7 @@ const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
 const elfKingVault = require("./副本模块/精灵王宝库.js");
+const luckyBoxModule = require("./好运宝箱/shared.js");
 
 // === 带宽优化模块（实验功能，设 ENABLE_BW_OPT=1 才启用）===
 let bandwidthOptimizer = null;
@@ -472,6 +473,8 @@ db.exec(`
     pet_extra_skills_json TEXT NOT NULL DEFAULT '{}',
     role_extra_skills_json TEXT NOT NULL DEFAULT '[]',
     silver INTEGER NOT NULL DEFAULT 0,
+    yuanbao INTEGER NOT NULL DEFAULT 0,
+    lucky_box_items_json TEXT NOT NULL DEFAULT '{}',
     soul_powder INTEGER NOT NULL DEFAULT 0,
     forge_gem INTEGER NOT NULL DEFAULT 0,
     peerless_skill_fragment INTEGER NOT NULL DEFAULT 0,
@@ -2116,7 +2119,7 @@ const encounterRuntime = createEncounterRuntime({
 });
 
 function isUntradeableItemId(id) {
-  return id === "phantom_fragment";
+  return id === "phantom_fragment" || Boolean(luckyBoxItemMeta(id));
 }
 
 function fragmentById(id) {
@@ -2158,6 +2161,11 @@ function materialItemMeta(id) {
   const card = skillCardItems.find((item) => item.id === id);
   if (card) return { id, name: card.name, icon: card.icon, skillId: card.skillId || "" };
   return { id, name: id, icon: "2.8" };
+}
+
+function luckyBoxItemMeta(id) {
+  const item = luckyBoxModule.rewards.find((entry) => entry.id === id);
+  return item ? { id: item.id, name: item.name, icon: item.icon, value: item.value, probability: item.probability, source: "lucky_box" } : null;
 }
 
 function phantomTitleForRank(rank) {
@@ -2314,15 +2322,7 @@ function rollWildBattleReward(monsterId, monsterCount = 1) {
 }
 
 function luckyBoxRoll() {
-  const roll = Math.random();
-  if (roll < 0.03) return { kind: "ticket", id: "peerless_holy_weapon_ticket", quantity: 1 };
-  if (roll < 0.06) return { kind: "ticket", id: "peerless_pet_scroll_ticket", quantity: 1 };
-  if (roll < 0.09) return { kind: "card", id: sample(["skill_card_double_dragon", "skill_card_magic_field", "skill_card_eternal_sleep"]), quantity: 1 };
-  if (roll < 0.14) return { kind: "ticket", id: "fashion_ticket", quantity: 1 };
-  if (roll < 0.19) return { kind: "card", id: sample(skillCardItems.filter((item) => item.id.startsWith("skill_card_holy_") && item.skillId && item.id !== "skill_card_holy_elf_spring").map((item) => item.id)), quantity: 1 };
-  if (roll < 0.24) return { kind: "equipment", equipment: makeTripleCritEquipment(), quantity: 1 };
-  if (roll < 0.52) return { kind: "powder", id: "soul_powder", quantity: randomInt(3000, 15000) };
-  return { kind: "fragment", id: sample(fragmentItems.filter((item) => item.id !== "phantom_fragment").map((item) => item.id)), quantity: randomInt(30, 120) };
+  return luckyBoxModule.roll();
 }
 
 function aggregateRewardItems(items) {
@@ -2385,17 +2385,25 @@ function playerBagItems(row) {
   const forgeGem = row?.forge_gem || 0;
   const immortalPill = row?.immortal_pill || 0;
   const mysteriousPaint = row?.mysterious_paint || 0;
+  const luckyBox = row?.lucky_box || 0;
+  const luckyBoxItems = safeJsonObject(row?.lucky_box_items_json);
   if (soulPowder > 0) items.push({ id: "soul_powder", name: "灵魂粉末", icon: "1.11", quantity: soulPowder });
   if (forgeGem > 0) items.push({ id: "forge_gem", name: "锻造宝石", icon: "1.13", quantity: forgeGem });
   if (immortalPill > 0) items.push({ id: "immortal_pill", name: "仙丹", icon: "1.49", quantity: immortalPill });
   if (mysteriousPaint > 0) items.push({ id: "mysterious_paint", name: "神秘颜料", icon: "2.8", quantity: mysteriousPaint });
+  if (luckyBox > 0) items.push({ id: "lucky_box", name: "好运宝箱", icon: "1.11", quantity: luckyBox });
   fragmentItems.forEach((fragment) => {
     const amount = row?.[fragment.column] || 0;
     if (amount > 0) items.push({ id: fragment.id, name: fragmentName(fragment.id), icon: fragment.icon, quantity: amount });
   });
-  skillCardItems.forEach((item) => {
+  skillCardItems.filter((item) => item.id !== luckyBoxModule.boxId).forEach((item) => {
     const amount = row?.[item.column] || 0;
     if (amount > 0) items.push({ id: item.id, name: item.name, icon: item.icon, quantity: amount, skillId: item.skillId || "" });
+  });
+  Object.entries(luckyBoxItems).forEach(([id, quantity]) => {
+    const meta = luckyBoxItemMeta(id);
+    const amount = Math.max(0, Math.floor(Number(quantity) || 0));
+    if (meta && amount > 0) items.push({ ...meta, quantity: amount, kind: "item", untradeable: true });
   });
   items.push(...safeJsonArray(row?.equipment_json).map((item) => normalizeBagItem(item, equipped)));
   return items;
@@ -2656,6 +2664,8 @@ function playerRowToApi(row) {
       : {},
     friends: safeJsonArray(row.friends_json),
     silver: row.silver || 0,
+    yuanbao: row.yuanbao || 0,
+    luckyBoxItems: safeJsonObject(row.lucky_box_items_json),
     soulPowder: row.soul_powder || 0,
     immortalPill: row.immortal_pill || 0,
     mysteriousPaint: row.mysterious_paint || 0,
@@ -2834,6 +2844,8 @@ function ensurePlayerColumns() {
   addColumn("pet_extra_skills_json", "pet_extra_skills_json TEXT NOT NULL DEFAULT '{}'");
   addColumn("role_extra_skills_json", "role_extra_skills_json TEXT NOT NULL DEFAULT '[]'");
   addColumn("silver", "silver INTEGER NOT NULL DEFAULT 0");
+  addColumn("yuanbao", "yuanbao INTEGER NOT NULL DEFAULT 0");
+  addColumn("lucky_box_items_json", "lucky_box_items_json TEXT NOT NULL DEFAULT '{}'");
   addColumn("forge_gem", "forge_gem INTEGER NOT NULL DEFAULT 0");
   fragmentItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   skillCardItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
@@ -3137,12 +3149,15 @@ function handleApi(req, res, url) {
     sendJson(res, 200, {
       ok: true,
       items: [
+        { id: "yuanbao", name: "元宝" },
+        { id: luckyBoxModule.boxId, name: luckyBoxModule.boxName },
         { id: "soul_powder", name: "灵魂粉末" },
         { id: "forge_gem", name: "锻造宝石" },
         { id: "immortal_pill", name: "仙丹" },
         { id: "mysterious_paint", name: "神秘颜料" },
         ...fragmentItems.map((item) => ({ id: item.id, name: item.name })),
-        ...skillCardItems.map((item) => ({ id: item.id, name: item.name }))
+        ...skillCardItems.filter((item) => item.id !== luckyBoxModule.boxId).map((item) => ({ id: item.id, name: item.name })),
+        ...luckyBoxModule.rewards.map((item) => ({ id: item.id, name: item.name }))
       ]
     });
     return;
@@ -3304,15 +3319,30 @@ function handleApi(req, res, url) {
     if (!account) return;
     const fragmentColumns = fragmentItems.map((item) => item.column).join(", ");
     const skillCardColumns = skillCardItems.map((item) => item.column).join(", ");
-    const row = db.prepare(`SELECT silver, soul_powder, immortal_pill, forge_gem, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json, storage_json FROM players WHERE account = ?`).get(account);
+    const row = db.prepare(`SELECT silver, yuanbao, soul_powder, immortal_pill, forge_gem, lucky_box, lucky_box_items_json, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json, storage_json FROM players WHERE account = ?`).get(account);
     const items = playerBagItems(row);
     sendJson(res, 200, {
       ok: true,
       silver: row?.silver || 0,
+      yuanbao: row?.yuanbao || 0,
       capacity: careerTree.BAG_CAPACITY,
       storageCapacity: 300,
       storageItems: storageItems(normalizeStorage(row?.storage_json)),
       items
+    });
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/yuanbao-shop/catalog") {
+    const account = requireAuthAccount(req, res, url);
+    if (!account) return;
+    sendJson(res, 200, {
+      ok: true,
+      currency: luckyBoxModule.currency,
+      balance: Number(db.prepare("SELECT yuanbao FROM players WHERE account = ?").get(account)?.yuanbao) || 0,
+      items: [
+        { id: luckyBoxModule.boxId, name: luckyBoxModule.boxName, icon: luckyBoxModule.boxIcon, price: luckyBoxModule.boxPrice, purchasable: true },
+        ...luckyBoxModule.rewards.map((item) => ({ id: item.id, name: item.name, icon: item.icon, price: item.value, purchasable: true }))
+      ]
     });
     return;
   }
@@ -3676,7 +3706,8 @@ function handleApi(req, res, url) {
       const itemId = String(data.itemId || "").trim();
       const amount = Math.max(1, Math.min(999999999, Math.floor(Number(data.amount) || 0)));
       const column = itemColumnForId(itemId);
-      if (!targetAccount || !column) {
+      const isLuckyBoxItem = Boolean(luckyBoxItemMeta(itemId));
+      if (!targetAccount || (itemId !== "yuanbao" && !column && !isLuckyBoxItem && itemId !== luckyBoxModule.boxId)) {
         sendJson(res, 400, { ok: false, error: "bad_grant" });
         return;
       }
@@ -3685,9 +3716,38 @@ function handleApi(req, res, url) {
         sendJson(res, 404, { ok: false, error: "player_not_found" });
         return;
       }
-      db.prepare(`UPDATE players SET ${column} = ${column} + ?, updated_at = ? WHERE account = ?`)
-        .run(amount, new Date().toISOString(), targetAccount);
+      const updatedAt = new Date().toISOString();
+      if (itemId === "yuanbao") {
+        db.prepare("UPDATE players SET yuanbao = yuanbao + ?, updated_at = ? WHERE account = ?").run(amount, updatedAt, targetAccount);
+      } else if (itemId === luckyBoxModule.boxId) {
+        db.prepare("UPDATE players SET lucky_box = lucky_box + ?, updated_at = ? WHERE account = ?").run(amount, updatedAt, targetAccount);
+      } else if (isLuckyBoxItem) {
+        const current = db.prepare("SELECT lucky_box_items_json FROM players WHERE account = ?").get(targetAccount);
+        const items = safeJsonObject(current?.lucky_box_items_json);
+        items[itemId] = Math.max(0, Math.floor(Number(items[itemId]) || 0)) + amount;
+        db.prepare("UPDATE players SET lucky_box_items_json = ?, updated_at = ? WHERE account = ?").run(JSON.stringify(items), updatedAt, targetAccount);
+      } else {
+        db.prepare(`UPDATE players SET ${column} = ${column} + ?, updated_at = ? WHERE account = ?`).run(amount, updatedAt, targetAccount);
+      }
       sendJson(res, 200, { ok: true, account: targetAccount, itemId, amount });
+      return;
+    }
+    if (url.pathname === "/api/admin/grant-yuanbao") {
+      if (!checkAdmin(req, res, data)) return;
+      const targetAccount = String(data.targetCharacterId || data.targetAccount || "").trim();
+      const amount = Math.max(1, Math.min(999999999, Math.floor(Number(data.amount) || 0)));
+      if (!targetAccount || amount < 1) {
+        sendJson(res, 400, { ok: false, error: "bad_grant" });
+        return;
+      }
+      const result = db.prepare("UPDATE players SET yuanbao = yuanbao + ?, updated_at = ? WHERE account = ?")
+        .run(amount, new Date().toISOString(), targetAccount);
+      if (!result.changes) {
+        sendJson(res, 404, { ok: false, error: "player_not_found" });
+        return;
+      }
+      const next = db.prepare("SELECT yuanbao FROM players WHERE account = ?").get(targetAccount);
+      sendJson(res, 200, { ok: true, account: targetAccount, amount, yuanbao: next.yuanbao || 0 });
       return;
     }
     if (url.pathname === "/api/admin/clear-item") {
@@ -3695,7 +3755,8 @@ function handleApi(req, res, url) {
       const targetAccount = String(data.targetCharacterId || data.targetAccount || "").trim();
       const itemId = String(data.itemId || "").trim();
       const column = itemColumnForId(itemId);
-      if (!targetAccount || !column) {
+      const isLuckyBoxItem = Boolean(luckyBoxItemMeta(itemId));
+      if (!targetAccount || (itemId !== "yuanbao" && itemId !== luckyBoxModule.boxId && !column && !isLuckyBoxItem)) {
         sendJson(res, 400, { ok: false, error: "bad_item" });
         return;
       }
@@ -3704,8 +3765,18 @@ function handleApi(req, res, url) {
         sendJson(res, 404, { ok: false, error: "player_not_found" });
         return;
       }
-      db.prepare(`UPDATE players SET ${column} = 0, updated_at = ? WHERE account = ?`)
-        .run(new Date().toISOString(), targetAccount);
+      const updatedAt = new Date().toISOString();
+      if (itemId === "yuanbao") {
+        db.prepare("UPDATE players SET yuanbao = 0, updated_at = ? WHERE account = ?").run(updatedAt, targetAccount);
+      } else if (itemId === luckyBoxModule.boxId) {
+        db.prepare("UPDATE players SET lucky_box = 0, updated_at = ? WHERE account = ?").run(updatedAt, targetAccount);
+      } else if (isLuckyBoxItem) {
+        const items = safeJsonObject(db.prepare("SELECT lucky_box_items_json FROM players WHERE account = ?").get(targetAccount)?.lucky_box_items_json);
+        delete items[itemId];
+        db.prepare("UPDATE players SET lucky_box_items_json = ?, updated_at = ? WHERE account = ?").run(JSON.stringify(items), updatedAt, targetAccount);
+      } else {
+        db.prepare(`UPDATE players SET ${column} = 0, updated_at = ? WHERE account = ?`).run(updatedAt, targetAccount);
+      }
       const next = db.prepare("SELECT * FROM players WHERE account = ?").get(targetAccount);
       sendJson(res, 200, { ok: true, account: targetAccount, itemId, player: { account: next.account, ...playerRowToApi(next) } });
       return;
@@ -3722,7 +3793,8 @@ function handleApi(req, res, url) {
         dragonSoul: ["dragon_soul", 1, 100],
         petLevel: ["pet_level", 1, 100],
         petExp: ["pet_exp", 0, 999999999],
-        silver: ["silver", 0, 999999999]
+        silver: ["silver", 0, 999999999],
+        yuanbao: ["yuanbao", 0, 999999999]
       };
       const sets = [];
       const params = [];
@@ -4699,7 +4771,7 @@ function handleApi(req, res, url) {
       const quantity = Math.max(1, Math.floor(Number(data.quantity) || 1));
       const fragmentColumns = fragmentItems.map((item) => item.column).join(", ");
       const skillCardColumns = skillCardItems.map((item) => item.column).join(", ");
-      const row = db.prepare(`SELECT forge_gem, soul_powder, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json FROM players WHERE account = ?`).get(account);
+      const row = db.prepare(`SELECT forge_gem, soul_powder, mysterious_paint, lucky_box_items_json, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json FROM players WHERE account = ?`).get(account);
       if (!row) {
         sendJson(res, 404, { ok: false, error: "player_not_found" });
         return;
@@ -4713,6 +4785,20 @@ function handleApi(req, res, url) {
         }
         const updatedAt = new Date().toISOString();
         db.prepare(`UPDATE players SET ${column} = ${column} - ?, updated_at = ? WHERE account = ?`).run(quantity, updatedAt, account);
+        sendJson(res, 200, { ok: true });
+        return;
+      }
+      if (luckyBoxItemMeta(id)) {
+        const items = safeJsonObject(row.lucky_box_items_json);
+        const owned = Math.max(0, Math.floor(Number(items[id]) || 0));
+        if (owned < quantity) {
+          sendJson(res, 409, { ok: false, error: "not_enough_item" });
+          return;
+        }
+        if (owned === quantity) delete items[id];
+        else items[id] = owned - quantity;
+        db.prepare("UPDATE players SET lucky_box_items_json = ?, updated_at = ? WHERE account = ?")
+          .run(JSON.stringify(items), new Date().toISOString(), account);
         sendJson(res, 200, { ok: true });
         return;
       }
@@ -5007,65 +5093,88 @@ function handleApi(req, res, url) {
       return;
     }
     if (url.pathname === "/api/shop/buy") {
+      sendJson(res, 410, { ok: false, error: "legacy_shop_removed" });
+      return;
+    }
+    if (url.pathname === "/api/yuanbao-shop/buy") {
       const itemId = String(data.itemId || "");
-      const quantity = Math.max(1, Math.min(999999, Math.floor(Number(data.quantity) || 1)));
-      if (itemId !== "lucky_box") {
-        sendJson(res, 400, { ok: false, error: "invalid_shop_item" });
+      const quantity = Math.max(1, Math.min(999, Math.floor(Number(data.quantity) || 1)));
+      const shopItem = itemId === luckyBoxModule.boxId
+        ? { id: luckyBoxModule.boxId, price: luckyBoxModule.boxPrice, kind: "box" }
+        : luckyBoxItemMeta(itemId) ? { id: itemId, price: luckyBoxItemMeta(itemId).value, kind: "item" } : null;
+      if (!shopItem) {
+        sendJson(res, 409, { ok: false, error: "invalid_shop_item" });
         return;
       }
-      const price = 10000 * quantity;
-      const row = db.prepare("SELECT silver, lucky_box FROM players WHERE account = ?").get(account);
-      if (!row) {
-        sendJson(res, 404, { ok: false, error: "player_not_found" });
+      const price = shopItem.price * quantity;
+      let next;
+      try {
+        db.exec("BEGIN IMMEDIATE");
+        const row = db.prepare("SELECT yuanbao, lucky_box, lucky_box_items_json FROM players WHERE account = ?").get(account);
+        if (!row) throw new Error("player_not_found");
+        if ((row.yuanbao || 0) < price) throw new Error("not_enough_yuanbao");
+        const updatedAt = new Date().toISOString();
+        if (shopItem.kind === "box") {
+          db.prepare("UPDATE players SET yuanbao = yuanbao - ?, lucky_box = lucky_box + ?, updated_at = ? WHERE account = ?")
+            .run(price, quantity, updatedAt, account);
+        } else {
+          const items = safeJsonObject(row.lucky_box_items_json);
+          items[itemId] = Math.max(0, Math.floor(Number(items[itemId]) || 0)) + quantity;
+          db.prepare("UPDATE players SET yuanbao = yuanbao - ?, lucky_box_items_json = ?, updated_at = ? WHERE account = ?")
+            .run(price, JSON.stringify(items), updatedAt, account);
+        }
+        next = db.prepare("SELECT yuanbao, lucky_box FROM players WHERE account = ?").get(account);
+        db.exec("COMMIT");
+      } catch (error) {
+        try { db.exec("ROLLBACK"); } catch {}
+        const status = error.message === "player_not_found" ? 404 : error.message === "not_enough_yuanbao" ? 409 : 500;
+        const code = ["player_not_found", "not_enough_yuanbao"].includes(error.message) ? error.message : "yuanbao_shop_buy_failed";
+        sendJson(res, status, { ok: false, error: code });
         return;
       }
-      if ((row.silver || 0) < price) {
-        sendJson(res, 409, { ok: false, error: "not_enough_silver", silver: row.silver || 0 });
-        return;
-      }
-      const updatedAt = new Date().toISOString();
-      db.prepare("UPDATE players SET silver = silver - ?, lucky_box = lucky_box + ?, updated_at = ? WHERE account = ?").run(price, quantity, updatedAt, account);
-      const next = db.prepare("SELECT silver, lucky_box FROM players WHERE account = ?").get(account);
-      sendJson(res, 200, { ok: true, silver: next.silver || 0, luckyBox: next.lucky_box || 0, quantity, price });
+      sendJson(res, 200, { ok: true, yuanbao: next.yuanbao || 0, luckyBox: next.lucky_box || 0, quantity, price });
       return;
     }
     if (url.pathname === "/api/lucky-box/open") {
-      const fragmentColumns = fragmentItems.map((item) => item.column).join(", ");
-      const skillCardColumns = skillCardItems.map((item) => item.column).join(", ");
-      const row = db.prepare(`SELECT lucky_box, silver, soul_powder, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json FROM players WHERE account = ?`).get(account);
-      if (!row) {
-        sendJson(res, 404, { ok: false, error: "player_not_found" });
+      let row;
+      let reward;
+      let next;
+      try {
+        db.exec("BEGIN IMMEDIATE");
+        row = db.prepare("SELECT name, lucky_box, lucky_box_items_json FROM players WHERE account = ?").get(account);
+        if (!row) throw new Error("player_not_found");
+        if ((row.lucky_box || 0) < 1) throw new Error("not_enough_box");
+        reward = luckyBoxRoll();
+        const meta = luckyBoxItemMeta(reward.id);
+        if (!meta) throw new Error("bad_reward");
+        const items = safeJsonObject(row.lucky_box_items_json);
+        const current = Math.max(0, Math.floor(Number(items[reward.id]) || 0));
+        items[reward.id] = current + 1;
+        const updatedAt = new Date().toISOString();
+        db.prepare("UPDATE players SET lucky_box = lucky_box - 1, lucky_box_items_json = ?, updated_at = ? WHERE account = ?")
+          .run(JSON.stringify(items), updatedAt, account);
+        next = db.prepare("SELECT lucky_box, lucky_box_items_json FROM players WHERE account = ?").get(account);
+        db.exec("COMMIT");
+      } catch (error) {
+        try { db.exec("ROLLBACK"); } catch {}
+        const status = error.message === "player_not_found" ? 404 : error.message === "not_enough_box" ? 409 : 500;
+        const code = ["player_not_found", "not_enough_box", "bad_reward"].includes(error.message) ? error.message : "lucky_box_open_failed";
+        sendJson(res, status, { ok: false, error: code });
         return;
       }
-      if ((row.lucky_box || 0) < 1) {
-        sendJson(res, 409, { ok: false, error: "not_enough_box" });
-        return;
-      }
-      const reward = luckyBoxRoll();
-      const equipment = safeJsonArray(row.equipment_json);
-      if (reward.kind === "equipment") {
-        if (equipment.length >= careerTree.BAG_CAPACITY) {
-          sendJson(res, 409, { ok: false, error: "bag_full" });
-          return;
-        }
-        equipment.push(reward.equipment);
-      }
-      const updatedAt = new Date().toISOString();
-      const column = reward.kind === "equipment" ? "" : itemColumnForId(reward.id);
-      if (reward.kind !== "equipment" && !column) {
-        sendJson(res, 500, { ok: false, error: "bad_reward" });
-        return;
-      }
-      const rewardSql = reward.kind === "equipment" ? "equipment_json = ?" : `${column} = ${column} + ?`;
-      const rewardParam = reward.kind === "equipment" ? JSON.stringify(equipment) : reward.quantity;
-      db.prepare(`UPDATE players SET lucky_box = lucky_box - 1, ${rewardSql}, updated_at = ? WHERE account = ?`).run(rewardParam, updatedAt, account);
-      const next = db.prepare(`SELECT silver, soul_powder, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json, storage_json FROM players WHERE account = ?`).get(account);
-      const meta = reward.kind === "equipment"
-        ? { id: reward.equipment.id, name: reward.equipment.name, icon: reward.equipment.icon || "2.18" }
-        : materialItemMeta(reward.id);
+      const meta = { id: reward.id, name: reward.name, icon: reward.icon };
+      const session = authSessionFromToken(authTokenFromRequest(req, url, data));
+      const lineNumber = Math.max(1, Math.floor(Number(session?.channelId) || 1));
+      const lineLabel = ["", "一", "二", "三", "四", "五", "六"][lineNumber] || String(lineNumber);
+      const displayRewardName = `${meta.name}${reward.quantity > 1 ? ` x${reward.quantity}` : ""}`;
+      const rewardToken = `[item:${encodeURIComponent(meta.icon)}:item:${encodeURIComponent(displayRewardName)}]`;
+      chatRuntime.broadcastSystemAnnouncement({
+        serverId: session?.serverId,
+        text: `特报！${row.name || account}获得好运宝箱的大奖${rewardToken}(${lineLabel}线)`
+      });
       sendJson(res, 200, {
         ok: true,
-        reward: { ...reward, name: meta.name, icon: meta.icon, equipment: reward.equipment || null },
+        reward: { ...reward, name: meta.name, icon: meta.icon, pendingGrant: false },
         luckyBox: next.lucky_box || 0,
         items: playerBagItems(next)
       });

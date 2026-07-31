@@ -691,6 +691,7 @@ const state = {
   lastActivityAt: 0,
   friends: [],
   silver: 0,
+  yuanbao: 0,
   privateChatTarget: null,
   chatChannel: "nearby",
   team: { leaderId: "", members: [] },
@@ -743,7 +744,7 @@ const state = {
   idleHuntTimer: null,
   lastPlayerSave: 0,
   pendingBattleReward: null,
-  luckyBoxRoll: { rolling: false, done: false, remaining: 0 },
+  luckyBoxRoll: { rolling: false, done: false, remaining: 0, confirmOpen: false },
   penguinRenameOpen: false,
   storageItems: [],
   menuQuantityContext: null,
@@ -804,6 +805,7 @@ const SHOW_PET_NAME_STORAGE_KEY = "dw-show-pet-name";
 const MODEL_SCALE_MIN = 0.5;
 const MODEL_SCALE_MAX = 2.5;
 const MODEL_SCALE_STEP = 0.05;
+const QUICK_MENU_HOTKEYS_STORAGE_KEY = "dw-quick-menu-hotkeys";
 let cameraResolutionId = localStorage.getItem("dw-camera-resolution") || DEFAULT_CAMERA_RESOLUTION_ID;
 if (!CAMERA_RESOLUTIONS.some((resolution) => resolution.id === cameraResolutionId)) {
   cameraResolutionId = DEFAULT_CAMERA_RESOLUTION_ID;
@@ -855,6 +857,17 @@ function loadPetNamePreference() {
 function setPetNamePreference(enabled) {
   state.showPetNames = Boolean(enabled);
   localStorage.setItem(SHOW_PET_NAME_STORAGE_KEY, String(state.showPetNames));
+}
+
+function quickMenuHotkeysEnabled() {
+  return localStorage.getItem(QUICK_MENU_HOTKEYS_STORAGE_KEY) !== "false";
+}
+
+function setQuickMenuHotkeysEnabled(enabled) {
+  const isEnabled = Boolean(enabled);
+  localStorage.setItem(QUICK_MENU_HOTKEYS_STORAGE_KEY, String(isEnabled));
+  if (!isEnabled) quickMenuHotkeys?.clear();
+  return isEnabled;
 }
 const MAP_LOADING_MIN_MS = 850;
 const MAP_LOADING_MAX_MS = 5000;
@@ -913,6 +926,7 @@ const battleCommands = [
 const battleSkillMenu = [];
 const battleItemMenu = [{ id: "empty", label: "暂无道具", disabled: true }];
 const BATTLE_ATTACK_LUNGE_EFFECT_ID = 1005;
+const BATTLE_ARBITRATION_EFFECT_SRC = "资源/图片/战斗特效/绝世仲裁群攻.png";
 const BATTLE_ATTACK_LUNGE_EFFECT_FRAME_WIDTH = 64;
 const BATTLE_ATTACK_LUNGE_EFFECT_FRAME_HEIGHT = 32;
 const BATTLE_HIT_REACTION_MS = 260;
@@ -922,8 +936,7 @@ const controlPadKeys = [
   [{ key: "chat", label: "聊天", digit: "7" }, { key: "down", label: "向下", digit: "8" }, { key: "task", label: "任务", digit: "9" }, { key: "channel", label: "频道" }]
 ];
 const quickMenuTimeoutMs = 850;
-let pendingQuickMenuHotkey = "";
-let pendingQuickMenuTimer = null;
+let quickMenuHotkeys = null;
 
 function cssFontVar(name, fallback) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
@@ -965,6 +978,7 @@ function menuActionForLabel(label) {
   if (label === "全服竞技场") return "arena";
   if (label === "仙气修炼") return "immortal_cultivation";
   if (label === "灵魂粉末") return "soul_powder_menu";
+  if (label === "元宝道具") return "yuanbao_shop";
   if (label === "生活技能") return "life_skills";
   if (label === "原地挂机") return "idle_hunt";
   if (label === "同屏聊天") return "chat_nearby";
@@ -2735,8 +2749,11 @@ function setupRealtime() {
       const peer = await upsertPeerFromMessage(msg);
       addChat(peer, msg.text, false, msg.channel || "nearby");
     }
+    if (msg.type === "systemAnnouncement") {
+      addChat({ name: msg.name || "系统公告" }, msg.text, false, "server");
+    }
     if (msg.type === "privateChat" && msg.to === state.peerId) {
-      addPrivateChatLine(msg.name || "私聊", msg.text, false);
+      addPrivateChatLine(msg.name || "私聊", msg.text, false, msg.peerId);
       openPrivateChatDialog({ peerId: msg.peerId, name: msg.name || "私聊", text: msg.text });
     }
     if (msg.type === "chatError") {
@@ -4090,6 +4107,16 @@ function renderChatLine(line, includeTime = false) {
   return `<div class="chat-line chat-line-${channel}">${time}<span class="chat-channel-tag">【${chatChannelLabel(channel)}】</span>${escapeHtml(line.name)}：${renderMessage(line.text)}</div>`;
 }
 
+window.ChatHistoryUI?.configure({
+  getLines: () => state.chatLines,
+  renderLine: renderChatLine,
+  canPrivateChat: (line) => Boolean(line.peerId) && line.peerId !== state.peerId,
+  openPrivateChat: (line) => {
+    window.ChatHistoryUI.close();
+    openChatComposer("whisper", { peerId: line.peerId, name: line.targetName || line.name });
+  }
+});
+
 function renderChatFeed() {
   $("#chatFeed").innerHTML = state.chatLines.slice(-4).map((line) => renderChatLine(line)).join("");
 }
@@ -4098,8 +4125,7 @@ function addChat(actor, text, broadcast = true, channel = state.chatChannel || "
   const now = performance.now();
   actor.bubble = text;
   actor.bubbleUntil = now + 2600;
-  state.chatLines.push({ name: actor.name, text, channel, time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
-  state.chatLines = state.chatLines.slice(-80);
+  state.chatLines.push({ name: actor.name, text, channel, peerId: actor.peerId || (actor === state.player ? state.peerId : ""), time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
   renderChatFeed();
   showChatFeedTemporarily();
   if ($("#chatHistoryPanel").classList.contains("active")) renderChatHistory();
@@ -4177,6 +4203,7 @@ function applyPlayerStateResult(player) {
     syncActivePetProgress();
   }
   state.silver = player.silver ?? state.silver;
+  state.yuanbao = player.yuanbao ?? state.yuanbao;
   state.soulPowder = player.soulPowder ?? state.soulPowder;
   state.immortalPill = player.immortalPill ?? state.immortalPill;
   state.phantom = {
@@ -4264,13 +4291,7 @@ async function submitPenguinRename() {
 }
 
 function renderChatHistory() {
-  $("#chatHistoryList").innerHTML = state.chatLines.length
-    ? state.chatLines.map((line) => renderChatLine(line, true)).join("")
-    : `<div class="chat-line">暂无聊天记录</div>`;
-  const panel = $("#chatHistoryPanel");
-  panel.classList.add("active");
-  decorateMenuFrame(panel);
-  panel.querySelectorAll(".menu-framed-button").forEach(decorateMenuFrame);
+  window.ChatHistoryUI?.render();
 }
 
 function openChatHistoryPanel() {
@@ -4279,7 +4300,7 @@ function openChatHistoryPanel() {
   $("#emojiPanel").classList.remove("active");
   state.privateChatTarget = null;
   $("#chatInput").placeholder = "";
-  renderChatHistory();
+  window.ChatHistoryUI?.open();
 }
 
 function openChatComposer(channel = "nearby", target = null) {
@@ -4303,7 +4324,10 @@ function renderMessage(text) {
     const kind = decodeURIComponent(rawKind);
     const name = decodeURIComponent(rawName);
     const className = kind === "equipment" ? "chat-item-token equipment" : "chat-item-token";
-    return `<span class="${className}">${menuIconHtml(icon)}<strong>${escapeHtml(name)}</strong></span>`;
+    const baseName = name.replace(/\s+x\d+$/, "");
+    const reward = window.LuckyBoxModule?.rewards?.find((item) => item.name === baseName || item.name === name);
+    const label = reward ? luckyItemLabelHtml(reward) : escapeHtml(name);
+    return `<span class="${className}">${menuIconHtml(icon)}<strong>${label}</strong></span>`;
   }).replace(/\[e(\d+)\]/g, (_, id) => {
     const index = Math.max(0, Math.min(38, Number(id)));
     return `<i class="emoji-token" style="background-position:-${index * 18}px 0"></i>`;
@@ -4915,12 +4939,12 @@ function confirmFriendsMenu() {
   openChatComposer("whisper", state.privateChatTarget);
 }
 
-function addPrivateChatLine(name, text, broadcast = true) {
+function addPrivateChatLine(name, text, broadcast = true, peerId = "") {
   const lineName = broadcast ? `你悄悄对${name}` : `${name}悄悄对你`;
-  state.chatLines.push({ name: lineName, text, channel: "whisper", time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
-  state.chatLines = state.chatLines.slice(-80);
+  state.chatLines.push({ name: lineName, targetName: name, text, channel: "whisper", peerId, time: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
   renderChatFeed();
   showChatFeedTemporarily();
+  if (window.ChatHistoryUI?.isOpen()) renderChatHistory();
 }
 
 function openPrivateChatDialog({ peerId, name, text }) {
@@ -5181,43 +5205,35 @@ async function scanMapDirectory() {
   return state.mapManifest;
 }
 
-function clearPendingQuickMenuHotkey() {
-  clearTimeout(pendingQuickMenuTimer);
-  pendingQuickMenuTimer = null;
-  pendingQuickMenuHotkey = "";
-}
-
 function quickMenuTabIndexByHotkey(hotkey) {
   return gameMenuTabs.findIndex((tab) => tab.hotkey === hotkey);
 }
 
-function triggerQuickMenuHotkey(first, second = "") {
-  const tabIndex = quickMenuTabIndexByHotkey(first);
-  if (tabIndex < 0) return false;
-  const tab = gameMenuTabs[tabIndex];
-  const itemIndex = second ? Number(second) - 1 : 0;
-  if (second && (!Number.isInteger(itemIndex) || itemIndex < 0 || itemIndex >= tab.items.length)) return false;
-  clearPendingQuickMenuHotkey();
-  openMainMenuAt(tabIndex, tab.items[itemIndex]?.label || "");
-  return confirmMainMenuItem();
+function initQuickMenuHotkeys() {
+  quickMenuHotkeys = window.QuickMenuHotkeys?.createQuickMenuHotkeys({
+    timeoutMs: quickMenuTimeoutMs,
+    isRootDigit: (digit) => quickMenuTabIndexByHotkey(digit) >= 0,
+    openRoot: (digit) => openMainMenu(quickMenuTabIndexByHotkey(digit)),
+    selectCurrentItem: (digit) => {
+      const index = Number(digit) - 1;
+      const buttons = $("#mainMenuList")?.querySelectorAll(".main-menu-item") || [];
+      if (!Number.isInteger(index) || index < 0 || index >= buttons.length) return false;
+      state.menuItem = index;
+      confirmMainMenuItem();
+      return true;
+    },
+    isMenuOpen: () => state.menuOpen
+  });
 }
 
-function rememberQuickMenuHotkey(digit) {
-  if (!digit || quickMenuTabIndexByHotkey(digit) < 0) return;
-  pendingQuickMenuHotkey = digit;
-  clearTimeout(pendingQuickMenuTimer);
-  pendingQuickMenuTimer = setTimeout(clearPendingQuickMenuHotkey, quickMenuTimeoutMs);
-}
-
-function completeQuickMenuHotkey(digit) {
-  if (!digit || !pendingQuickMenuHotkey || state.battle || state.roleStatsOpen || isInputUiActive()) return false;
-  const first = pendingQuickMenuHotkey;
-  clearPendingQuickMenuHotkey();
-  return triggerQuickMenuHotkey(first, digit);
+function handleQuickMenuDigit(digit) {
+  if (!quickMenuHotkeysEnabled() || state.battle || state.roleStatsOpen || isInputUiActive()) return false;
+  return quickMenuHotkeys?.acceptDigit(digit) || false;
 }
 
 function closeMainMenu() {
   if (state.menuMode === "fashion_ticket_exchange") applyActiveFashionSprite();
+  quickMenuHotkeys?.clear();
   state.menuOpen = false;
   state.menuMode = "";
   state.menuContextTitle = "";
@@ -5225,8 +5241,10 @@ function closeMainMenu() {
   suppressStaticNpcMenu();
   state.menuEquipmentList = [];
   state.menuPetList = [];
-  state.luckyBoxRoll = { rolling: false, done: false, remaining: 0 };
+  state.luckyBoxRoll = { rolling: false, done: false, remaining: 0, confirmOpen: false };
   $("#mainMenu").classList.remove("active", "lucky-box-roll");
+  $("#luckyBoxOverlay")?.classList.remove("is-visible");
+  $("#luckyBoxOverlay")?.setAttribute("aria-hidden", "true");
 }
 
 function renderMainMenu() {
@@ -5323,6 +5341,18 @@ function decorateRoleStatsFrame(element) {
 }
 
 function menuIconHtml(ref) {
+  if (String(ref || "").startsWith("lucky:")) {
+    const parts = String(ref).split(":");
+    const sheet = parts[1];
+    const index = parts[2] || "";
+    if (sheet === "skill") return `<i class="main-menu-icon lucky-item-skill-icon"></i>`;
+    const positionMap = { "1:13": "-216px", "1:19": "-324px", "1:last": "-900px", "2:6": "-90px", "2:13": "-216px", "2:14": "-234px", "2:17": "-288px" };
+    const widthMap = { "1": "918px", "2": "504px" };
+    const key = `${sheet}:${index}`;
+    const image = sheet === "1" ? "item.png" : "item2.png";
+    return `<i class="main-menu-icon lucky-item-icon" style="background-image:url('assets/item-icons/${image}');background-size:${widthMap[sheet] || "918px"} 18px;background-position:${positionMap[key] || "0"} 0"></i>`;
+  }
+  if (ref === "skill") ref = "1.49";
   const [sheet, rawIndex] = ref.split(".").map(Number);
   const maxIndex = sheet === 1 ? 51 : 999;
   const index = Math.max(1, Math.min(maxIndex, rawIndex || 1)) - 1;
@@ -5340,7 +5370,9 @@ function moveMainMenuTab(direction) {
 
 function moveMainMenuItem(direction) {
   if (!state.menuOpen) return false;
-  const listButtons = [...$("#mainMenuList").querySelectorAll(".main-menu-item")];
+  const listRoot = state.menuMode === "lucky_box_roll" && state.luckyBoxRoll.confirmOpen ? $("#luckyBoxActions") : $("#mainMenuList");
+  const listSelector = state.menuMode === "lucky_box_roll" && state.luckyBoxRoll.confirmOpen ? ".lucky-box-action" : ".main-menu-item";
+  const listButtons = [...(listRoot?.querySelectorAll(listSelector) || [])];
   if (state.menuMode && state.menuMode !== "main") {
     if (!listButtons.length) return true;
     state.menuItem = (state.menuItem + direction + listButtons.length) % listButtons.length;
@@ -5658,6 +5690,10 @@ function confirmMainMenuItem() {
     confirmQuickShopMenu();
     return true;
   }
+  if (state.menuMode === "yuanbao_shop") {
+    confirmYuanbaoShopMenu();
+    return true;
+  }
   if (state.menuMode === "quick_shop_sell_items") {
     confirmQuickShopSellItemMenu();
     return true;
@@ -5744,6 +5780,9 @@ function confirmMainMenuItem() {
   if (item.action === "soul_powder_menu") {
     openSoulPowderMenu();
   }
+  if (item.action === "yuanbao_shop") {
+    openYuanbaoShopMenu();
+  }
   if (item.action === "life_skills") {
     openLifeSkillsMenu();
   }
@@ -5805,8 +5844,8 @@ function setMenuAsSingleList(title, items) {
     : title;
   $("#mainMenuTabs").innerHTML = `<button type="button" class="active single-title-button">${escapeHtml(displayTitle)}</button>`;
   $("#mainMenuList").innerHTML = `<div class="main-menu-list-scroll">${items.map((item, index) => `
-    <button type="button" class="main-menu-item submenu-item ${index === state.menuItem ? "active" : ""} ${menuItemClassName(item)} ${item.disabled ? "is-disabled" : ""} ${item.hideIndex ? "hide-index" : ""}" data-index="${index}" data-disabled="${item.disabled ? "true" : "false"}" aria-disabled="${item.disabled ? "true" : "false"}">
-      <small>${item.hideIndex ? "" : index + 1}</small>${menuIconHtml(item.icon)}<span><em class="menu-marquee">${escapeHtml(item.label)}</em></span>
+    <button type="button" class="main-menu-item submenu-item ${index === state.menuItem ? "active" : ""} ${menuItemClassName(item)} ${item.quantityBadge ? "has-item-quantity-badge" : ""} ${item.disabled ? "is-disabled" : ""} ${item.hideIndex ? "hide-index" : ""}" data-index="${index}" data-disabled="${item.disabled ? "true" : "false"}" aria-disabled="${item.disabled ? "true" : "false"}">
+      <small>${item.hideIndex ? "" : index + 1}</small>${item.quantityBadge ? itemQuantityIconHtml(item.icon, item.quantityBadge) : menuIconHtml(item.icon)}<span><em class="menu-marquee">${menuItemLabelHtml(item)}</em></span>
     </button>
   `).join("")}</div>`;
   decorateSecondaryMenuTitle($("#mainMenuTabs"));
@@ -5828,10 +5867,22 @@ function decorateSecondaryMenuTitle(tabs) {
 
 function menuItemClassName(item = {}) {
   return [
-    isPeerlessItem(item) ? "rare-fragment" : "",
+    isPeerlessItem(item) ? "peerless-item" : "",
     item.className || "",
-    item.longText || item.kind === "equipment" || item.kind === "fashion" || isLongEquipmentLabel(item.label) ? "long-equipment-text" : ""
+    !item.forceSingleLine && (item.longText || item.kind === "equipment" || item.kind === "fashion" || isLongEquipmentLabel(item.label)) ? "long-equipment-text" : ""
   ].filter(Boolean).map(escapeHtml).join(" ");
+}
+
+function menuItemLabelHtml(item = {}) {
+  if (isPeerlessItem(item)) {
+    return peerlessColorText(item.label || item.name || "");
+  }
+  return item.labelHtml || escapeHtml(item.label);
+}
+
+function itemQuantityIconHtml(icon, quantity) {
+  const iconHtml = menuIconHtml(icon);
+  return window.ItemQuantityDisplay?.iconHtml?.(iconHtml, quantity) || iconHtml;
 }
 
 function isLongEquipmentLabel(label = "") {
@@ -6278,6 +6329,7 @@ function openDetailSettingsMenu() {
     { label: `摄像机分辨率：${currentCameraResolution().label}`, icon: "2.11" },
     { label: "调整模型大小", icon: "1.13" },
     { label: `显示宠物名字：${state.showPetNames ? "开" : "关"}`, icon: "2.12" },
+    { label: `快捷操作：${quickMenuHotkeysEnabled() ? "开" : "关"}`, icon: "1.13" },
     { label: "返回系统菜单", icon: "1.13" }
   ]);
   bindCurrentMenuClicks(confirmDetailSettingsMenu);
@@ -6291,7 +6343,12 @@ function confirmDetailSettingsMenu() {
     showMenuHint(`宠物名字显示已${state.showPetNames ? "开启" : "关闭"}`);
     return openDetailSettingsMenu();
   }
-  if (state.menuItem === 3) return openMainMenuAt(4, "细节设置");
+  if (state.menuItem === 3) {
+    const enabled = setQuickMenuHotkeysEnabled(!quickMenuHotkeysEnabled());
+    showMenuHint(`快捷操作已${enabled ? "开启" : "关闭"}`);
+    return openDetailSettingsMenu();
+  }
+  if (state.menuItem === 4) return openMainMenuAt(4, "细节设置");
 }
 
 function openCameraResolutionMenu() {
@@ -7504,10 +7561,13 @@ async function openBagMenu() {
     const items = result.items?.length
       ? result.items.map((item) => ({
         label: bagItemLabel(item),
+        labelHtml: `${luckyItemLabelHtml(item)}${escapeHtml(itemQuantityGroupLabel(item.quantity))}`,
         icon: item.icon,
+        quantityBadge: item.kind === "equipment" || item.kind === "fashion" ? 0 : item.quantity,
+        forceSingleLine: true,
         className: [
-          isExchangeFragment(item) || isPeerlessItem(item) ? "rare-fragment" : "",
-          item.kind === "equipment" || item.kind === "fashion" ? "long-equipment-text" : ""
+          !isLuckyDisplayId(String(item.id || "")) && (isExchangeFragment(item) || isPeerlessItem(item)) ? "rare-fragment" : "",
+          ""
         ].filter(Boolean).join(" ")
       }))
       : [{ label: "背包为空", icon: "2.8", disabled: true }];
@@ -7522,6 +7582,7 @@ async function refreshBag() {
   const result = await apiGet(`/api/bag?account=${encodeURIComponent(state.account)}`);
   state.bag.items = result.items || [];
   if (typeof result.silver === "number") state.silver = result.silver;
+  if (typeof result.yuanbao === "number") state.yuanbao = result.yuanbao;
   state.bag.forgeGem = result.items?.find((item) => item.id === "forge_gem")?.quantity || 0;
   state.storageItems = result.storageItems || state.storageItems || [];
   return result;
@@ -7530,9 +7591,14 @@ async function refreshBag() {
 function bagItemLabel(item) {
   if (item.kind === "equipment") return `${item.equipped ? "[已装备] " : ""}${formatEquipment(item)}`;
   if (item.kind === "fashion") return `${item.equipped ? "[已装备] " : ""}${item.name} 属性+30%`;
-  if (item.id === "forge_gem") return `${item.name} x${item.quantity}（点击强化装备）`;
-  if (item.id === "lucky_box") return `${item.name} x${item.quantity}（点击抽奖）`;
-  return `${item.name} x${item.quantity}`;
+  const groupLabel = itemQuantityGroupLabel(item.quantity);
+  if (item.id === "forge_gem") return `${item.name}${groupLabel}（点击强化装备）`;
+  if (item.id === "lucky_box") return `${item.name}${groupLabel}（点击抽奖）`;
+  return `${item.name}${groupLabel}`;
+}
+
+function itemQuantityGroupLabel(quantity) {
+  return window.ItemQuantityDisplay?.displayFor?.(quantity)?.groupLabel || "";
 }
 
 function openQuantityPanel({ title, label, maxQuantity, initialQuantity = maxQuantity, confirmText = "确定", cancelText = "返回", onConfirm, onCancel }) {
@@ -7691,10 +7757,11 @@ async function openStorageDepositMenu() {
     const items = state.menuStorageDepositItems.length
       ? state.menuStorageDepositItems.map((item) => ({
         label: bagItemLabel(item),
+        labelHtml: luckyItemLabelHtml(item),
         icon: item.icon,
         disabled: item.equipped,
         className: [
-          isExchangeFragment(item) || isPeerlessItem(item) ? "rare-fragment" : "",
+          !isLuckyDisplayId(String(item.id || "")) && (isExchangeFragment(item) || isPeerlessItem(item)) ? "rare-fragment" : "",
           item.kind === "equipment" || item.kind === "fashion" ? "long-equipment-text" : ""
         ].filter(Boolean).join(" ")
       }))
@@ -7750,9 +7817,10 @@ async function openStorageWithdrawMenu() {
     const items = state.menuStorageWithdrawItems.length
       ? state.menuStorageWithdrawItems.map((item) => ({
         label: bagItemLabel(item),
+        labelHtml: luckyItemLabelHtml(item),
         icon: item.icon,
         className: [
-          isExchangeFragment(item) || isPeerlessItem(item) ? "rare-fragment" : "",
+          !isLuckyDisplayId(String(item.id || "")) && (isExchangeFragment(item) || isPeerlessItem(item)) ? "rare-fragment" : "",
           item.kind === "equipment" || item.kind === "fashion" ? "long-equipment-text" : ""
         ].filter(Boolean).join(" ")
       }))
@@ -7811,7 +7879,62 @@ function isExchangeFragment(item) {
 }
 
 function isUntradeableItem(item) {
-  return item?.id === "phantom_fragment";
+  return item?.id === "phantom_fragment" || Boolean(window.LuckyBoxModule?.rewards?.some((reward) => reward.id === item?.id));
+}
+
+function luckyTextSegments(segments) {
+  return `<span class="lucky-item-label">${segments.map(([text, color]) => `<span style="color:${color}">${escapeHtml(text)}</span>`).join("")}</span>`;
+}
+
+function luckyChars(text, color) {
+  return [...String(text)].map((char) => [char, color]);
+}
+
+const RARE_PET_TICKET_COLORS = ["#FFFF00", "#00FF66", "#00FFFF", "#FF3333", "#FFAA00", "#FFFF00", "#FF66CC"];
+const PEERLESS_LABEL_COLORS = ["#f2e85c", "#42df7c", "#42dce0", "#ef5960", "#efae46", "#f2e85c", "#dd72b8"];
+
+function rarePetTicketColorText(text) {
+  return luckyTextSegments([...String(text)].map((char, index) => [char, RARE_PET_TICKET_COLORS[index % RARE_PET_TICKET_COLORS.length]]));
+}
+
+function peerlessColorText(text) {
+  return luckyTextSegments([...String(text)].map((char, index) => [
+    char,
+    PEERLESS_LABEL_COLORS[index % PEERLESS_LABEL_COLORS.length]
+  ]));
+}
+
+function isLuckyDisplayId(id) {
+  return Boolean(window.LuckyBoxModule?.rewards?.some((reward) => reward.id === id))
+    || /^(forge_refine_gem|repair_gem|light_forge_gem|elf_forge_gem|iron_pet_belt|silver_pet_belt|common_soul_book|super_soul_book|holy_soul_book|perfect_soul_book|divine_pet_ticket|soul_pet_ticket|holy_pet_ticket|s_holy_pet_ticket|ss_holy_pet_ticket|rare_pet_ticket|flawless_)/.test(id)
+    || /^(s_skill_|ss_skill_)/.test(id);
+}
+
+function luckyItemLabelHtml(item) {
+  const id = String(item?.id || "");
+  const name = String(item?.name || "物品");
+  if (!isLuckyDisplayId(id)) return escapeHtml(name);
+  if (id.startsWith("s_skill_") || id.startsWith("ss_skill_")) {
+    const grade = id.startsWith("ss_") ? "SS" : "S";
+    const skillName = name.replace(/^S{1,2}圣技[·.]?/, "").replace(/[·.]宠物技能卡$/, "");
+    return luckyTextSegments([
+      ...luckyChars(grade, "#FFFFFF"),
+      ...luckyChars(".", "#FFFFFF"),
+      ...luckyChars("圣技.", "#00FFFF"),
+      ...luckyChars(skillName, "#FFFF00"),
+      ...luckyChars(".宠物技能卡", "#00FF66")
+    ]);
+  }
+  if (["holy_soul_book", "perfect_soul_book"].includes(id)) {
+    const label = id === "holy_soul_book" ? "圣品启魂书" : "完美启魂书";
+    return luckyTextSegments([...label].map((char, index) => [char, ["#FFFF00", "#00FF66", "#00FFFF", "#FF3333", "#FFAA00"][index]]));
+  }
+  if (["holy_pet_ticket", "s_holy_pet_ticket", "ss_holy_pet_ticket"].includes(id)) {
+    const grade = id.startsWith("ss_") ? "SS" : id.startsWith("s_") ? "S" : "";
+    return luckyTextSegments([[grade, "#FFFFFF"], [grade ? "." : "", "#FFFFFF"], ["圣", "#FFFF00"], ["宠", "#00FF66"], ["召", "#00FFFF"], ["唤", "#FF3333"], ["券", "#FFAA00"]]);
+  }
+  if (id === "rare_pet_ticket") return rarePetTicketColorText("珍奇宠物召唤券");
+  return `<span class="lucky-item-label" style="color:${id.startsWith("flawless_") ? "#00FFFF" : ["iron_pet_belt", "silver_pet_belt"].includes(id) ? "#FFFFFF" : "#FFAA00"}">${escapeHtml(name)}</span>`;
 }
 
 function isPeerlessItem(item) {
@@ -7878,50 +8001,75 @@ function openQuickShopMenu() {
   state.menuMode = "quick_shop";
   state.menuItem = 0;
   setMenuAsSingleList("快速购物", [
-    { label: "购买好运宝箱（10000银币）", icon: "1.11" },
     { label: "卖出背包物品", icon: "1.16" },
     { label: "一键卖出所有装备", icon: "1.13" }
   ]);
   bindCurrentMenuClicks(confirmQuickShopMenu);
 }
 
-function confirmQuickShopMenu() {
-  if (state.menuItem === 0) {
-    buyLuckyBox();
-    return;
-  }
-  if (state.menuItem === 1) {
-    openQuickShopSellItemMenu();
-    return;
-  }
-  if (state.menuItem === 2) sellAllUnequippedEquipment();
+function yuanbaoRewardColor(item) {
+  if (item.value >= 1000) return "#ff66ff";
+  if (item.value >= 300) return "#00ffff";
+  if (item.value >= 100) return "#66ccff";
+  if (item.value >= 40) return "#ffcc66";
+  return "#ffaa00";
 }
 
-async function buyLuckyBox() {
+async function openYuanbaoShopMenu() {
+  state.menuMode = "yuanbao_shop";
+  state.menuItem = 0;
+  try {
+    const result = await apiGet(`/api/yuanbao-shop/catalog?account=${encodeURIComponent(state.account)}`);
+    state.menuYuanbaoItems = result.items || [];
+    state.yuanbao = Number(result.balance) || state.yuanbao || 0;
+    const items = state.menuYuanbaoItems.map((item) => ({
+      label: `${item.name}（${item.price}元宝）`,
+      labelHtml: `${luckyItemLabelHtml(item)}<small> 价格${item.price}元宝</small>`,
+      icon: item.icon || "1.11",
+      disabled: !item.purchasable
+    }));
+    setMenuAsSingleList(`元宝道具（余额 ${state.yuanbao}）`, items.length ? items : [{ label: "暂无商品", icon: "2.4", disabled: true }]);
+    bindCurrentMenuClicks(confirmYuanbaoShopMenu);
+  } catch {
+    setMenuAsSingleList("元宝道具", [{ label: "商城读取失败", icon: "2.4", disabled: true }]);
+  }
+}
+
+function confirmYuanbaoShopMenu() {
+  const item = state.menuYuanbaoItems?.[state.menuItem];
+  if (!item || !item.purchasable) return;
   openQuantityPanel({
     title: "购买数量",
-    label: `好运宝箱，单价10000银币，最多 ${Math.max(1, Math.floor((state.silver || 0) / 10000))}`,
-    maxQuantity: Math.max(1, Math.min(999999, Math.floor((state.silver || 0) / 10000))),
+    label: `${item.name}，单价${item.price}元宝，余额 ${state.yuanbao}`,
+    maxQuantity: Math.max(1, Math.floor((state.yuanbao || 0) / item.price)),
     initialQuantity: 1,
     confirmText: "购买",
-    onCancel: openQuickShopMenu,
-    onConfirm: buyLuckyBoxQuantity
+    onCancel: openYuanbaoShopMenu,
+    onConfirm: (quantity) => buyYuanbaoShopItem(item, quantity)
   });
 }
 
-async function buyLuckyBoxQuantity(quantity) {
+async function buyYuanbaoShopItem(item, quantity) {
   try {
-    const result = await postApi("/api/shop/buy", { account: state.account, itemId: "lucky_box", quantity });
-    state.silver = result.silver || state.silver;
-    await refreshBag();
+    const result = await postApi("/api/yuanbao-shop/buy", { account: state.account, itemId: item.id, quantity });
+    state.yuanbao = Number(result.yuanbao) || 0;
     hideQuantityPanel();
-    showMenuHint(`购买成功，好运宝箱 +${result.quantity || quantity}，银币 ${state.silver}`);
-    openQuickShopMenu();
+    await refreshBag();
+    showMenuHint(`购买成功：${item.name} x${quantity}，元宝 ${state.yuanbao}`);
+    openYuanbaoShopMenu();
   } catch (error) {
-    const text = error.message === "not_enough_silver" ? "银币不足" : "购买失败";
+    const text = error.message === "not_enough_yuanbao" ? "元宝不足" : "购买失败";
     if ($("#giveQuantityPanel")?.classList.contains("active")) $("#giveQuantityMessage").textContent = text;
     else showMenuHint(text);
   }
+}
+
+function confirmQuickShopMenu() {
+  if (state.menuItem === 0) {
+    openQuickShopSellItemMenu();
+    return;
+  }
+  if (state.menuItem === 1) sellAllUnequippedEquipment();
 }
 
 async function openQuickShopSellItemMenu() {
@@ -8198,44 +8346,141 @@ function openChatShowItem(item) {
 }
 
 function luckyBoxRollItems(finalReward = null) {
-  const samples = [
-    { name: "灵魂粉末", icon: "1.11" },
-    { name: "绝世技能兑换券碎片", icon: "1.49" },
-    { name: "绝世人物技能兑换券碎片", icon: "1.49" },
-    { name: "圣品技能兑换券碎片", icon: "1.49" },
-    { name: "时装兑换券", icon: "2.10" },
-    { name: "绝世宠物召唤券", icon: "2.12" },
-    { name: "绝世圣武兑换券", icon: "1.3" },
-    { name: "圣品技能卡", icon: "1.49" },
-    { name: "绝世技能卡", icon: "1.49" },
-    { name: "极品三致命装备", icon: "2.18" }
+  const samples = (window.LuckyBoxModule?.rewards || []).map((item) => ({ ...item }));
+  // This is visual-only data. Never use it to calculate or overwrite the server result.
+  const fallback = [
+    { name: "精炼宝石", id: "forge_refine_gem", icon: "lucky:1:13" },
+    { name: "修复宝石", id: "repair_gem", icon: "lucky:1:13" },
+    { name: "三属性附魔石", id: "three_attribute_enchant_gem", icon: "lucky:1:13", quantity: 99 },
+    { name: "单项重置附魔石", id: "single_recast_enchant_gem", icon: "lucky:1:13", quantity: 10 },
+    { name: "铁质宠物腰带", id: "iron_pet_belt", icon: "lucky:1:19" },
+    { name: "普通启魂书", id: "common_soul_book", icon: "lucky:1:last" },
+    { name: "神宠召唤券", id: "divine_pet_ticket", icon: "lucky:2:6" },
+    { name: "圣品启魂书", id: "holy_soul_book", icon: "lucky:1:last" },
+    { name: "无瑕的极致蓝宝石·物理", id: "flawless_blue_anti_physical", icon: "lucky:2:14" },
+    { name: "SS圣宠召唤券", id: "ss_holy_pet_ticket", icon: "lucky:2:6" }
   ];
-  const items = Array.from({ length: 18 }, () => sample(samples));
-  if (finalReward) items.push({ name: finalReward.name, icon: finalReward.icon || "1.11", final: true });
-  return items;
+  const visualPool = samples.length ? samples : fallback;
+  const normalizeRewardText = (value) => String(value || "").replace(/\s+/g, "").trim();
+  const finalId = normalizeRewardText(finalReward?.id);
+  const finalName = normalizeRewardText(finalReward?.name);
+  const finalIcon = normalizeRewardText(finalReward?.icon);
+  const isFinalReward = (item) => {
+    const itemId = normalizeRewardText(item?.id);
+    const itemName = normalizeRewardText(item?.name);
+    const itemIcon = normalizeRewardText(item?.icon);
+    return (finalId && itemId === finalId)
+      || (finalName && itemName === finalName)
+      || (finalName && itemName.includes(finalName))
+      || (finalIcon && itemIcon === finalIcon && finalName && itemName === finalName);
+  };
+  const decoyPool = visualPool.filter((item) => !isFinalReward(item));
+  const pool = decoyPool.length ? decoyPool : [{ name: "抽奖物品", icon: "1.11", id: "visual_placeholder" }];
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const items = Array.from({ length: Math.max(30, pool.length * 2) }, (_, index) => ({
+    ...(shuffled[index % shuffled.length])
+  }));
+  const ranked = [...pool].sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0));
+  const highValuePool = ranked.slice(0, Math.max(1, Math.ceil(ranked.length * 0.2)));
+  const previewReward = { ...(sample(highValuePool) || visualPool[0]), preview: true };
+  const previewIndex = items.length;
+  items.push(previewReward);
+  if (finalReward) items.push({
+    ...finalReward,
+    labelHtml: luckyItemLabelHtml(finalReward),
+    final: true
+  });
+  return { items, previewIndex, finalIndex: finalReward ? items.length - 1 : null };
+}
+
+function luckyBoxQuantitySuffix(item) {
+  const id = String(item?.id || "");
+  const name = String(item?.name || "");
+  if (id === "three_attribute_enchant_gem" || name === "三属性附魔石") return "*99";
+  if (id === "single_recast_enchant_gem" || name === "单项重置附魔石") return "*10";
+  const quantity = Number(item?.quantity) || 0;
+  return quantity > 1 ? `*${quantity}` : "";
 }
 
 function renderLuckyBoxRollWindow(items, centerIndex, reward = null, done = false) {
   const visible = [-1, 0, 1].map((offset) => {
     if (done && offset === 0 && reward) {
-      return { name: `中了：${reward.name}`, icon: reward.icon || "1.11", quantity: reward.quantity, final: true };
+      return { name: reward.name, labelHtml: luckyItemLabelHtml(reward), icon: reward.icon || "1.11", quantity: reward.quantity, final: true };
     }
     return items[(centerIndex + offset + items.length) % items.length];
   });
-  state.menuItem = 1;
-  $("#mainMenuList").innerHTML = `<div class="main-menu-list-scroll lucky-box-window">${visible.map((item, index) => `
-    <button type="button" class="main-menu-item submenu-item hide-index ${index === 1 ? "active" : ""} ${item.final || String(item.name).includes("绝世") ? "rare-fragment" : ""}" disabled>
-      <small></small>${menuIconHtml(item.icon || "1.11")}<span><em class="menu-marquee">${escapeHtml(item.name)}${item.quantity ? ` x${item.quantity}` : ""}</em></span>
-    </button>
-  `).join("")}${done ? `<button type="button" class="main-menu-item submenu-item active lucky-box-next" data-index="1" data-disabled="${state.luckyBoxRoll.remaining > 0 ? "false" : "true"}" aria-disabled="${state.luckyBoxRoll.remaining > 0 ? "false" : "true"}">
-      <small></small>${menuIconHtml("1.11")}<span><em class="menu-marquee">${state.luckyBoxRoll.remaining > 0 ? `继续开启（剩余 ${state.luckyBoxRoll.remaining}）` : "好运宝箱已开完"}</em></span>
-    </button>` : ""}</div>`;
-  decorateMenuFrame($("#mainMenuList"));
-  $("#mainMenuList").querySelector(".lucky-box-next")?.addEventListener("click", (event) => {
-    event.preventDefault();
-    confirmLuckyBoxRollMenu();
+  const overlay = $("#luckyBoxOverlay");
+  const dialog = overlay?.querySelector(".lucky-box-dialog");
+  const rewardRows = $("#luckyBoxRewardRows");
+  const actions = $("#luckyBoxActions");
+  if (!overlay || !dialog || !rewardRows || !actions) return;
+  if (done && state.luckyBoxRoll.confirmOpen) overlay.appendChild(actions);
+  else dialog.appendChild(actions);
+  rewardRows.innerHTML = visible.map((item, index) => `
+    <div class="lucky-box-reward-row ${index === 1 ? "is-target" : ""}">
+      ${menuIconHtml(item.icon || "1.11")}<span>${item.labelHtml || luckyItemLabelHtml(item)}${luckyBoxQuantitySuffix(item)}</span>
+    </div>
+  `).join("");
+  if (!done) {
+    actions.classList.remove("is-confirming");
+    actions.innerHTML = `<div class="lucky-box-action-hint">滚动中…</div>`;
+  } else if (state.luckyBoxRoll.confirmOpen) {
+    actions.classList.add("is-confirming");
+    actions.innerHTML = `<div class="lucky-box-confirm-actions"><button type="button" class="lucky-box-action ${state.menuItem === 0 ? "is-selected" : ""}" data-choice="continue">继续抽奖</button><button type="button" class="lucky-box-action ${state.menuItem === 1 ? "is-selected" : ""}" data-choice="back">返回</button></div>`;
+    actions.querySelectorAll("[data-choice]").forEach((button) => button.addEventListener("click", () => {
+      state.menuItem = button.dataset.choice === "back" ? 1 : 0;
+      confirmLuckyBoxRollMenu();
+    }));
+  } else {
+    actions.classList.remove("is-confirming");
+    actions.innerHTML = `<button type="button" class="lucky-box-continue" ${state.luckyBoxRoll.remaining > 0 ? "" : "disabled"}><span>按 5 键继续</span><canvas class="lucky-box-next-chj" width="20" height="28" aria-hidden="true"></canvas></button>`;
+    actions.querySelector(".lucky-box-continue")?.addEventListener("click", () => {
+      if (state.luckyBoxRoll.remaining <= 0) return;
+      state.luckyBoxRoll.confirmOpen = true;
+      state.menuItem = 0;
+      renderLuckyBoxRollWindow(items, centerIndex, reward, true);
+    });
+  }
+  [overlay.querySelector(".lucky-box-title"), overlay.querySelector(".lucky-box-rewards")].forEach((frame) => {
+    stripMenuFrame(frame);
+    decorateMenuFrame(frame);
   });
-  refreshActiveMenuMarquee();
+  stripMenuFrame(actions);
+  if (!done) decorateMenuFrame(actions);
+  else actions.querySelectorAll(".lucky-box-continue, .lucky-box-action").forEach((button) => {
+    stripMenuFrame(button);
+    decorateMenuFrame(button);
+  });
+  actions.querySelectorAll(".lucky-box-action").forEach((button) => {
+    stripMenuFrame(button);
+    decorateMenuFrame(button);
+  });
+  overlay.classList.add("is-visible");
+  overlay.setAttribute("aria-hidden", "false");
+  if (done && !state.luckyBoxRoll.confirmOpen) startLuckyBoxContinueAnimation();
+}
+
+let luckyBoxContinueAnimationFrame = 0;
+async function startLuckyBoxContinueAnimation() {
+  if (luckyBoxContinueAnimationFrame) cancelAnimationFrame(luckyBoxContinueAnimationFrame);
+  const canvas = $("#luckyBoxOverlay .lucky-box-next-chj");
+  if (!canvas) return;
+  try {
+    const sprite = await loadSprite(15);
+    const ctx = canvas.getContext("2d");
+    const frames = (sprite.animations[0] || [0]).filter((frame) => frame !== 255 && frame != null);
+    const draw = (now) => {
+      if (!canvas.isConnected) return;
+      const raw = frames[Math.floor(now / 220) % Math.max(1, frames.length)] ?? 0;
+      const frame = { index: raw >= 128 ? raw - 128 : raw, flip: raw >= 128 };
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawSpriteFrame(ctx, sprite, frame, 2, canvas.height - sprite.frameHeight, sprite.frameWidth, sprite.frameHeight);
+      luckyBoxContinueAnimationFrame = requestAnimationFrame(draw);
+    };
+    luckyBoxContinueAnimationFrame = requestAnimationFrame(draw);
+  } catch (error) {
+    console.warn("好运宝箱继续按钮 CHJ 15 加载失败", error);
+  }
 }
 
 function showLuckyBoxRoll(reward) {
@@ -8244,26 +8489,43 @@ function showLuckyBoxRoll(reward) {
   state.menuOpen = true;
   state.luckyBoxRoll.rolling = true;
   state.luckyBoxRoll.done = false;
+  state.luckyBoxRoll.confirmOpen = false;
   const menu = $("#mainMenu");
-  menu.classList.add("active", "lucky-box-roll");
-  $("#mainMenuTabs").classList.add("single-title");
-  window.MenuUI?.setSingleTitle?.($("#mainMenuTabs"), true);
-  $("#mainMenuTabs").innerHTML = `<button type="button" class="active single-title-button">好运宝箱抽奖</button>`;
-  decorateMenuFrame($("#mainMenuTabs"));
-  const rollItems = luckyBoxRollItems(reward);
+  menu.classList.remove("active", "lucky-box-roll");
+  const rollPlan = luckyBoxRollItems(reward);
+  const rollItems = rollPlan.items;
   let index = 0;
+  let step = 0;
   renderLuckyBoxRollWindow(rollItems, index);
-  const timer = setInterval(() => {
-    renderLuckyBoxRollWindow(rollItems, index);
-    index += 1;
-    if (index >= rollItems.length + 9) {
-      clearInterval(timer);
+
+  const advance = () => {
+    if (index >= rollPlan.finalIndex) {
       state.luckyBoxRoll.rolling = false;
       state.luckyBoxRoll.done = true;
-      renderLuckyBoxRollWindow(rollItems, rollItems.length - 1, reward, true);
+      renderLuckyBoxRollWindow(rollItems, rollPlan.finalIndex, reward, true);
       showMenuHint(`中了：${reward.name}${reward.quantity ? ` x${reward.quantity}` : ""}`);
+      return;
     }
-  }, 80);
+    renderLuckyBoxRollWindow(rollItems, index);
+    index += 1;
+    step += 1;
+    const isPreview = index === rollPlan.previewIndex;
+    const remaining = rollPlan.finalIndex - index;
+    // Fast at the start, then ease into a visible high-value preview pause.
+    const delay = isPreview
+      ? 760
+      : remaining <= 1
+        ? 420
+        : remaining <= 3
+          ? 280
+          : remaining <= 7
+            ? 170
+            : step < 9
+              ? 34
+              : Math.min(130, 58 + (step - 9) * 5);
+    setTimeout(advance, delay);
+  };
+  setTimeout(advance, 48);
 }
 
 async function openLuckyBox() {
@@ -8282,6 +8544,15 @@ async function openLuckyBox() {
 function confirmLuckyBoxRollMenu() {
   if (state.luckyBoxRoll.rolling) return true;
   if (!state.luckyBoxRoll.done) return true;
+  if (state.luckyBoxRoll.confirmOpen) {
+    if (state.menuItem === 1) {
+      backLuckyBoxRollMenu();
+    } else {
+      state.luckyBoxRoll.confirmOpen = false;
+      openLuckyBox();
+    }
+    return true;
+  }
   if ((state.luckyBoxRoll.remaining || 0) <= 0) {
     openBagMenu();
     return true;
@@ -8292,6 +8563,9 @@ function confirmLuckyBoxRollMenu() {
 
 function backLuckyBoxRollMenu() {
   if (state.luckyBoxRoll.rolling) return true;
+  state.luckyBoxRoll.confirmOpen = false;
+  $("#luckyBoxOverlay")?.classList.remove("is-visible");
+  $("#luckyBoxOverlay")?.setAttribute("aria-hidden", "true");
   openBagMenu();
   return true;
 }
@@ -9613,15 +9887,19 @@ function showBattleRewardPanel() {
       rows.push({ icon: fragment.icon || "1.49", text: `${fragment.name} +${fragment.quantity}`, meta: "碎片", className: "rare-fragment" });
     });
     list.innerHTML = rows.map((row) => `
-      <div class="battle-reward-row ${escapeHtml(row.className || "")}">
+      <div class="battle-reward-row ${escapeHtml(`${row.className || ""} ${String(row.text || "").includes("绝世") ? "peerless-reward" : ""}`.trim())}">
         ${rewardIconHtml(row.icon)}
-        <span>${escapeHtml(row.text)}</span>
+        <span>${battleRewardTextHtml(row.text)}</span>
         <small>${escapeHtml(row.meta)}</small>
       </div>
     `).join("");
   }
   panel.classList.add("active");
   prepareRewardDialog(panel);
+}
+
+function battleRewardTextHtml(text) {
+  return String(text).includes("绝世") ? peerlessColorText(text) : escapeHtml(text);
 }
 
 function closeBattleRewardPanel() {
@@ -10301,6 +10579,7 @@ async function startBattle(target) {
     loadSprite(23),
     loadImage("资源/图片/战斗数字.png"),
     loadImage("资源/图片/战斗箭头.png"),
+    loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
     ...battleEffectIdsFor(...allies, ...enemyActors).map((id) => loadSpriteOptional(id)),
     ...battleSpriteLoadPromisesFor(...allies, ...enemyActors)
   ]);
@@ -10432,6 +10711,7 @@ async function acceptTeamBattle(msg) {
       loadSprite(23),
       loadImage("资源/图片/战斗数字.png"),
       loadImage("资源/图片/战斗箭头.png"),
+      loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
       ...battleEffectIdsFor(...allies, ...enemies).map((id) => loadSpriteOptional(id)),
       ...battleSpriteLoadPromisesFor(...allies, ...enemies)
     ]);
@@ -10478,6 +10758,8 @@ async function acceptTeamBattle(msg) {
       floatTexts: [],
       effects: [],
       lastEffectTime: performance.now(),
+      cameraShakeUntil: 0,
+      cameraShakeStrength: 0,
       teamBattleServer: msg.teamBattleServer === true
     };
     if (msg.teamBattleServer) state.battle.choiceStep = firstControllableChoiceStep();
@@ -11143,6 +11425,13 @@ async function playBattleTurn(result) {
     }
     if (event.type === "skillName") {
       battle.lastSkillNames[event.attackerId || event.attacker] = event.skillName || "";
+      const caster = findBattleFighterByRef(event.attackerId || event.attacker);
+      const hasAreaDamage = (result.events || []).some((item) => item.areaBatchId && item.attackerId === event.attackerId);
+      if (caster && hasAreaDamage && isPeerlessArbitrationActor(caster.actor)) {
+        // Wait until the lunge has reached its attack position; the renderer
+        // starts the effect on the first attack frame.
+        caster.arbitrationAreaEffectPending = true;
+      }
       pushBattleStatusLine(`第${turnIndex}回合，${event.attacker}施放了${event.skillName || "技能"}`, "positive");
       applyEventDamage(event);
       renderBattle();
@@ -11173,9 +11462,14 @@ async function playBattleTurn(result) {
     const fighter = findBattleFighterByRef(event.attackerId || event.attacker);
     if (fighter && !isFastAreaFollowup) {
       fighter.action = "attack";
-      fighter.actionUntil = performance.now() + (areaBatchDurations.get(event.areaBatchId) || 980);
-      fighter.attackTargetId = event.defenderId || "";
-      fighter.attackTargetName = event.defender;
+      const lungeStartedAt = performance.now();
+      fighter.attackStartedAt = lungeStartedAt + (event.areaBatchId ? 220 : 0);
+      fighter.actionUntil = lungeStartedAt + (areaBatchDurations.get(event.areaBatchId) || 980);
+      const lungeTarget = event.areaBatchId
+        ? battleAreaLungeTarget(fighter, defender)
+        : defender;
+      fighter.attackTargetId = lungeTarget ? lungeTarget.battleId || "" : event.defenderId || "";
+      fighter.attackTargetName = lungeTarget?.name || event.defender;
       spawnBattleAttackLungeEffect(fighter);
       triggerBattleBackgroundShake();
     }
@@ -11236,6 +11530,46 @@ async function playBattleTurn(result) {
     }
   }
   renderBattle();
+}
+
+function isPeerlessArbitrationActor(actor) {
+  return actor?.spriteId === 783 || actor?.spriteId === 786;
+}
+
+function spawnArbitrationAreaEffect(fighter) {
+  const battle = state.battle;
+  const image = state.images.get(BATTLE_ARBITRATION_EFFECT_SRC)?.value;
+  if (!battle || !fighter || !image) return;
+  const target = battleAreaLungeTarget(fighter, null);
+  battle.effects.push({
+    customImage: image,
+    customFrames: [0, 1],
+    sourceFrameWidth: image.width / 2,
+    sourceFrameHeight: image.height,
+    x: fighter.battleX,
+    y: fighter.battleY,
+    elapsed: 0,
+    // Play the enemy-facing strike at 1.5x speed without changing its frame order.
+    frameMs: 240,
+    frameDurations: [147, 187],
+    scale: 1.35,
+    anchor: "bottom-center",
+    mirrorWithFacing: true,
+    followRef: fighterRef(fighter),
+    followCustom: true,
+    targetRef: target ? fighterRef(target) : ""
+  });
+}
+
+// Group attacks should visually lunge toward the first target in the front row,
+// rather than whichever member happens to be first in the damage event list.
+function battleAreaLungeTarget(attacker, fallback) {
+  const battle = state.battle;
+  if (!battle || !attacker) return fallback;
+  const team = attacker.side === "ally" ? battle.enemyTeam : battle.playerTeam;
+  const candidates = (team || []).filter((fighter) => fighter && !fighter.defeated && Number.isFinite(fighter.battleY));
+  if (!candidates.length) return fallback;
+  return candidates.slice().sort((a, b) => (a.battleY - b.battleY) || (a.battleX - b.battleX))[0] || fallback;
 }
 
 function snapshotBattleHp() {
@@ -11308,6 +11642,12 @@ function applyEventDamage(event) {
   const battle = state.battle;
   const fighter = findBattleFighterByRef(event.defenderId || event.defender);
   if (!fighter) return;
+  const attacker = findBattleFighterByRef(event.attackerId || event.attacker);
+  // Area damage resolves against each real defender, but the first floating
+  // number is staged on the front-row anchor so the visual hit starts there.
+  const visualFighter = event.areaBatchId && event.areaIndex === 0 && attacker
+    ? battleAreaLungeTarget(attacker, fighter)
+    : fighter;
   if (event.type === "skillName") {
     battle.floatTexts = battle.floatTexts || [];
     battle.floatTexts.push({
@@ -11354,8 +11694,8 @@ function applyEventDamage(event) {
           : `-${event.amount}`;
   battle.floatNumbers.push({
     text,
-    x: fighter.battleX,
-    y: fighter.battleY - 76,
+    x: visualFighter?.battleX ?? fighter.battleX,
+    y: (visualFighter?.battleY ?? fighter.battleY) - 76,
     start: performance.now(),
     duration: 1100
   });
@@ -11978,6 +12318,9 @@ function drawBattleScene() {
     }
     fighter.facing = "left";
   });
+  const cameraShake = battleCameraShakeOffset(battle, now);
+  ctx.save();
+  ctx.translate(cameraShake.x, cameraShake.y);
   [...battle.playerTeam, ...battle.enemyTeam]
     .sort((a, b) => (a.battleY || 0) - (b.battleY || 0))
     .forEach((fighter) => drawBattleFighter(ctx, fighter, fighter.battleX, fighter.battleY, fighter.facing, now));
@@ -11987,6 +12330,17 @@ function drawBattleScene() {
   drawBattleClickEffects(ctx, now);
   drawBattleFloatNumbers(ctx, now);
   drawBattleFloatTexts(ctx, now);
+  ctx.restore();
+}
+
+function battleCameraShakeOffset(battle, now) {
+  if (!battle?.cameraShakeUntil || now >= battle.cameraShakeUntil) return { x: 0, y: 0 };
+  const remaining = (battle.cameraShakeUntil - now) / Math.max(1, battle.cameraShakeDuration || 1);
+  const strength = (battle.cameraShakeStrength || 0) * Math.max(0, remaining);
+  return {
+    x: Math.sin(now * 0.11) * strength,
+    y: Math.cos(now * 0.16) * strength * 0.6
+  };
 }
 
 function drawAutoBattlePrompt(ctx, width, now) {
@@ -12273,6 +12627,42 @@ function drawBattleEffects(ctx, now) {
   const dt = Math.min(50, now - (battle.lastEffectTime || now));
   battle.lastEffectTime = now;
   battle.effects = battle.effects.filter((effect) => {
+    if (effect.customImage) {
+      const frames = effect.customFrames || [0];
+      const frameDurations = effect.frameDurations || frames.map(() => effect.frameMs);
+      let tick = 0;
+      let elapsedFrame = effect.elapsed;
+      while (tick < frameDurations.length && elapsedFrame >= frameDurations[tick]) {
+        elapsedFrame -= frameDurations[tick];
+        tick += 1;
+      }
+      if (tick >= frames.length) return false;
+      if (tick === 1 && effect.lastTick !== 1) {
+        effect.lastTick = 1;
+        triggerBattleImpactShake(180, 7);
+        const target = findBattleFighterByRef(effect.targetRef);
+        if (target) {
+          target.hitReactionUntil = now + 180;
+          target.hitReactionDirection = target.battleX >= (findBattleFighterByRef(effect.followRef)?.battleX || target.battleX) ? 1 : -1;
+        }
+      } else if (effect.lastTick == null) {
+        effect.lastTick = 0;
+      }
+      const fw = effect.sourceFrameWidth;
+      const fh = effect.sourceFrameHeight;
+      const raw = frames[tick];
+      const position = effect.followCustom ? battleCustomEffectPosition(effect) : { x: effect.x, y: effect.y };
+      const w = fw * effect.scale;
+      const h = fh * effect.scale;
+      ctx.save();
+      const angle = battleCustomEffectAngle(effect);
+      ctx.translate(position.x, position.y);
+      ctx.rotate(angle);
+      ctx.drawImage(effect.customImage, raw * fw, 0, fw, fh, 0, -h / 2, w, h);
+      ctx.restore();
+      effect.elapsed += dt;
+      return true;
+    }
     const sprite = state.sprites.get(effect.id);
     if (!sprite) return false;
     const frames = sprite.animations[0] || [];
@@ -12282,6 +12672,30 @@ function drawBattleEffects(ctx, now) {
     effect.elapsed += dt;
     return true;
   });
+}
+
+function battleCustomEffectPosition(effect) {
+  const fighter = findBattleFighterByRef(effect.followRef);
+  if (!fighter) return { x: effect.x, y: effect.y };
+  const facing = fighter.facing || "right";
+  const lunge = battleLungeOffset(fighter, facing);
+  return {
+    // Anchor from the fighter's post-lunge position, then place the effect
+    // just in front of the body.
+    x: fighter.battleX + lunge.x + (facing === "left" ? -34 : 34),
+    y: fighter.battleY + lunge.y - 20
+  };
+}
+
+function battleCustomEffectAngle(effect) {
+  const attacker = findBattleFighterByRef(effect.followRef);
+  const target = findBattleFighterByRef(effect.targetRef);
+  if (!attacker || !target) return attacker?.facing === "left" ? Math.PI : 0;
+  const facing = attacker.facing || "right";
+  const lunge = battleLungeOffset(attacker, facing);
+  const startX = attacker.battleX + lunge.x;
+  const startY = attacker.battleY + lunge.y - 20;
+  return Math.atan2(target.battleY - startY, target.battleX - startX);
 }
 
 function drawEffectFrame(ctx, sprite, effect, tick) {
@@ -12384,18 +12798,36 @@ function battleEffectPosition(effect) {
 }
 
 function triggerBattleBackgroundShake(duration = 280) {
-  const canvas = $("#gameCanvas");
-  const magic = document.querySelector(".magic-circle");
-  canvas.classList.add("shake-bg");
-  magic.classList.add("shake-bg");
+  const gameScreen = $("#gameScreen");
+  if (!gameScreen) return;
+  gameScreen.classList.remove("shake-bg");
+  void gameScreen.offsetWidth;
+  gameScreen.classList.add("shake-bg");
   setTimeout(() => {
-    canvas.classList.remove("shake-bg");
-    magic.classList.remove("shake-bg");
+    gameScreen.classList.remove("shake-bg");
   }, duration);
 }
 
+function triggerBattleImpactShake(duration = 180, strength = 7) {
+  const battle = state.battle;
+  if (battle) {
+    battle.cameraShakeDuration = duration;
+    battle.cameraShakeUntil = performance.now() + duration;
+    battle.cameraShakeStrength = Math.max(battle.cameraShakeStrength || 0, strength);
+  }
+  triggerBattleBackgroundShake(duration);
+}
+
 function drawBattleFighter(ctx, fighter, x, y, facing, now) {
-  const useAttack = fighter.action === "attack" && now < fighter.actionUntil;
+  if (fighter.arbitrationAreaEffectPending
+    && fighter.action === "attack"
+    && now >= (fighter.attackStartedAt || 0)) {
+    fighter.arbitrationAreaEffectPending = false;
+    spawnArbitrationAreaEffect(fighter);
+  }
+  const useAttack = fighter.action === "attack"
+    && now >= (fighter.attackStartedAt || 0)
+    && now < fighter.actionUntil;
   if (fighter.action === "attack" && now >= fighter.actionUntil) fighter.action = "idle";
   const sprite = state.sprites.get(useAttack ? battleAttackSpriteId(fighter.actor) : fighter.actor.spriteId) || state.sprites.get(fighter.actor.spriteId);
   if (!sprite) return;
@@ -12410,7 +12842,8 @@ function drawBattleFighter(ctx, fighter, x, y, facing, now) {
   const scale = hiddenVaultEnemy ? 0.72 : 1.2;
   const w = sprite.frameWidth * scale;
   const h = sprite.frameHeight * scale;
-  const attackOffset = useAttack ? battleLungeOffset(fighter, facing) : { x: 0, y: 0 };
+  const lungeActive = fighter.action === "attack" && now < fighter.actionUntil;
+  const attackOffset = lungeActive ? battleLungeOffset(fighter, facing) : { x: 0, y: 0 };
   const hitOffset = battleHitReactionOffset(fighter, now);
   const offset = { x: attackOffset.x + hitOffset.x, y: attackOffset.y + hitOffset.y };
   drawSpriteFrame(ctx, sprite, frame, x - w / 2 + offset.x, y - h + offset.y, w, h);
@@ -12507,9 +12940,13 @@ function battleLungeOffset(fighter, facing) {
   const sideGap = fighter.actor.isPet ? 30 : 38;
   const targetX = target.battleX + (facing === "right" ? -sideGap : sideGap);
   const targetY = target.battleY;
+  // Fine-tune the attack staging: two battle-grid units upward and two units
+  // backward from the target-facing position. One unit is 16 canvas pixels.
+  const rearOffset = facing === "right" ? -32 : 32;
   return {
-    x: targetX - fighter.battleX,
-    y: (targetY - fighter.battleY) * 0.35
+    x: targetX - fighter.battleX + rearOffset,
+    // Reach the target's row before the attack animation starts.
+    y: targetY - fighter.battleY - 32
   };
 }
 
@@ -12581,7 +13018,7 @@ function skillFloatColors(color = "") {
 
 function drawDamageNumber(ctx, image, text, x, y, alpha) {
   const order = "0123456789+-";
-  const scale = 1.75;
+  const scale = 1.4;
   const digitW = 13;
   const digitH = 16;
   const width = text.length * digitW * scale;
@@ -13493,14 +13930,22 @@ function setupControls() {
     if (isInputUiActive()) return;
     if (handleBattlePadKey(key)) return;
     const digit = controlDigitByKey.get(key);
-    if (completeQuickMenuHotkey(digit)) return;
+    if (handleQuickMenuDigit(digit)) return;
+    if (state.menuOpen) {
+      pressControlKey(key);
+      return;
+    }
     pressControlKey(key);
-    rememberQuickMenuHotkey(digit);
   };
   const pressControlKey = (key) => {
     if (window.RegionFlyMap?.isOpen?.()) {
       if (window.RegionFlyMap.handleKey(key)) return;
     }
+    if (key === "channel" && window.ChatHistoryUI?.isOpen()) {
+      window.ChatHistoryUI.close();
+      return;
+    }
+    if (window.ChatHistoryUI?.handleKey(key)) return;
     if (state.menuOpen) {
       if (state.menuMode && state.menuMode !== "main") {
         if (state.menuMode === "model_scale_adjust") {
@@ -13591,7 +14036,22 @@ window.addEventListener('keydown', (event) => {
     }
     if (isInputUiActive()) return;
     if (state.battle && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "Enter"].includes(event.key)) return;
-    if (/^[0-9]$/.test(event.key) && completeQuickMenuHotkey(event.key)) {
+    const chatHistoryKey = {
+      ArrowLeft: "left",
+      ArrowRight: "right",
+      ArrowUp: "up",
+      ArrowDown: "down",
+      Enter: "confirm",
+      " ": "confirm",
+      "0": "nextChannel",
+      Escape: "back",
+      Backspace: "back"
+    }[event.key];
+    if (chatHistoryKey && window.ChatHistoryUI?.handleKey(chatHistoryKey)) {
+      event.preventDefault();
+      return;
+    }
+    if (/^[0-9]$/.test(event.key) && handleQuickMenuDigit(event.key)) {
       event.preventDefault();
       return;
     }
@@ -13614,6 +14074,11 @@ window.addEventListener('keydown', (event) => {
     }
     if (state.menuOpen) {
       if (state.menuMode && state.menuMode !== "main") {
+        if (state.menuMode === "lucky_box_roll" && event.key === "5") {
+          event.preventDefault();
+          confirmLuckyBoxRollMenu();
+          return;
+        }
         if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
           event.preventDefault();
           moveMainMenuItem(-1);
@@ -13670,14 +14135,17 @@ window.addEventListener('keydown', (event) => {
         return;
       }
     }
+    if (event.key === "#") {
+      event.preventDefault();
+      openChatHistoryPanel();
+      return;
+    }
     const keys = { ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down", ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right" };
     if (event.key === "5") {
       event.preventDefault();
       openNearbyActionMenu();
-      rememberQuickMenuHotkey(event.key);
       return;
     }
-    if (/^[0-9]$/.test(event.key)) rememberQuickMenuHotkey(event.key);
     if (keys[event.key] && !state.followLeaderId) setDir(keys[event.key]);
   });
   window.addEventListener("keyup", () => {
@@ -13714,9 +14182,6 @@ window.addEventListener('keydown', (event) => {
   });
   $("#statsClose").addEventListener("click", () => {
     $("#statsPanel").classList.remove("active");
-  });
-  $("#chatHistoryClose").addEventListener("click", () => {
-    $("#chatHistoryPanel").classList.remove("active");
   });
   $("#systemStats").addEventListener("click", () => {
     $("#systemPanel").classList.remove("active");
@@ -13784,7 +14249,7 @@ function closeHudPanels() {
   closeBattleRewardPanel();
   $("#statsPanel").classList.remove("active");
   $("#nearbyPanel").classList.remove("active");
-  $("#chatHistoryPanel").classList.remove("active");
+  window.ChatHistoryUI?.close();
   closePrivateChatDialog();
   $("#emojiPanel").classList.remove("active");
   $("#chatForm").classList.remove("active");
@@ -13862,18 +14327,12 @@ function setupChat() {
     if (!text || !state.player) return;
     if (state.privateChatTarget) {
       sendRoomMessage({ type: "chat.send", channel: "whisper", to: state.privateChatTarget.peerId, text });
-      addPrivateChatLine(state.privateChatTarget.name, text, true);
-      state.privateChatTarget = null;
-      input.placeholder = "";
+      addPrivateChatLine(state.privateChatTarget.name, text, true, state.privateChatTarget.peerId);
       input.value = "";
-      $("#chatForm").classList.remove("active");
-      $("#emojiPanel").classList.remove("active");
       return;
     }
     addChat(state.player, text);
     input.value = "";
-    $("#chatForm").classList.remove("active");
-    $("#emojiPanel").classList.remove("active");
   });
   $("#chatCancel").addEventListener("click", () => {
     $("#chatForm").classList.remove("active");
@@ -14053,6 +14512,7 @@ async function boot() {
     window.MapAdminEditor.setAdmin(state.isAdmin);
   }
   initRegionFlyMap();
+  initQuickMenuHotkeys();
   setupControls();
   setupChat();
   setupBattle();

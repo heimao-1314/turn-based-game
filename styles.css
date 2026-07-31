@@ -297,10 +297,6 @@ button {
 
 .cover-menu-actions .menu-framed-button {
   pointer-events: auto;
-  border: 1px solid rgba(242, 214, 132, 0.42);
-  box-shadow:
-    inset 0 0 0 2px rgba(0, 0, 0, 0.58),
-    inset 0 0 0 3px rgba(255, 242, 184, 0.12);
 }
 
 .cover-info-content {
@@ -512,12 +508,12 @@ input {
   image-rendering: pixelated;
 }
 
-#gameCanvas.shake-bg,
-.magic-circle.shake-bg {
-  animation: battle-bg-shake 120ms linear infinite;
+.game.shake-bg {
+  animation: battle-viewport-shake 120ms linear infinite;
+  will-change: transform;
 }
 
-@keyframes battle-bg-shake {
+@keyframes battle-viewport-shake {
   0% { transform: translate(0, 0); }
   25% { transform: translate(3px, -2px); }
   50% { transform: translate(-3px, 2px); }
@@ -705,6 +701,19 @@ input {
   background: url("资源/图片/按键图片.png") center / 100% 100% no-repeat;
   touch-action: none;
   user-select: none;
+}
+
+.game.shake-bg .control-pad {
+  animation: battle-keypad-counter-shake 120ms linear infinite;
+  will-change: transform;
+}
+
+@keyframes battle-keypad-counter-shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  50% { transform: translate(3px, -2px); }
+  75% { transform: translate(-2px, -2px); }
+  100% { transform: translate(0, 0); }
 }
 
 .gateway-control-pad {
@@ -943,6 +952,73 @@ input {
   overflow: hidden;
 }
 
+.main-menu.lucky-box-roll .lucky-box-draw-frame,
+.main-menu.lucky-box-roll .lucky-box-continue-frame {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  background: rgba(7, 12, 12, 0.72);
+}
+
+.main-menu.lucky-box-roll .lucky-box-continue-frame {
+  padding: 0;
+  margin-top: 7px;
+  background: rgba(7, 12, 12, 0.72);
+}
+
+.main-menu.lucky-box-roll .main-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item {
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 4px;
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item span {
+  margin-left: 0;
+}
+
+.main-menu.lucky-box-roll .single-title-button .main-menu-icon {
+  flex: 0 0 18px;
+  margin: 0 8px;
+}
+
+.main-menu.lucky-box-roll .main-menu-tabs.single-title,
+.main-menu.lucky-box-roll .main-menu-tabs.single-title .single-title-button {
+  background-color: rgba(7, 12, 12, 0.68);
+}
+
+.main-menu.lucky-box-roll .lucky-box-next {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff2b8;
+  cursor: pointer;
+}
+
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop,
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > img {
+  height: 100%;
+}
+
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > span {
+  padding-right: 0;
+  font-size: 15px;
+}
+
+.main-menu.lucky-box-roll .lucky-box-next[aria-disabled="true"] { cursor: default; opacity: .65; }
+.lucky-box-next-chj { position: absolute; right: 0; bottom: 0; z-index: 2; width: 20px; height: 28px; image-rendering: pixelated; }
+
 .main-menu.lucky-box-roll .main-menu-item {
   min-height: 42px;
   justify-content: center;
@@ -952,12 +1028,428 @@ input {
 
 .main-menu.lucky-box-roll .main-menu-item.active {
   opacity: 1;
-  transform: scale(1.04);
+  transform: none;
+  border-radius: 8px;
+  background: rgba(211, 177, 117, 0.88);
+  color: #063f4a;
 }
+
+/* Lucky box draw: compact pixel-art reward panel matching the mobile game scene. */
+.main-menu.lucky-box-roll {
+  width: min(420px, calc(100% - 18px));
+  color: #fff6cd;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .42));
+}
+
+.main-menu.lucky-box-roll .main-menu-tabs,
+.main-menu.lucky-box-roll .main-menu-list,
+.main-menu.lucky-box-roll .lucky-box-draw-frame,
+.main-menu.lucky-box-roll .lucky-box-continue-frame {
+  border: 2px solid #e8dfb8;
+  box-shadow: inset 0 0 0 2px rgba(72, 54, 29, .78), 0 0 0 1px rgba(28, 22, 15, .9);
+  background: rgba(20, 28, 18, .86);
+}
+
+.main-menu.lucky-box-roll .main-menu-tabs {
+  min-height: 54px;
+  padding: 5px 16px;
+  border-radius: 11px 11px 4px 4px;
+  background: rgba(31, 47, 24, .93);
+}
+
+.main-menu.lucky-box-roll .single-title-button {
+  gap: 16px;
+  min-height: 42px;
+  color: #fff8da;
+  font-size: clamp(22px, 6vw, 28px);
+  letter-spacing: .08em;
+  text-shadow: 2px 2px 0 #392b16, 0 0 8px rgba(255, 215, 112, .35);
+}
+
+.main-menu.lucky-box-roll .single-title-button .main-menu-icon {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+  transform: scale(1.45);
+  image-rendering: pixelated;
+}
+
+.main-menu.lucky-box-roll .main-menu-list {
+  padding: 8px;
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  background: rgba(13, 21, 14, .74);
+}
+
+.main-menu.lucky-box-roll .lucky-box-draw-frame {
+  padding: 9px 8px 11px;
+  border-radius: 4px;
+  background: rgba(10, 20, 12, .7);
+}
+
+.main-menu.lucky-box-roll .lucky-box-window { gap: 5px; }
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item {
+  min-height: 50px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 9px;
+  padding: 5px 13px;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(10, 15, 10, .42);
+  color: #e9f4cd;
+  font-size: clamp(16px, 4.2vw, 21px);
+  text-shadow: 1px 1px 0 #15200f;
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item .main-menu-icon {
+  width: 28px;
+  height: 28px;
+  transform: scale(1.35);
+  image-rendering: pixelated;
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item.active {
+  min-height: 60px;
+  border: 1px solid rgba(255, 242, 190, .8);
+  border-radius: 12px;
+  background: #b7a177;
+  color: #073f46;
+  box-shadow: inset 0 0 0 1px rgba(73, 52, 22, .55), 0 2px 0 rgba(0, 0, 0, .35);
+  text-shadow: 1px 1px 0 rgba(255, 244, 199, .35);
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item.active .main-menu-icon { transform: scale(1.5); }
+.main-menu.lucky-box-roll .main-menu-item.submenu-item span { overflow: hidden; }
+.main-menu.lucky-box-roll .lucky-item-label { font-weight: 800; }
+
+.main-menu.lucky-box-roll .lucky-box-continue-frame {
+  margin-top: 8px;
+  padding: 4px;
+  border-radius: 4px 4px 11px 11px;
+  background: rgba(20, 25, 17, .9);
+}
+
+.main-menu.lucky-box-roll .lucky-box-next {
+  height: 48px;
+  border: 2px solid #f0dfc4;
+  border-radius: 3px;
+  background: linear-gradient(#de7391, #c94f72);
+  color: #fff8ef;
+  font-size: clamp(19px, 5vw, 24px);
+  letter-spacing: .08em;
+  text-shadow: 2px 2px 0 rgba(105, 33, 51, .8);
+}
+
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > img { display: none; }
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > span { position: static; padding: 0; }
+.main-menu.lucky-box-roll .lucky-box-next[aria-disabled="true"] { background: #776273; }
+
+#mainMenu.active.lucky-box-roll + .main-menu-footer { display: none !important; }
 
 .main-menu.lucky-box-roll .main-menu-item span {
   text-align: center;
 }
+
+/* Three-piece lucky-box dialog: title, rolling rewards, and action bar. */
+.main-menu.lucky-box-roll .main-menu-tabs,
+.main-menu.lucky-box-roll .lucky-box-draw-frame,
+.main-menu.lucky-box-roll .lucky-box-continue-frame {
+  border: 0;
+  border-radius: 0;
+  background: rgba(57, 31, 19, .88);
+  box-shadow: inset 0 0 0 1px rgba(255, 225, 158, .12), 0 4px 12px rgba(0, 0, 0, .28);
+}
+
+.main-menu.lucky-box-roll .main-menu-tabs {
+  min-height: 48px;
+  padding: 5px 18px;
+  background: rgba(54, 29, 18, .92);
+}
+
+.main-menu.lucky-box-roll .single-title-button {
+  min-height: 36px;
+  gap: 12px;
+  color: #fff;
+  font-size: clamp(20px, 5vw, 26px);
+  letter-spacing: .12em;
+}
+
+.main-menu.lucky-box-roll .single-title-button .main-menu-icon {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+  transform: scale(1.2);
+}
+
+.main-menu.lucky-box-roll .main-menu-list {
+  padding: 7px;
+  background: transparent;
+}
+
+.main-menu.lucky-box-roll .lucky-box-draw-frame {
+  padding: 9px 8px;
+  background: rgba(57, 31, 19, .82);
+}
+
+.main-menu.lucky-box-roll .lucky-box-window {
+  gap: 5px;
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item {
+  min-height: 48px;
+  border: 0;
+  border-radius: 0;
+  background: rgba(38, 22, 15, .52);
+  color: #f4e4c0;
+}
+
+.main-menu.lucky-box-roll .main-menu-item.submenu-item.active {
+  min-height: 58px;
+  background: rgba(154, 112, 67, .9);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 232, 174, .72);
+}
+
+.main-menu.lucky-box-roll .lucky-box-continue-frame {
+  margin-top: 7px;
+  padding: 5px;
+  background: rgba(57, 31, 19, .95);
+}
+
+.main-menu.lucky-box-roll .lucky-box-next {
+  height: 42px;
+  border: 0;
+  background: url("资源/图片/5back.png") center / 100% 100% no-repeat;
+  color: #fff;
+  font-size: clamp(16px, 4.5vw, 21px);
+  text-shadow: 1px 1px 0 #3b2116;
+}
+
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop,
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > img {
+  height: 100%;
+}
+
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > img { display: block; }
+.main-menu.lucky-box-roll .lucky-box-next .reward-dialog-backdrop > span { padding: 0; }
+
+.lucky-box-confirm-copy {
+  padding: 2px 0 5px;
+  color: #f4e4c0;
+  font-size: 13px;
+}
+
+.lucky-box-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.main-menu.lucky-box-roll .lucky-box-choice {
+  min-height: 38px;
+  grid-template-columns: 18px minmax(0, 1fr) 18px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 0;
+  background: rgba(38, 22, 15, .68);
+  color: #f4e4c0;
+  font-size: 15px;
+}
+
+.main-menu.lucky-box-roll .lucky-box-choice.active {
+  background: rgba(154, 112, 67, .9);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 232, 174, .72);
+}
+
+/* Standalone lucky-box dialog. It intentionally does not inherit main-menu layout. */
+.lucky-box-overlay {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--game-view-width);
+  height: var(--game-view-height);
+  transform: translateX(-50%);
+  z-index: 80;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgba(7, 12, 12, .68);
+}
+
+.lucky-box-overlay.is-visible { display: flex; }
+
+.lucky-box-dialog {
+  display: grid;
+  gap: 8px;
+  width: min(calc(100% - 20px), calc(var(--game-view-width) - 20px));
+  max-height: calc(var(--game-view-height) - 30px);
+  color: #fff;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, .58));
+}
+
+.lucky-box-frame {
+  position: relative;
+  border: 0;
+  outline: 0;
+  box-shadow: inset 0 0 0 2px rgba(241, 198, 125, .16), 0 3px 0 rgba(0, 0, 0, .38);
+}
+
+.lucky-box-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 38px;
+  padding: 0 12px;
+  background: rgba(7, 12, 12, .94);
+}
+
+.lucky-box-title strong {
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: .06em;
+  text-shadow: 2px 2px 0 #2b170e;
+}
+
+.lucky-box-title-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  background: url("资源/图片/菜单图标2.png") -54px 0 / auto 18px no-repeat;
+  image-rendering: pixelated;
+}
+
+.lucky-box-rewards {
+  min-height: 112px;
+  padding: 7px;
+  overflow: hidden;
+  background: rgba(7, 12, 12, .94);
+}
+
+.lucky-box-reward-rows {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.lucky-box-reward-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  min-height: 27px;
+  padding: 3px 6px;
+  background: rgba(7, 12, 12, .72);
+  color: #f4e4c0;
+  font-size: 13px;
+  text-align: center;
+}
+
+.lucky-box-reward-row > span {
+  display: inline-block;
+  min-width: 0;
+  max-width: none;
+  justify-self: center;
+  overflow: visible;
+  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.lucky-box-reward-row .lucky-item-label,
+.lucky-box-reward-row .lucky-item-label span {
+  display: inline;
+}
+.lucky-box-reward-row > small { display: none; }
+.lucky-box-reward-row .main-menu-icon { width: 18px; height: 18px; transform: none; }
+
+.lucky-box-reward-row.is-target {
+  min-height: 30px;
+  background: rgba(211, 177, 117, .88);
+  color: #fff;
+  outline: 1px solid rgba(255, 232, 174, .8);
+  box-shadow: inset 0 0 0 2px rgba(70, 37, 18, .45);
+}
+
+.lucky-box-reward-row .menu-marquee { font-size: 13px; }
+
+.lucky-box-actions {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  padding: 0;
+  overflow: hidden;
+  background: url("资源/图片/5back.png") center / 100% 100% no-repeat;
+}
+
+.lucky-box-actions.is-confirming {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  min-height: 34px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.lucky-box-actions.is-confirming > .menu-frame-corner,
+.lucky-box-actions.is-confirming > .menu-frame-edge { display: none; }
+
+.lucky-box-continue,
+.lucky-box-action {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 34px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 2px;
+  background: url("资源/图片/5back.png") center / 100% 100% no-repeat;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  text-shadow: 1px 1px 0 #3b2116;
+}
+
+.lucky-box-continue:disabled { cursor: default; opacity: .58; }
+.lucky-box-action { width: 86px; min-width: 86px; padding: 6px 14px; }
+.lucky-box-continue {
+  overflow: hidden;
+  height: 38px;
+  min-height: 38px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.lucky-box-action { background: rgba(7, 12, 12, .84); }
+.lucky-box-action.is-selected { background: rgba(7, 12, 12, .92); color: #fff; text-shadow: 1px 1px 0 #000; }
+.lucky-box-action-hint,
+.lucky-box-confirm-title { color: #fff1cc; font-size: 13px; text-align: center; }
+.lucky-box-action-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  min-height: 34px;
+  color: #fff;
+  font-size: 13px;
+  text-shadow: 1px 1px 0 #3b2116;
+}
+.lucky-box-confirm-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 
 .main-menu-tabs,
 .main-menu-list {
@@ -1280,6 +1772,41 @@ input {
   -webkit-text-fill-color: #17201b;
 }
 
+.main-menu-item.peerless-item span,
+.main-menu-item.peerless-item.active span {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  font-weight: 700;
+  text-shadow: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.main-menu-item.peerless-item .lucky-item-label span[style*="color"] {
+  -webkit-text-fill-color: currentColor;
+}
+
+.battle-reward-row.rare-fragment .lucky-item-label,
+.battle-reward-row.rare-fragment .lucky-item-label span {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  text-shadow: none;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.battle-reward-row.peerless-reward span {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  text-shadow: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.battle-reward-row.peerless-reward .lucky-item-label span[style*="color"] {
+  -webkit-text-fill-color: currentColor !important;
+}
+
 .login-notice {
   position: relative;
   z-index: 2;
@@ -1557,11 +2084,11 @@ input {
   pointer-events: none;
 }
 
-#mainMenu.active + .main-menu-footer {
+#mainMenu.active ~ .main-menu-footer {
   display: flex;
 }
 
-#mainMenu.active.lucky-box-roll + .main-menu-footer {
+#mainMenu.active.lucky-box-roll ~ .main-menu-footer {
   display: flex;
 }
 
@@ -1712,12 +2239,11 @@ input {
   flex-direction: column;
   padding: 5px;
   overflow: hidden;
-  border: 1px solid #d8bd72;
   border-radius: 6px;
   background-color: rgba(7, 10, 12, 0.94);
   background-image: linear-gradient(rgba(7, 10, 12, 0.18), rgba(7, 10, 12, 0.18)), url("资源/图片/menu.png");
   background-repeat: repeat;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 8px 18px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.42);
 }
 
 .gateway-menu-title {
@@ -1852,7 +2378,6 @@ input {
   place-items: center;
   padding: 3px 8px;
   overflow: hidden;
-  border: 1px solid #d8bd72;
   border-radius: 5px;
   background: rgba(31, 27, 19, 0.96);
   text-align: center;
@@ -1864,7 +2389,6 @@ input {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid #d8bd72;
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.92);
   background-image: linear-gradient(rgba(7, 10, 12, 0.2), rgba(7, 10, 12, 0.2)), url("资源/图片/menu.png");
@@ -2284,6 +2808,39 @@ input {
   background-image: url("资源/图片/菜单图标2.png");
 }
 
+.lucky-item-icon {
+  display: inline-block;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0 4px -4px 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.lucky-item-skill-icon {
+  display: inline-block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0 4px -4px 0;
+  background: url("assets/item-icons/ico.png") 0 -32px / 144px 80px no-repeat;
+}
+
+.main-menu-item .lucky-item-label,
+.main-menu-item .lucky-item-label span {
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none;
+}
+
+.main-menu-item .lucky-item-label span[style*="color"] {
+  -webkit-text-fill-color: currentColor !important;
+}
+
 #systemLogout {
   background: rgba(185, 61, 61, 0.9);
 }
@@ -2459,22 +3016,12 @@ input {
   position: absolute;
   left: 50%;
   top: calc((min(430px, 100vw) * 20 / 15) / 2 + env(safe-area-inset-top));
-  width: min(72vw, 320px);
+  width: auto;
+  max-width: none;
   opacity: 0.76;
   transform: translate(-50%, -50%);
   image-rendering: pixelated;
-}
-
-.magic-circle.shake-bg {
-  animation-name: battle-magic-shake;
-}
-
-@keyframes battle-magic-shake {
-  0% { transform: translate(-50%, -50%); }
-  25% { transform: translate(calc(-50% + 3px), calc(-50% - 2px)); }
-  50% { transform: translate(calc(-50% - 3px), calc(-50% + 2px)); }
-  75% { transform: translate(calc(-50% + 2px), calc(-50% + 2px)); }
-  100% { transform: translate(-50%, -50%); }
+  z-index: 0;
 }
 
 #battleCanvas {
