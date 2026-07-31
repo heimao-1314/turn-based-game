@@ -561,7 +561,7 @@ function createRuntime(deps) {
         stats: { hp: 1500000, defense: 85000, speed: 1810, attack: 72000, mana: 18000, crit: 12, critDamage: 320, skillId: "wild_afei_heal" },
         minion: {
           spriteId: 235,
-          names: ["家丁", "护院", "打手", "保镖", "门客", "随从", "武师", "亲卫", "账房"],
+          names: ["丽丽", "琉璃", "萝莉", "莉莉", "兰兰", "玲玲", "琪琪", "七七", "微微"],
           stats: { hp: 360000, defense: 42000, speed: 1500, attack: 38000, mana: 7000, crit: 8, critDamage: 260, skillId: "shining_strike", forceBasicAttack: true }
         }
       };

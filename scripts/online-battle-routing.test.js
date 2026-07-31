@@ -480,6 +480,8 @@ test("Afei boss victory does not issue an ordinary wild reward ticket", () => {
     battleId: "afei-without-wild-ticket",
     wildMonsterId: "afei"
   }), { ok: true, battleId: "afei-without-wild-ticket" });
+  const start = sent.find((item) => item.payload.type === "teamBattleStart");
+  assert.deepEqual(start.payload.enemies.map((enemy) => enemy.name), ["阿飞", "丽丽", "琉璃", "萝莉", "莉莉", "兰兰", "玲玲", "琪琪", "七七", "微微"]);
   runtime.handleRoomMessage({
     type: "teamBattleChoice",
     battleId: "afei-without-wild-ticket",
