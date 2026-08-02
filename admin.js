@@ -1110,7 +1110,23 @@ const GrowthConfig = (() => {
     };
   }
 
+  let paneTabsBound = false;
+  function bindPaneTabs() {
+    if (paneTabsBound) return;
+    paneTabsBound = true;
+    $$(".growth-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $$(".growth-tab").forEach((t) => t.classList.remove("active"));
+        $$(".growth-pane").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        const pane = $(`#growthPane${btn.dataset.growthPane.charAt(0).toUpperCase()}${btn.dataset.growthPane.slice(1)}`);
+        if (pane) pane.classList.add("active");
+      });
+    });
+  }
+
   async function load() {
+    bindPaneTabs();
     try {
       const result = await Core.api("/api/admin/growth-config", { method: "GET" });
       config = result.config || null;

@@ -97,3 +97,11 @@ body { width:100vw; height:100vh; overflow:hidden; background:radial-gradient(ci
   .menu-sub { display:grid; gap:3px; padding-left:0; }
   .menu-sub .tab { width:auto; white-space:nowrap; padding:9px 12px; }
 }
+
+/* ===== 成长配置三级菜单（人物/宠物/佣兵/经验） ===== */
+.growth-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.growth-tab { min-height:32px; padding:6px 18px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.6); color:#536277; font-size:12px; font-weight:750; cursor:pointer; transition:.15s ease; }
+.growth-tab:hover { border-color:#b8d4f6; background:#f4f9ff; color:var(--blue); }
+.growth-tab.active { border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 5px 13px rgba(20,121,232,.22); }
+.growth-pane { display:none; }
+.growth-pane.active { display:grid; gap:13px; }
