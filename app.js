@@ -1103,6 +1103,14 @@ async function loadGameVisualSettings() {
     state.actorScales = { ...defaults, ...loadModelScalePreferences(defaults) };
   }
 }
+async function loadGrowthConfig() {
+  try {
+    const result = await apiGet("/api/growth-config");
+    if (result?.ok && result.config) growthConfig = result.config;
+  } catch (error) {
+    console.warn("growth config fallback", error);
+  }
+}
 
 async function loadLoginVisualSettings() {
   const defaults = defaultLoginVisualSettings();
@@ -1821,12 +1829,14 @@ function applyActiveFashionSprite() {
   state.player.spriteId = activePlayerSpriteId();
 }
 
+let growthConfig = null;
 const LEVEL_UP_EXP = [0,
   60, 100, 160, 280, 450, 670, 940, 1260, 1630, 2050, 2520, 3040, 3610, 4230, 4900, 5620, 6390, 7210, 8080, 9000, 9970, 11000, 12090, 13240, 14450, 15720, 17050, 56623, 67890, 79876, 92654, 106231, 120608, 135785, 10234, 11321, 12487, 13734, 15062, 16473, 17968, 19547, 21211, 22960, 24795, 26716, 28724, 296618, 387654, 520000, 567890, 617654, 669321, 722890, 778361, 835734, 895009, 956186, 962190, 1034567, 1109876, 1188123, 1269312, 1353445, 1440522, 1530543, 1623508, 1719417, 172345, 187654, 203987, 221345, 239723, 259121, 279539, 300977, 323435, 346913, 2748920, 2876543, 3007891, 3143207, 3310693, 3481234, 3654829, 3831478, 4011181, 4193938, 4379749, 4568614, 4760533, 4955506, 5153533, 5354614, 5558749, 5765938, 5976181, 6189478, 6405829
 ];
 
 function expToNextLevel(level) {
-  return LEVEL_UP_EXP[Math.max(1, Math.min(99, Math.floor(Number(level) || 1)))] || 0;
+  const table = growthConfig?.expTable || LEVEL_UP_EXP;
+  return table[Math.max(1, Math.min(99, Math.floor(Number(level) || 1)))] || 0;
 }
 
 // Career thresholds are intentionally isolated so the pending career curve can be replaced independently.
@@ -1863,10 +1873,11 @@ function soulPowderCost(level) {
 }
 
 function classBaseStats(className, level = state.playerProgress?.level || 100, dragonSoul = state.playerProgress?.dragonSoul || 1) {
-  const growth = classGrowth[className] || classGrowth[careerTree.INITIAL_CLASS];
+  const growthConfigData = growthConfig?.character?.growth || classGrowth[className] || classGrowth[careerTree.INITIAL_CLASS];
+  const dragonSoulConfig = growthConfig?.character?.dragonSoul || dragonSoulGrowth;
   const stats = {};
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    stats[stat] = growthValue(growth[stat], level) + (dragonSoulGrowth[stat] || 0) * (Math.max(1, dragonSoul) - 1);
+    stats[stat] = growthValue(growthConfigData[stat], level) + (dragonSoulConfig[stat] || 0) * (Math.max(1, dragonSoul) - 1);
   });
   return stats;
 }
@@ -1921,16 +1932,17 @@ function statsForRole(selection = state.selected) {
 
 function statsForPet(petId) {
   const progress = state.petProgressById[String(normalizePetId(petId))] || normalizePetProgress();
+  const petGrowthConfig = growthConfig?.pet?.growth || petGrowth;
   const stats = {};
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    stats[stat] = growthValue(petGrowth[stat], progress.level);
+    stats[stat] = growthValue(petGrowthConfig[stat], progress.level);
   });
   const normalizedPetId = normalizePetId(petId);
   const stickerPercent = stickerModuleApi().petStickerStats?.(state.petStickers?.[String(normalizedPetId)] || []) || {};
   Object.entries(stickerPercent).forEach(([stat, percent]) => {
     stats[stat] = Math.round((stats[stat] || 0) * (1 + (Number(percent) || 0) / 100));
   });
-  const skillId = petSkillIds[normalizedPetId] || petGrowth.skillId;
+  const skillId = petSkillIds[normalizedPetId] || petGrowthConfig.skillId || petGrowth.skillId;
   const extra = state.petExtraSkills?.[String(normalizedPetId)] || state.petExtraSkills?.[normalizedPetId] || [];
   const innate = petInnateSkillIds[normalizedPetId] || petInnateSkillIds[String(normalizedPetId)] || [];
   if (activeMercenaryHasHolySkill("holy_zeus_field")) applyZeusFieldPanelStats(stats);
@@ -1967,9 +1979,13 @@ function mercenaryNecklaceFor(mercenary) {
 function statsForMercenary(mercenary) {
   const config = mercenaryTypes[mercenary?.type] || mercenaryTypes.sword;
   const level = Math.max(1, Math.min(100, Number(mercenary?.level) || 100));
-  const factor = 0.1 + ((level - 1) / 99) * 0.9;
+  const mercConfig = growthConfig?.mercenary || {};
+  const mercBase = mercConfig.base || mercenaryBaseStats;
+  const mercMin = mercConfig.minFactor ?? 0.1;
+  const mercMax = mercConfig.maxFactor ?? 1;
+  const factor = mercMin + ((level - 1) / 99) * (mercMax - mercMin);
   const stats = {};
-  Object.entries(mercenaryBaseStats).forEach(([stat, value]) => {
+  Object.entries(mercBase).forEach(([stat, value]) => {
     stats[stat] = Math.round(value * factor);
   });
   const necklace = mercenaryNecklaceFor(mercenary);
@@ -7206,8 +7222,9 @@ function openDragonSoulDetailMenu() {
   state.menuItem = 0;
   const level = state.playerProgress.dragonSoul;
   const soul = {};
+  const dragonSoulConfig = growthConfig?.character?.dragonSoul || dragonSoulGrowth;
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    soul[stat] = Math.round((dragonSoulGrowth[stat] || 0) * (level - 1));
+    soul[stat] = Math.round((dragonSoulConfig[stat] || 0) * (level - 1));
   });
   setMenuAsSingleList(`龙魂属性 ${level}/100`, [
     { label: `生命 +${soul.hp}`, icon: STAT_ICONS.hp, disabled: true },
@@ -14566,6 +14583,7 @@ async function boot() {
   setupBackgroundKeepAlive();
   await loadGameVisualSettings();
   await loadLoginVisualSettings();
+  await loadGrowthConfig();
   setupAuth();
   setupGatewaySelection();
   setupCreator();

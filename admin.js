@@ -1018,6 +1018,158 @@ const System = (() => {
 
 
 /* ============================================
+   模块: GrowthConfig - 成长与经验配置
+   ============================================ */
+const GrowthConfig = (() => {
+  let config = null;
+
+  const STAT_LABELS = {
+    attack: "攻击", hp: "生命", speed: "速度", mana: "法力", defense: "防御",
+    energy: "能量", hit: "命中", dodge: "闪避", crit: "致命", critDamage: "爆伤"
+  };
+  const BASE_LABELS = {
+    hp: "生命", defense: "防御", speed: "速度", attack: "攻击", mana: "法力", crit: "致命", critDamage: "爆伤"
+  };
+
+  function statPairHtml(prefix, stat, label, pair) {
+    const base = Number(pair?.[0]) || 0;
+    const per = Number(pair?.[1]) || 0;
+    return `
+      <div class="stat-pair">
+        <div class="stat-name"><span>${Core.escapeHtml(label)}</span><small>基础 / 每级</small></div>
+        <div class="pair-inputs">
+          <label>基础值<input id="${prefix}-${stat}-base" type="number" min="0" step="any" value="${base}" /></label>
+          <label>每级成长<input id="${prefix}-${stat}-per" type="number" min="0" step="any" value="${per}" /></label>
+        </div>
+      </div>
+    `;
+  }
+
+  function statSingleHtml(prefix, stat, label, value) {
+    return `
+      <div class="stat-pair">
+        <div class="stat-name"><span>${Core.escapeHtml(label)}</span><small>加成</small></div>
+        <div class="pair-inputs">
+          <label>数值<input id="${prefix}-${stat}" type="number" min="0" step="any" value="${Number(value) || 0}" /></label>
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    if (!config) return;
+    const statKeys = Object.keys(STAT_LABELS);
+    const baseKeys = Object.keys(BASE_LABELS);
+    $("#growthCharacterGrid").innerHTML = statKeys.map((s) => statPairHtml("growth-character", s, STAT_LABELS[s], config.character?.growth?.[s])).join("");
+    $("#growthDragonSoulGrid").innerHTML = baseKeys.map((s) => statSingleHtml("growth-dragon", s, BASE_LABELS[s], config.character?.dragonSoul?.[s])).join("");
+    $("#growthPetGrid").innerHTML = statKeys.map((s) => statPairHtml("growth-pet", s, STAT_LABELS[s], config.pet?.growth?.[s])).join("");
+    $("#growthMercenaryGrid").innerHTML = baseKeys.map((s) => statSingleHtml("growth-merc", s, BASE_LABELS[s], config.mercenary?.base?.[s])).join("");
+    $("#mercMinFactorInput").value = config.mercenary?.minFactor ?? 0.1;
+    $("#mercMaxFactorInput").value = config.mercenary?.maxFactor ?? 1;
+    $("#growthExpTableInput").value = Array.isArray(config.expTable) ? config.expTable.slice(1).join("\n") : "";
+  }
+
+  function readNumber(id) {
+    const selector = id.startsWith("#") ? id : `#${id}`;
+    const value = Number($(selector)?.value);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function readPair(id) {
+    return [readNumber(`${id}-base`), readNumber(`${id}-per`)];
+  }
+
+  function readConfig() {
+    const statKeys = Object.keys(STAT_LABELS);
+    const baseKeys = Object.keys(BASE_LABELS);
+    const characterGrowth = {};
+    statKeys.forEach((s) => { characterGrowth[s] = readPair(`growth-character-${s}`); });
+    const petGrowth = {};
+    statKeys.forEach((s) => { petGrowth[s] = readPair(`growth-pet-${s}`); });
+    const dragonSoul = {};
+    baseKeys.forEach((s) => { dragonSoul[s] = readNumber(`growth-dragon-${s}`); });
+    const mercBase = {};
+    baseKeys.forEach((s) => { mercBase[s] = readNumber(`growth-merc-${s}`); });
+    const expLines = String($("#growthExpTableInput")?.value || "").split(/[\n,]+/).map((v) => v.trim()).filter((v) => v !== "");
+    if (expLines.length !== 99) throw new Error(`升级经验表需要恰好 99 个数值（当前 ${expLines.length} 个）`);
+    const expTable = [0];
+    expLines.forEach((line) => {
+      const num = Number(line);
+      if (!Number.isFinite(num) || num < 1) throw new Error(`升级经验值必须为 ≥ 1 的数字：${line}`);
+      expTable.push(Math.floor(num));
+    });
+    return {
+      expTable,
+      character: { growth: characterGrowth, dragonSoul },
+      pet: { growth: petGrowth },
+      mercenary: {
+        base: mercBase,
+        minFactor: readNumber("#mercMinFactorInput"),
+        maxFactor: readNumber("#mercMaxFactorInput")
+      }
+    };
+  }
+
+  async function load() {
+    try {
+      const result = await Core.api("/api/admin/growth-config", { method: "GET" });
+      config = result.config || null;
+      render();
+      Core.message("成长配置已载入");
+    } catch (err) {
+      Core.message(`成长配置读取失败：${err.message}`, true);
+    }
+  }
+
+  async function save() {
+    let payload;
+    try {
+      payload = readConfig();
+    } catch (err) {
+      return Core.message(err.message, true);
+    }
+    if (payload.mercenary.minFactor > payload.mercenary.maxFactor) {
+      return Core.message("佣兵 1 级系数不能大于 100 级系数", true);
+    }
+    const button = $("#saveGrowthBtn");
+    const previousText = button?.textContent || "保存全部配置";
+    if (button) { button.disabled = true; button.textContent = "保存中…"; }
+    try {
+      const result = await Core.api("/api/admin/growth-config", {
+        method: "POST",
+        body: JSON.stringify(Core.authBody(payload))
+      });
+      config = result.config || payload;
+      render();
+      Core.message("成长配置已保存并全服生效");
+    } catch (err) {
+      Core.message(`保存失败：${err.message}`, true);
+    } finally {
+      if (button) { button.disabled = false; button.textContent = previousText; }
+    }
+  }
+
+  async function reset() {
+    if (!confirm("确定恢复成长与经验配置为代码默认值吗？当前配置将被清空。")) return;
+    if (!confirm("再次确认：恢复默认会覆盖当前保存的成长/经验数值。")) return;
+    try {
+      const result = await Core.api("/api/admin/growth-config/reset", {
+        method: "POST",
+        body: JSON.stringify(Core.authBody())
+      });
+      config = result.config || null;
+      render();
+      Core.message("已恢复默认成长与经验配置");
+    } catch (err) {
+      Core.message(`恢复默认失败：${err.message}`, true);
+    }
+  }
+
+  return { load, save, reset };
+})();
+
+
+/* ============================================
    模块: Auth - 登录/登出
    ============================================ */
 const Auth = (() => {
@@ -1104,6 +1256,7 @@ const Init = (() => {
     Changelog.load();
     System.loadVisual();
     System.loadLoginVisual();
+    GrowthConfig.load();
     Servers.load({ silent: true });
     Servers.startAutoRefresh();
     Players.load();
@@ -1164,6 +1317,12 @@ const Init = (() => {
     $("#resetVisualBtn")?.addEventListener("click", System.resetVisual);
     $("#saveLoginVisualBtn")?.addEventListener("click", System.saveLoginVisual);
     $("#resetLoginVisualBtn")?.addEventListener("click", System.resetLoginVisual);
+    /* 成长配置 */
+    $("#loadGrowthBtn")?.addEventListener("click", GrowthConfig.load);
+    $("#saveGrowthBtn")?.addEventListener("click", GrowthConfig.save);
+    $("#resetGrowthBtn")?.addEventListener("click", GrowthConfig.reset);
+
+
   }
 
   return { loadAll, bindEvents };

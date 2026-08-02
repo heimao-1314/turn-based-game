@@ -433,6 +433,66 @@ POST /api/admin/changelog
 
 ---
 
+### 成长与经验配置
+
+服务端权威的成长数值配置，覆盖人物/宠物/佣兵的等级成长属性、基础属性与升级经验曲线。保存后全服即时生效；仅管理员可写，玩家客户端只读用于展示同步。
+
+#### 获取成长配置（公开，客户端展示同步）
+
+`
+GET /api/growth-config
+`
+
+返回 `config`，结构：
+
+| 字段 | 说明 |
+|------|------|
+| `config.expTable` | 升级经验表，长度 100；索引 0 占位为 0，索引 N 为 Lv.N → N+1 所需经验（N=1..99） |
+| `config.character.growth` | 人物成长 `{ stat: [1级基础值, 每级成长] }`（所有职业共用） |
+| `config.character.dragonSoul` | 龙魂每级加成 `{ hp, defense, speed, attack, mana, crit, critDamage }` |
+| `config.pet.growth` | 宠物成长 `{ stat: [1级基础值, 每级成长] }` |
+| `config.mercenary.base` | 佣兵基础属性 `{ hp, defense, speed, attack, mana, crit, critDamage }` |
+| `config.mercenary.minFactor` / `maxFactor` | 佣兵 1 级 / 100 级属性系数；某等级属性 = 基础属性 × 线性插值系数 |
+
+#### 获取成长配置（管理员）
+
+`
+GET /api/admin/growth-config
+`
+
+返回 `config` 与 `updatedAt`。
+
+#### 保存成长配置（管理员）
+
+`
+POST /api/admin/growth-config
+Content-Type: application/json
+`
+
+**请求体:**
+`json
+{
+  "adminAccount": "admin",
+  "adminPassword": "admin123",
+  "expTable": [0, 60, 100, "..."],
+  "character": { "growth": { "attack": [100, 100] }, "dragonSoul": { "hp": 2000 } },
+  "pet": { "growth": { "attack": [100, 100] } },
+  "mercenary": { "base": { "hp": 500000 }, "minFactor": 0.1, "maxFactor": 1 }
+}
+`
+
+规则：`expTable` 必须为 100 项且每级阈值 ≥ 1（否则升级循环会异常）；所有数值在服务端校验并兜底。校验失败返回 `400`，`error` 为 `invalid_growth_config`，`errors` 为具体原因数组。
+
+#### 恢复默认成长配置（管理员）
+
+`
+POST /api/admin/growth-config/reset
+`
+
+清空覆盖配置，回到代码内置默认值。
+
+---
+
 ## WebSocket 事件
 
 服务器通过 WebSocket 升级处理实现实时通信。客户端连接后可发送和接收以下事件:

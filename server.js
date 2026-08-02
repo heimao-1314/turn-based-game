@@ -51,6 +51,7 @@ const stickerModule = require("./生活技能/贴纸生产.js");
 const elfKingVault = require("./副本模块/精灵王宝库.js");
 const luckyBoxModule = require("./好运宝箱/shared.js");
 const { createOnlineStatsRuntime } = require("./src/server/admin/online-stats-runtime.js");
+const { createGrowthConfigRuntime } = require("./src/server/admin/growth-config-runtime.js");
 
 // === 带宽优化模块（实验功能，设 ENABLE_BW_OPT=1 才启用）===
 let bandwidthOptimizer = null;
@@ -1362,8 +1363,23 @@ const LEVEL_UP_EXP = [0,
   60, 100, 160, 280, 450, 670, 940, 1260, 1630, 2050, 2520, 3040, 3610, 4230, 4900, 5620, 6390, 7210, 8080, 9000, 9970, 11000, 12090, 13240, 14450, 15720, 17050, 56623, 67890, 79876, 92654, 106231, 120608, 135785, 10234, 11321, 12487, 13734, 15062, 16473, 17968, 19547, 21211, 22960, 24795, 26716, 28724, 296618, 387654, 520000, 567890, 617654, 669321, 722890, 778361, 835734, 895009, 956186, 962190, 1034567, 1109876, 1188123, 1269312, 1353445, 1440522, 1530543, 1623508, 1719417, 172345, 187654, 203987, 221345, 239723, 259121, 279539, 300977, 323435, 346913, 2748920, 2876543, 3007891, 3143207, 3310693, 3481234, 3654829, 3831478, 4011181, 4193938, 4379749, 4568614, 4760533, 4955506, 5153533, 5354614, 5558749, 5765938, 5976181, 6189478, 6405829
 ];
 
+// 成长/经验配置运行时：人物/宠物/佣兵成长属性、基础属性与升级经验曲线（服务端权威）。
+// 默认值 = 代码内置数值；管理员可经 /api/admin/growth-config 覆盖并持久化到 app_settings。
+const growthConfigRuntime = createGrowthConfigRuntime({
+  db,
+  defaults: {
+    expTable: LEVEL_UP_EXP,
+    character: {
+      growth: classGrowth[careerTree.INITIAL_CLASS],
+      dragonSoul: dragonSoulGrowth
+    },
+    pet: { growth: petGrowth },
+    mercenary: { base: mercenaryBaseStats, minFactor: 0.1, maxFactor: 1 }
+  }
+});
+
 function expToNextLevel(level) {
-  return LEVEL_UP_EXP[Math.max(1, Math.min(99, Math.floor(Number(level) || 1)))] || 0;
+  return growthConfigRuntime.expToNextLevel(level);
 }
 
 // Kept separate so the pending career experience curve can be replaced without touching other progression.
@@ -1846,10 +1862,11 @@ function sanitizeStoredEquipment(account, row) {
 }
 
 function classBaseStats(className, level = 1, dragonSoul = 1) {
-  const growth = classGrowth[className] || classGrowth[careerTree.INITIAL_CLASS];
+  const growth = growthConfigRuntime.characterGrowth();
+  const dragonSoulGrowthConfig = growthConfigRuntime.dragonSoulGrowth();
   const stats = {};
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    stats[stat] = growthValue(growth[stat], level) + (dragonSoulGrowth[stat] || 0) * (Math.max(1, dragonSoul) - 1);
+    stats[stat] = growthValue(growth[stat], level) + (dragonSoulGrowthConfig[stat] || 0) * (Math.max(1, dragonSoul) - 1);
   });
   return stats;
 }
@@ -1896,9 +1913,10 @@ function statsForPlayerRow(row, options = {}) {
 
 function statsForPetRow(row, petId) {
   const petProgress = petProgressForRow(row, petId);
+  const petGrowthConfig = growthConfigRuntime.petGrowth();
   const stats = {};
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    stats[stat] = growthValue(petGrowth[stat], petProgress.level);
+    stats[stat] = growthValue(petGrowthConfig[stat], petProgress.level);
   });
   const normalizedPetId = normalizePetId(petId);
   const skillId = petSkillIds[normalizedPetId] || petGrowth.skillId;
@@ -1946,9 +1964,9 @@ function mercenaryNecklaceForRow(row, mercenary) {
 function statsForMercenaryRow(row, mercenary) {
   const config = mercenaryTypes[mercenary?.type] || mercenaryTypes.sword;
   const level = Math.max(1, Math.min(100, Number(mercenary?.level) || 100));
-  const factor = 0.1 + ((level - 1) / 99) * 0.9;
+  const factor = growthConfigRuntime.mercenaryFactor(level);
   const stats = {};
-  Object.entries(mercenaryBaseStats).forEach(([stat, value]) => {
+  Object.entries(growthConfigRuntime.mercenaryBaseStats()).forEach(([stat, value]) => {
     stats[stat] = Math.round(value * factor);
   });
   const necklace = mercenaryNecklaceForRow(row, mercenary);
@@ -3057,6 +3075,10 @@ async function handleApi(req, res, url) {
     sendJson(res, 200, { ok: true, visual: loginVisualSetting() });
     return;
   }
+  if (req.method === "GET" && url.pathname === "/api/growth-config") {
+    sendJson(res, 200, { ok: true, config: growthConfigRuntime.getConfig() });
+    return;
+  }
   if (req.method === "GET" && url.pathname === "/api/servers") {
     const rows = db.prepare(`
       SELECT * FROM game_servers
@@ -3179,6 +3201,11 @@ async function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/admin/login-visual") {
     if (!checkAdmin(req, res)) return;
     sendJson(res, 200, { ok: true, visual: loginVisualSetting() });
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/admin/growth-config") {
+    if (!checkAdmin(req, res)) return;
+    sendJson(res, 200, { ok: true, config: growthConfigRuntime.getConfig(), updatedAt: growthConfigRuntime.updatedAt() });
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/admin/stat-rankings") {
@@ -4038,6 +4065,22 @@ async function handleApi(req, res, url) {
         positions: Array.from({ length: 5 }, (_, index) => clampNumber(data.positions?.[index], current.positions[index], 0, 100))
       });
       sendJson(res, 200, { ok: true, visual: loginVisualSetting(), saved: visual });
+      return;
+    }
+    if (url.pathname === "/api/admin/growth-config") {
+      if (!checkAdmin(req, res, data)) return;
+      const growthResult = growthConfigRuntime.updateConfig(data);
+      if (!growthResult.ok) {
+        sendJson(res, 400, { ok: false, error: "invalid_growth_config", errors: growthResult.errors });
+        return;
+      }
+      sendJson(res, 200, { ok: true, config: growthResult.config, updatedAt: growthResult.updatedAt });
+      return;
+    }
+    if (url.pathname === "/api/admin/growth-config/reset") {
+      if (!checkAdmin(req, res, data)) return;
+      const growthReset = growthConfigRuntime.resetConfig();
+      sendJson(res, 200, { ok: true, config: growthReset.config, updatedAt: growthReset.updatedAt });
       return;
     }
     const account = requireAuthAccount(req, res, url, data);
