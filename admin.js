@@ -1232,15 +1232,38 @@ const Auth = (() => {
    模块: Tabs - 标签切换
    ============================================ */
 const Tabs = (() => {
+  function groupOf(btn) {
+    return btn.closest(".menu-group");
+  }
+  function expandGroup(btn) {
+    const group = groupOf(btn);
+    if (!group) return;
+    group.classList.add("expanded");
+    const toggle = group.querySelector(".menu-group-toggle");
+    if (toggle) toggle.classList.add("expanded");
+  }
   function init() {
     $$(".tab").forEach((btn) => {
       btn.addEventListener("click", () => {
         $$(".tab").forEach((t) => t.classList.remove("active"));
         $$(".tab-page").forEach((p) => p.classList.remove("active"));
         btn.classList.add("active");
+        expandGroup(btn);
         $(`#page-${btn.dataset.tab}`)?.classList.add("active");
       });
     });
+    /* 一级分组：点击展开/收起子菜单 */
+    $$(".menu-group-toggle").forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const group = groupOf(toggle);
+        if (!group) return;
+        const expanded = group.classList.toggle("expanded");
+        toggle.classList.toggle("expanded", expanded);
+      });
+    });
+    /* 初始展开当前激活页所在分组 */
+    const active = $(".tab.active");
+    if (active) expandGroup(active);
   }
   return { init };
 })();

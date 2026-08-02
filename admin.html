@@ -32,18 +32,24 @@
         <aside class="sidebar">
           <div>
             <div class="sidebar-brand"><span class="brand-mark small">DW</span><div><strong>DW Studio</strong><small>运营管理</small></div></div>
-            <p class="sidebar-label">运营工作台</p>
-            <nav class="tabs" id="tabNav">
-              <button class="tab active" data-tab="players"><span class="nav-glyph">P</span>玩家档案</button>
-              <button class="tab" data-tab="servers"><span class="nav-glyph">S</span>服务器</button>
-              <button class="tab" data-tab="rankings"><span class="nav-glyph">R</span>排行榜</button>
-              <button class="tab" data-tab="anomalies"><span class="nav-glyph">!</span>异常检测</button>
-            </nav>
-            <p class="sidebar-label">内容与系统</p>
-            <nav class="tabs tabs-secondary">
-              <button class="tab" data-tab="changelog"><span class="nav-glyph">L</span>更新日志</button>
-              <button class="tab" data-tab="system"><span class="nav-glyph">C</span>全局配置</button>
-              <button class="tab" data-tab="growth"><span class="nav-glyph">G</span>成长配置</button>
+            <nav class="menu-groups">
+              <div class="menu-group expanded">
+                <button class="menu-group-toggle expanded" type="button"><span class="nav-glyph">O</span>运营管理<span class="chevron">▾</span></button>
+                <div class="menu-sub">
+                  <button class="tab active" data-tab="players">玩家档案</button>
+                  <button class="tab" data-tab="servers">服务器</button>
+                  <button class="tab" data-tab="rankings">排行榜</button>
+                  <button class="tab" data-tab="anomalies">异常检测</button>
+                </div>
+              </div>
+              <div class="menu-group">
+                <button class="menu-group-toggle" type="button"><span class="nav-glyph">C</span>内容与配置<span class="chevron">▾</span></button>
+                <div class="menu-sub">
+                  <button class="tab" data-tab="changelog">更新日志</button>
+                  <button class="tab" data-tab="system">全局配置</button>
+                  <button class="tab" data-tab="growth">成长配置</button>
+                </div>
+              </div>
             </nav>
           </div>
           <div class="sidebar-user-card"><span class="user-avatar">A</span><div><strong>管理员</strong><small>已验证会话</small></div></div>
