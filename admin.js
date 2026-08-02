@@ -234,6 +234,7 @@ const Players = (() => {
    ============================================ */
 const Servers = (() => {
   let list = [];
+  let refreshTimer = 0;
 
   function isEnabled(server = {}) {
     if (server.enabled === undefined || server.enabled === null) {
@@ -297,6 +298,8 @@ const Servers = (() => {
       const result = await Core.api("/api/admin/servers", { method: "GET" });
       list = Array.isArray(result.servers) ? result.servers : [];
       render();
+      const updatedAtEl = $("#serverStatsUpdatedAt");
+      if (updatedAtEl) updatedAtEl.textContent = `最近更新：${new Date().toLocaleTimeString()}`;
       if (!silent) Core.message(`已读取 ${list.length} 个服务器`);
     } catch (err) {
       if (el) el.innerHTML = `<tr class="empty-row"><td colspan="7">服务器列表读取失败：${Core.escapeHtml(err.message)}</td></tr>`;
@@ -352,7 +355,18 @@ const Servers = (() => {
     }
   }
 
-  return { load, create, render };
+  /* 服务器页可见时每 5 秒静默刷新，保证在线人数实时 */
+  function startAutoRefresh() {
+    if (refreshTimer) return;
+    refreshTimer = window.setInterval(() => {
+      if (document.hidden) return;
+      if ($("#app")?.classList.contains("hidden")) return;
+      if (!$("#page-servers")?.classList.contains("active")) return;
+      load({ silent: true });
+    }, 5000);
+  }
+
+  return { load, create, render, startAutoRefresh };
 })();
 
 
@@ -1085,6 +1099,7 @@ const Init = (() => {
     System.loadVisual();
     System.loadLoginVisual();
     Servers.load({ silent: true });
+    Servers.startAutoRefresh();
     Players.load();
     Rankings.load();
     Anomalies.load();

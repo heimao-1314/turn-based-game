@@ -5,8 +5,8 @@
  * 职责：
  * - 以服务端 socket 注册表（sockets + socketMeta）为唯一数据源计算
  *   每个服务器/线路的在线人数，不信任客户端上报。
- * - 同一账号多开是否去重、是否只统计已认证连接，由本模块内的
- *   统计口径决定（见 countsForServer 内注释）。
+ * - 统计口径：只统计已认证连接（meta.account 非空），同一账号多开
+ *   只计 1 人（按 account 去重）；已销毁连接与无效线路号不计。
  *
  * 依赖注入：
  * - sockets: Set<net.Socket>  当前已建立且未销毁的连接
@@ -32,22 +32,27 @@ function createOnlineStatsRuntime({ sockets, socketMeta }) {
    * @returns {{ onlineCount: number, channels: Array<{id: number, name: string, onlineCount: number}> }}
    */
   function countsForServer(serverId, channelCount) {
+    const normalizedServerId = String(serverId || "").trim();
     const totalChannels = Math.max(1, Math.floor(Number(channelCount) || 1));
-    const channelOnline = Array.from({ length: totalChannels }, () => 0);
+    const accountsByChannel = Array.from({ length: totalChannels }, () => new Set());
     for (const socket of sockets) {
       if (!socket || socket.destroyed) continue;
       const meta = socketMeta.get(socket) || {};
-      if (meta.serverId !== serverId) continue;
-      const index = Math.floor(Number(meta.channelId) || 0) - 1;
-      if (index >= 0 && index < channelOnline.length) channelOnline[index] += 1;
+      if (!meta || meta.serverId !== normalizedServerId) continue;
+      const account = String(meta.account || "").trim();
+      if (!account) continue;
+      const channelIndex = Math.floor(Number(meta.channelId) || 0) - 1;
+      if (channelIndex < 0 || channelIndex >= totalChannels) continue;
+      accountsByChannel[channelIndex].add(account);
     }
+    const channels = accountsByChannel.map((accounts, index) => ({
+      id: index + 1,
+      name: `${index + 1}线`,
+      onlineCount: accounts.size
+    }));
     return {
-      onlineCount: channelOnline.reduce((sum, count) => sum + count, 0),
-      channels: channelOnline.map((onlineCount, index) => ({
-        id: index + 1,
-        name: `${index + 1}线`,
-        onlineCount
-      }))
+      onlineCount: channels.reduce((sum, channel) => sum + channel.onlineCount, 0),
+      channels
     };
   }
 

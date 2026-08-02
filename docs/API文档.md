@@ -288,6 +288,27 @@ GET /api/admin/players
 GET /api/admin/catalog
 `
 
+### 获取服务器列表
+
+`
+GET /api/admin/servers
+`
+
+返回 `servers` 数组，每项字段：
+
+| 字段 | 说明 |
+|------|------|
+| `id` | 服务器 ID（TEXT） |
+| `name` | 服务器名称 |
+| `enabled` | 是否启用 |
+| `channelCount` | 线路数量 |
+| `characterCount` | 该服务器角色总数 |
+| `onlineCount` | 当前在线玩家数 |
+| `channels` | 分线路在线数 `[{ id, name, onlineCount }]`，name 形如 `1线` |
+| `sortOrder` / `createdAt` / `updatedAt` | 排序与时间 |
+
+> `onlineCount` 由服务端按 WebSocket 注册表实时统计：只计已认证连接；同一账号多开只计 1 人；已断开连接不计。公开的服务器列表接口（登录时选择服务器）使用同一口径。
+
 ### 获取属性排行
 
 `
