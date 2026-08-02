@@ -282,6 +282,15 @@ GET /api/asset-manifest
 GET /api/admin/players
 `
 
+支持 `q` 参数模糊搜索账号/角色名/服务器名。返回 `players` 数组，每项为角色档案数据，额外字段：
+
+| 字段 | 说明 |
+|------|------|
+| `online` | 是否真实在线（服务端按 WebSocket 注册表判定，只计已认证连接） |
+| `updatedAt` | 最近活跃时间 |
+
+列表默认排序：**真实在线玩家在前**，其余按 `updatedAt` 倒序。
+
 ### 获取角色目录
 
 `

@@ -3118,18 +3118,25 @@ async function handleApi(req, res, url) {
           LEFT JOIN game_servers ON game_servers.id = players.server_id
           ORDER BY players.updated_at DESC
         `).all();
-    sendJson(res, 200, {
-      ok: true,
-      players: rows.map((row) => ({
-        account: row.account,
-        characterId: row.account,
-        ownerAccount: row.owner_account || row.account,
-        serverId: row.server_id || DEFAULT_SERVER_ID,
-        serverName: row.server_name || "",
-        characterSlot: Number(row.character_slot) || 1,
-        ...playerRowToApi(row)
-      }))
-    });
+    const onlineAccounts = new Set();
+    for (const socket of sockets) {
+      if (!socket || socket.destroyed) continue;
+      const meta = socketMeta.get(socket) || {};
+      const account = String(meta.account || "").trim();
+      if (account) onlineAccounts.add(account);
+    }
+    const players = rows.map((row) => ({
+      account: row.account,
+      characterId: row.account,
+      ownerAccount: row.owner_account || row.account,
+      serverId: row.server_id || DEFAULT_SERVER_ID,
+      serverName: row.server_name || "",
+      characterSlot: Number(row.character_slot) || 1,
+      ...playerRowToApi(row),
+      online: onlineAccounts.has(row.account)
+    }));
+    players.sort((a, b) => Number(b.online) - Number(a.online) || String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+    sendJson(res, 200, { ok: true, players });
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/admin/servers") {

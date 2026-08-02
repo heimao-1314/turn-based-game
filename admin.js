@@ -149,7 +149,7 @@ const Players = (() => {
     const now = Date.now();
     el.innerHTML = list.map((p, index) => `
       <tr class="player-row ${selected && playerKey(selected) === playerKey(p) ? "selected" : ""}" data-player-key="${Core.escapeHtml(playerKey(p))}">
-        <td><span class="status-dot ${isRecentlyOnline(p, now) ? "status-online" : "status-offline"}"></span>${isRecentlyOnline(p, now) ? "在线" : "离线"}</td>
+        <td><span class="status-dot ${isOnline(p, now) ? "status-online" : "status-offline"}"></span>${isOnline(p, now) ? "在线" : "离线"}</td>
         <td><div class="player-cell"><span class="cell-avatar avatar-tone-${index % 6}">${Core.escapeHtml(String(p.name || p.account || "P").charAt(0).toUpperCase())}</span><strong>${Core.escapeHtml(p.name || p.account)}${p.bannedAt ? "（已封）" : ""}</strong></div></td>
         <td>${Core.escapeHtml(ownerAccountText(p))}</td>
         <td><strong class="level-value">Lv. ${Number(p.level) || 1}</strong></td>
@@ -185,6 +185,12 @@ const Players = (() => {
     return Number.isFinite(seenAt) && now - seenAt >= 0 && now - seenAt <= 10 * 60 * 1000;
   }
 
+  /* 服务端权威在线标记优先；旧接口无该字段时退回最近活跃判断 */
+  function isOnline(player, now = Date.now()) {
+    if (typeof player.online === "boolean") return player.online;
+    return isRecentlyOnline(player, now);
+  }
+
   async function select(account) {
     if (!list.some((p) => matchesPlayer(p, account))) {
       try {
@@ -213,7 +219,7 @@ const Players = (() => {
       const metric = $("#metricPlayers");
       if (metric) metric.textContent = String(list.length);
       const onlineMetric = $("#metricOnline");
-      if (onlineMetric) onlineMetric.textContent = String(list.filter((player) => isRecentlyOnline(player)).length);
+      if (onlineMetric) onlineMetric.textContent = String(list.filter((player) => isOnline(player)).length);
       const silverMetric = $("#metricSilver");
       if (silverMetric) silverMetric.textContent = formatCompactNumber(list.reduce((total, player) => total + (Number(player.silver) || 0), 0));
       Core.message(`读取到 ${list.length} 个玩家`);
