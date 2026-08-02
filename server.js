@@ -50,6 +50,7 @@ const careerTree = require("./职业模块/职业树.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
 const elfKingVault = require("./副本模块/精灵王宝库.js");
 const luckyBoxModule = require("./好运宝箱/shared.js");
+const { createOnlineStatsRuntime } = require("./src/server/admin/online-stats-runtime.js");
 
 // === 带宽优化模块（实验功能，设 ENABLE_BW_OPT=1 才启用）===
 let bandwidthOptimizer = null;
@@ -65,6 +66,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const sockets = new Set();
 const socketMeta = new Map();
 const accountSockets = new Map();
+const onlineStatsRuntime = createOnlineStatsRuntime({ sockets, socketMeta });
 const authSessions = new Map();
 const AUTH_SESSION_MS = 12 * 60 * 60 * 1000;
 const AUTH_SESSION_CLEANUP_MS = 60 * 1000;
@@ -854,22 +856,15 @@ function gameServerToApi(row) {
   if (!row) return null;
   const characterCount = db.prepare("SELECT COUNT(*) AS count FROM players WHERE server_id = ?").get(row.id)?.count || 0;
   const channelCount = Math.max(1, Math.floor(Number(row.channel_count) || SERVER_CHANNEL_COUNT));
-  const channelOnline = Array.from({ length: channelCount }, () => 0);
-  for (const socket of sockets) {
-    if (socket.destroyed) continue;
-    const meta = socketMeta.get(socket) || {};
-    if (meta.serverId !== row.id) continue;
-    const index = Math.floor(Number(meta.channelId) || 0) - 1;
-    if (index >= 0 && index < channelOnline.length) channelOnline[index] += 1;
-  }
+  const onlineStats = onlineStatsRuntime.countsForServer(row.id, channelCount);
   return {
     id: row.id,
     name: row.name,
     enabled: row.enabled === 1,
     channelCount,
     characterCount,
-    onlineCount: channelOnline.reduce((sum, count) => sum + count, 0),
-    channels: channelOnline.map((onlineCount, index) => ({ id: index + 1, name: `${index + 1}线`, onlineCount })),
+    onlineCount: onlineStats.onlineCount,
+    channels: onlineStats.channels,
     sortOrder: Number(row.sort_order) || 0,
     createdAt: row.created_at || "",
     updatedAt: row.updated_at || ""
