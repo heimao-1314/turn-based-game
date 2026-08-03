@@ -105,3 +105,18 @@ body { width:100vw; height:100vh; overflow:hidden; background:radial-gradient(ci
 .growth-tab.active { border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 5px 13px rgba(20,121,232,.22); }
 .growth-pane { display:none; }
 .growth-pane.active { display:grid; gap:13px; }
+
+/* ===== 登录界面可视化编辑器 ===== */
+.login-visual-editor { display:grid; grid-template-columns:min(240px,46%) 1fr; gap:16px; align-items:start; margin-top:6px; }
+.login-preview { position:relative; width:min(240px,100%); aspect-ratio:3/4; overflow:hidden; border:1px solid rgba(255,255,255,.85); border-radius:10px; background:#101a2c; box-shadow:0 10px 26px rgba(24,46,80,.16), inset 0 0 0 1px rgba(0,0,0,.28); user-select:none; touch-action:none; }
+.login-preview-media { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; }
+.login-preview-hotspot { position:absolute; z-index:3; border:1px dashed rgba(255,92,92,.95); background:rgba(255,92,92,.16); cursor:grab; border-radius:3px; }
+.login-preview-hotspot .login-preview-hotspot-label { position:absolute; left:3px; top:-17px; padding:1px 5px; border-radius:4px; background:rgba(12,20,36,.8); color:#ff8a8a; font-size:10px; font-weight:800; white-space:nowrap; }
+.login-preview-handle[data-handle="resize-se"] { position:absolute; right:2px; bottom:2px; width:12px; height:12px; border-right:3px solid #ff5c5c; border-bottom:3px solid #ff5c5c; border-bottom-right-radius:4px; background:rgba(255,92,92,.25); cursor:se-resize; }
+.login-preview-arrow { position:absolute; z-index:2; top:50%; width:18px; height:18px; transform:translate(-50%,-50%); color:#ffe28a; font-size:13px; line-height:18px; text-align:center; text-shadow:0 1px 3px #000; cursor:ew-resize; }
+.login-preview-arrow::after { content:""; position:absolute; left:50%; top:16px; height:18px; width:1px; background:rgba(255,226,138,.55); transform:translateX(-50%); }
+.login-preview-pos { position:absolute; z-index:2; left:2px; display:flex; align-items:center; gap:4px; height:18px; transform:translateY(-50%); cursor:ns-resize; }
+.login-preview-pos i { display:block; width:20px; height:3px; border-radius:2px; background:#7fd8ff; box-shadow:0 0 0 1px rgba(0,0,0,.55); }
+.login-preview-pos span { padding:1px 5px; border:1px solid rgba(127,216,255,.55); border-radius:4px; background:rgba(10,20,38,.78); color:#bfe9ff; font-size:10px; white-space:nowrap; }
+.login-preview-pos:hover i { background:#fff; }
+@media (max-width:1280px) { .login-visual-editor { grid-template-columns:1fr; } }

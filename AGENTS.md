@@ -109,6 +109,7 @@
 | 鉴权 / 会话 / 密码 | 优先 `src/server/auth/` 或独立 auth 模块 | 散落复制 |
 | 前后端共享纯函数 | `src/shared/` 或领域 `shared.js` | server/app 双份真理 |
 | 管理能力 | 领域 `admin.js` / admin 路由模块 | 只堆 `admin.js` |
+| 后台登录界面可视化调整 | `后台管理ui/login-visual-editor.js` | `admin.js` 正文堆拖拽逻辑 |
 | 成长/经验数值配置（人物/宠物/佣兵） | `src/server/admin/growth-config-runtime.js` + 后台「成长配置」页 | 入口正文堆数值 |
 | 脚本与测试 | `scripts/` | 业务目录 |
 | 文档 | `docs/`、领域 README | 只写在聊天里 |

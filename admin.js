@@ -896,6 +896,7 @@ const System = (() => {
       const input = $(`#loginPos${index}Input`);
       if (input) input.value = value;
     });
+    window.LoginVisualEditor?.render();
   }
 
   function readLoginNumber(id, fallback, min, max) {
@@ -915,6 +916,20 @@ const System = (() => {
       arrowLeft: readLoginNumber("#loginArrowLeftInput", 67.035, 0, 100),
       positions: Array.from({ length: 5 }, (_, index) => readLoginNumber(`#loginPos${index}Input`, [64.0436, 70.3282, 76.3365, 82.5519, 88.9055][index], 0, 100))
     };
+  }
+  function applyLoginVisualPartial(partial) {
+    const round2 = (value) => Math.round(Number(value) * 100) / 100;
+    if (partial.hotspotLeft != null) $("#loginHotspotLeftInput").value = round2(partial.hotspotLeft);
+    if (partial.hotspotWidth != null) $("#loginHotspotWidthInput").value = round2(partial.hotspotWidth);
+    if (partial.hotspotHeight != null) $("#loginHotspotHeightInput").value = round2(partial.hotspotHeight);
+    if (partial.arrowLeft != null) $("#loginArrowLeftInput").value = round2(partial.arrowLeft);
+    if (Array.isArray(partial.positions)) {
+      partial.positions.forEach((value, index) => {
+        const input = $("#loginPos" + index + "Input");
+        if (input) input.value = round2(value);
+      });
+    }
+    window.LoginVisualEditor?.render();
   }
 
   async function loadVisual() {
@@ -1013,7 +1028,7 @@ const System = (() => {
     }
   }
 
-  return { loadVisual, saveVisual, resetVisual, loadLoginVisual, saveLoginVisual, resetLoginVisual, resetArena, resetAllPhantom };
+  return { loadVisual, saveVisual, resetVisual, loadLoginVisual, saveLoginVisual, resetLoginVisual, readLoginVisualForm, applyLoginVisualPartial, resetArena, resetAllPhantom };
 })();
 
 
@@ -1290,6 +1305,7 @@ const Tabs = (() => {
    ============================================ */
 const Init = (() => {
   function loadAll() {
+    window.LoginVisualEditor?.createEditor({ read: System.readLoginVisualForm, applyPartial: System.applyLoginVisualPartial });
     Operations.setRoleInputs();
     Operations.loadCatalog();
     Changelog.load();
