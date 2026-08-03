@@ -94,9 +94,15 @@
         hotspotEl.style.width = `${width}%`;
         hotspotEl.style.height = `${height}%`;
       }
-      if (arrowEl) arrowEl.style.left = `${clamp(visual.arrowLeft, 0, 100)}%`;
+      const arrowLeftValue = clamp(visual.arrowLeft, 0, 100);
+      if (arrowEl) arrowEl.style.left = `${arrowLeftValue}%`;
+      // 菜单标记方框左侧与箭头视觉左侧对齐（箭头 18px 宽、中心在 arrowLeft%）
+      const previewRect = preview.getBoundingClientRect();
+      const halfArrowPct = previewRect.width ? (9 / previewRect.width) * 100 : 3.75;
+      const markerLeftPct = Math.max(0, arrowLeftValue - halfArrowPct);
       posEls.forEach((el, index) => {
         el.style.top = `${positions[index] ?? DEFAULT_POSITIONS[index]}%`;
+        el.style.left = `${markerLeftPct}%`;
       });
     }
 
@@ -191,6 +197,13 @@
     WATCH_SELECTORS.forEach((selector) => {
       document.querySelector(selector)?.addEventListener("input", render);
     });
+    // 预览从隐藏（未打开的标签页）变为可见时重新渲染，保证箭头对齐计算正确
+    if (typeof IntersectionObserver !== "undefined" && preview) {
+      const visibilityObserver = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) render();
+      });
+      visibilityObserver.observe(preview);
+    }
 
     render();
     active = { render };
