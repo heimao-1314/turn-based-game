@@ -58,9 +58,16 @@
       const src = String(visual.mediaSrc || "").trim();
       if (!src) return;
       const tag = isVideo ? "video" : "img";
-      let el = mediaHost.firstElementChild;
-      if (!el || el.tagName !== tag.toUpperCase() || el.getAttribute("src") !== src) {
-        el = document.createElement(tag);
+      const current = mediaHost.firstElementChild;
+      if (!current || current.tagName !== tag.toUpperCase() || current.getAttribute("src") !== src) {
+        // 先释放旧视频，避免被替换的 <video> 继续占用解码/网络资源
+        if (current?.tagName === "VIDEO") {
+          current.pause?.();
+          current.removeAttribute("src");
+          current.querySelectorAll?.("source").forEach((source) => source.remove());
+          current.load?.();
+        }
+        const el = document.createElement(tag);
         el.className = "login-preview-media";
         el.alt = "";
         if (isVideo) {

@@ -48,3 +48,22 @@ test("resolveMedia falls back to per-type defaults when src is empty", () => {
     mediaSrc: "资源/图片/登录封面.png"
   });
 });
+
+test("releasing a video invalidates its session and clears stale error handlers", () => {
+  const calls = [];
+  const video = {
+    tagName: "VIDEO",
+    dataset: { loginMediaSession: "3" },
+    onerror: () => calls.push("stale-error"),
+    pause: () => calls.push("pause"),
+    removeAttribute: (name) => calls.push(`remove:${name}`),
+    querySelectorAll: () => [{ remove: () => calls.push("remove:source") }],
+    load: () => calls.push("load")
+  };
+
+  releaseVideo(video);
+
+  assert.equal(video.dataset.loginMediaSession, "");
+  assert.equal(video.onerror, null);
+  assert.deepEqual(calls, ["pause", "remove:src", "remove:source", "load"]);
+});

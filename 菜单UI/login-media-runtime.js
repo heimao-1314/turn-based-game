@@ -8,9 +8,28 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function createLoginMediaRuntime(policy) {
   const DEFAULT_VIDEO = "资源/图片/视频登录.mp4";
   const DEFAULT_STATIC_IMAGE = "资源/图片/登录封面.png";
+  const SESSION_KEY = "loginMediaSession";
+
+  // 每次重新加载/播放前递增会话号；releaseVideo 会清空它，
+  // 从而让旧会话遗留的 error 事件 / play() 拒绝回调不再误触发回退替换。
+  function sessionOf(media) {
+    return Number(media?.dataset?.[SESSION_KEY]) || 0;
+  }
+
+  function isCurrentSession(media, session) {
+    return !!media && media.isConnected && sessionOf(media) === session;
+  }
+
+  // 已回退为静态图且失败源与当前配置一致时，保持现状，
+  // 避免反复重建 <video> 导致元素与解码资源堆积。
+  function isStableFallback(media, mediaSrc) {
+    return !!media && media.dataset?.fallbackDone === "1" && media.dataset.fallbackSrc === mediaSrc;
+  }
 
   function releaseVideo(video) {
     if (!video || video.tagName !== "VIDEO") return;
+    if (video.dataset) video.dataset[SESSION_KEY] = "";
+    video.onerror = null;
     video.pause?.();
     video.removeAttribute("src");
     video.querySelectorAll?.("source").forEach((source) => source.remove());
@@ -42,12 +61,13 @@
     return media;
   }
 
-  function replaceWithStaticFallback(stage, failed) {
+  function replaceWithStaticFallback(stage, failed, failedSrc) {
     if (!stage || !failed || !failed.isConnected) return;
     if (failed.dataset?.fallbackDone === "1") return;
     releaseVideo(failed);
     const img = createMedia({ mediaType: "image", mediaSrc: DEFAULT_STATIC_IMAGE });
     img.dataset.fallbackDone = "1";
+    if (failedSrc) img.dataset.fallbackSrc = failedSrc;
     img.src = DEFAULT_STATIC_IMAGE;
     failed.replaceWith(img);
   }
@@ -58,13 +78,22 @@
     let media = stage.querySelector(".cover-bg");
     const typeMatches = media && (mediaType === "video" ? media.tagName === "VIDEO" : media.tagName === "IMG");
     if (!typeMatches) {
+      if (isStableFallback(media, mediaSrc)) return;
       releaseVideo(media);
       media = createMedia({ mediaType, mediaSrc });
       stage.querySelector(".cover-bg")?.replaceWith(media);
     }
-    media.onerror = () => replaceWithStaticFallback(stage, media);
+    const session = sessionOf(media) + 1;
+    media.dataset[SESSION_KEY] = String(session);
+    media.onerror = () => {
+      if (!isCurrentSession(media, session)) return;
+      replaceWithStaticFallback(stage, media, mediaSrc);
+    };
     if (mediaType === "image") {
-      if (media.getAttribute("src") !== mediaSrc) media.src = mediaSrc;
+      if (media.getAttribute("src") !== mediaSrc) {
+        if (isStableFallback(media, mediaSrc)) return;
+        media.src = mediaSrc;
+      }
       return;
     }
     if (!active) {
@@ -72,10 +101,14 @@
       return;
     }
     if (media.getAttribute("src") !== mediaSrc) {
+      if (isStableFallback(media, mediaSrc)) return;
       media.src = mediaSrc;
       media.load?.();
     }
-    media.play?.().catch(() => replaceWithStaticFallback(stage, media));
+    media.play?.().catch(() => {
+      if (!isCurrentSession(media, session)) return;
+      replaceWithStaticFallback(stage, media, mediaSrc);
+    });
   }
 
   function disposeCoverMedia(stage) {
