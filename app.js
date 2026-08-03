@@ -1139,11 +1139,9 @@ function defaultLoginVisualSettings() {
 
 function normalizeLoginVisualSettings(visual = {}, fallback = defaultLoginVisualSettings()) {
   const positions = Array.isArray(visual.positions) ? visual.positions : fallback.positions;
-  const useStaticImage = shouldUseStaticLoginImage();
-  const mediaType = useStaticImage ? "image" : (visual.mediaType === "image" ? "image" : "video");
-  const mediaSrc = useStaticImage
-    ? "\u8d44\u6e90/\u56fe\u7247/\u767b\u5f55\u5c01\u9762.png"
-    : String(visual.mediaSrc || fallback.mediaSrc || "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4");
+  const mediaType = visual.mediaType === "image" ? "image" : "video";
+  const rawMediaSrc = String(visual.mediaSrc || "").trim() || String(fallback.mediaSrc || "").trim();
+  const mediaSrc = rawMediaSrc || (mediaType === "image" ? "\u8d44\u6e90/\u56fe\u7247/\u767b\u5f55\u5c01\u9762.png" : "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4");
   return {
     mode: visual.mode === "classic" ? "classic" : "cover",
     mediaType,
