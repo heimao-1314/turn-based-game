@@ -927,7 +927,9 @@ function loginVisualSetting() {
     hotspotWidth: 28,
     hotspotHeight: 5.2,
     arrowLeft: 67.035,
-    positions: defaultPositions
+    positions: defaultPositions,
+    videoSkipStart: true,
+    videoSkipStartTime: 0.1
   });
   const positions = Array.isArray(setting.positions) ? setting.positions : defaultPositions;
   return {
@@ -939,6 +941,8 @@ function loginVisualSetting() {
     hotspotHeight: clampNumber(setting.hotspotHeight, 5.2, 2, 30),
     arrowLeft: clampNumber(setting.arrowLeft, 67.035, 0, 100),
     positions: defaultPositions.map((fallback, index) => clampNumber(positions[index], fallback, 0, 100)),
+    videoSkipStart: setting.videoSkipStart !== false,
+    videoSkipStartTime: clampNumber(setting.videoSkipStartTime, 0.1, 0, 30),
     updatedAt: setting.updatedAt || ""
   };
 }
@@ -4062,7 +4066,9 @@ async function handleApi(req, res, url) {
         hotspotWidth: clampNumber(data.hotspotWidth, current.hotspotWidth, 5, 100),
         hotspotHeight: clampNumber(data.hotspotHeight, current.hotspotHeight, 2, 30),
         arrowLeft: clampNumber(data.arrowLeft, current.arrowLeft, 0, 100),
-        positions: Array.from({ length: 5 }, (_, index) => clampNumber(data.positions?.[index], current.positions[index], 0, 100))
+        positions: Array.from({ length: 5 }, (_, index) => clampNumber(data.positions?.[index], current.positions[index], 0, 100)),
+        videoSkipStart: data.videoSkipStart === true || data.videoSkipStart === "true",
+        videoSkipStartTime: clampNumber(data.videoSkipStartTime, current.videoSkipStartTime, 0, 30)
       });
       sendJson(res, 200, { ok: true, visual: loginVisualSetting(), saved: visual });
       return;

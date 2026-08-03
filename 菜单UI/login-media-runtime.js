@@ -7,6 +7,7 @@
   if (root) root.LoginMediaRuntime = api;
 })(typeof globalThis !== "undefined" ? globalThis : this, function createLoginMediaRuntime(policy) {
   const DEFAULT_VIDEO = "资源/图片/视频登录.mp4";
+  const DEFAULT_SKIP_START_SECONDS = 0.1;
   const DEFAULT_STATIC_IMAGE = "资源/图片/登录封面.png";
   const SESSION_KEY = "loginMediaSession";
 
@@ -72,6 +73,50 @@
     failed.replaceWith(img);
   }
 
+  // 视频封面开头「黑屏/空帧」屏蔽：可配置跳过开头 N 秒。
+  // 开启时在视频到达跳过点前保持隐藏，并持续把播放头推到跳过点，
+  // 这样首次加载与循环回到开头时都不会闪现开头帧。
+  function resolveSkipStartSeconds(visual = {}) {
+    if (visual.videoSkipStart === false) return 0;
+    const raw = Number(visual.videoSkipStartTime);
+    // 未配置/非法值回退默认 0.1 秒；显式 0 或负数按 0 处理（不跳过）
+    if (!Number.isFinite(raw)) return DEFAULT_SKIP_START_SECONDS;
+    return Math.max(0, Math.min(30, raw));
+  }
+
+  function attachSkipStart(media, visual) {
+    if (!media || media.tagName !== "VIDEO") return;
+    const skipSeconds = resolveSkipStartSeconds(visual);
+    if (skipSeconds > 0) {
+      media.dataset.skipStartSeconds = String(skipSeconds);
+    } else {
+      delete media.dataset.skipStartSeconds;
+      media.style.opacity = "";
+    }
+    if (media.dataset?.skipStartAttached === "1") return;
+    media.dataset.skipStartAttached = "1";
+    const applyMask = () => {
+      const target = Number(media.dataset?.skipStartSeconds);
+      if (!Number.isFinite(target) || target <= 0) {
+        media.style.opacity = "";
+        return;
+      }
+      const duration = Number.isFinite(media.duration) && media.duration > 0 ? media.duration : Infinity;
+      const goal = Math.min(target, duration);
+      try {
+        if (media.readyState >= 1 && media.currentTime < goal) {
+          media.currentTime = goal;
+        }
+      } catch { /* 视频尚未就绪时 seek 可能抛异常，交给后续事件重试 */ }
+      const reached = Number.isFinite(media.currentTime) && media.currentTime >= goal;
+      media.style.opacity = reached ? "" : "0";
+    };
+    media.addEventListener("loadedmetadata", applyMask);
+    media.addEventListener("seeked", applyMask);
+    media.addEventListener("timeupdate", applyMask);
+    applyMask();
+  }
+
   function syncCoverMedia(stage, visual, active) {
     if (!stage || !visual) return;
     const { mediaType, mediaSrc } = resolveMedia(visual);
@@ -105,6 +150,7 @@
       media.src = mediaSrc;
       media.load?.();
     }
+    attachSkipStart(media, visual);
     media.play?.().catch(() => {
       if (!isCurrentSession(media, session)) return;
       replaceWithStaticFallback(stage, media, mediaSrc);

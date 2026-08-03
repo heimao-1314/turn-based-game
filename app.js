@@ -1133,7 +1133,9 @@ function defaultLoginVisualSettings() {
     hotspotWidth: 28,
     hotspotHeight: 5.2,
     arrowLeft: 67.035,
-    positions: [64.0436, 70.3282, 76.3365, 82.5519, 88.9055]
+    positions: [64.0436, 70.3282, 76.3365, 82.5519, 88.9055],
+    videoSkipStart: true,
+    videoSkipStartTime: 0.1
   };
 }
 
@@ -1150,7 +1152,9 @@ function normalizeLoginVisualSettings(visual = {}, fallback = defaultLoginVisual
     hotspotWidth: clampClientNumber(visual.hotspotWidth, fallback.hotspotWidth, 5, 100),
     hotspotHeight: clampClientNumber(visual.hotspotHeight, fallback.hotspotHeight, 2, 30),
     arrowLeft: clampClientNumber(visual.arrowLeft, fallback.arrowLeft, 0, 100),
-    positions: fallback.positions.map((value, index) => clampClientNumber(positions[index], value, 0, 100))
+    positions: fallback.positions.map((value, index) => clampClientNumber(positions[index], value, 0, 100)),
+    videoSkipStart: visual.videoSkipStart !== false,
+    videoSkipStartTime: clampClientNumber(visual.videoSkipStartTime, fallback.videoSkipStartTime, 0, 30)
   };
 }
 

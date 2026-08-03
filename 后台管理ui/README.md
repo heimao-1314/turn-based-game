@@ -20,3 +20,8 @@
   - 拖动箭头：`arrowLeft`；
   - 拖动菜单标记：`positions[0..4]`。
 - 纯客户端 UI 模块，不直接读写服务端；保存仍走 `/api/admin/login-visual`。
+
+## 登录界面配置（`login_visual`）
+
+- 除编辑器字段外，配置还包含 `videoSkipStart`（布尔，是否屏蔽视频封面开头）与 `videoSkipStartTime`（秒，跳过开头时长，默认 0.1）。
+- 游戏端在 `菜单UI/login-media-runtime.js` 中应用：开启时视频在到达跳过点前保持隐藏，并把播放头推到跳过点，首次加载与循环回开头都不会闪现开头帧。

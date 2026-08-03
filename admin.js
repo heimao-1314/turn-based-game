@@ -888,6 +888,8 @@ const System = (() => {
     $("#loginVisualModeInput").value = visual.mode === "classic" ? "classic" : "cover";
     $("#loginMediaTypeInput").value = visual.mediaType === "image" ? "image" : "video";
     $("#loginMediaSrcInput").value = visual.mediaSrc || "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4";
+    $("#loginSkipStartInput").checked = visual.videoSkipStart !== false;
+    $("#loginSkipStartTimeInput").value = visual.videoSkipStartTime ?? 0.1;
     $("#loginHotspotLeftInput").value = visual.hotspotLeft ?? 65;
     $("#loginHotspotWidthInput").value = visual.hotspotWidth ?? 28;
     $("#loginHotspotHeightInput").value = visual.hotspotHeight ?? 5.2;
@@ -910,6 +912,8 @@ const System = (() => {
       mode: $("#loginVisualModeInput").value === "classic" ? "classic" : "cover",
       mediaType: $("#loginMediaTypeInput").value === "image" ? "image" : "video",
       mediaSrc: $("#loginMediaSrcInput").value.trim() || "\u8d44\u6e90/\u56fe\u7247/\u89c6\u9891\u767b\u5f55.mp4",
+      videoSkipStart: $("#loginSkipStartInput").checked,
+      videoSkipStartTime: readLoginNumber("#loginSkipStartTimeInput", 0.1, 0, 30),
       hotspotLeft: readLoginNumber("#loginHotspotLeftInput", 65, 0, 100),
       hotspotWidth: readLoginNumber("#loginHotspotWidthInput", 28, 5, 100),
       hotspotHeight: readLoginNumber("#loginHotspotHeightInput", 5.2, 2, 30),
@@ -994,7 +998,9 @@ const System = (() => {
       hotspotWidth: 28,
       hotspotHeight: 5.2,
       arrowLeft: 67.035,
-      positions: [64.0436, 70.3282, 76.3365, 82.5519, 88.9055]
+      positions: [64.0436, 70.3282, 76.3365, 82.5519, 88.9055],
+      videoSkipStart: true,
+      videoSkipStartTime: 0.1
     });
     await saveLoginVisual();
   }
