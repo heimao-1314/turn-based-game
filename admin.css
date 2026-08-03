@@ -120,5 +120,6 @@ body { width:100vw; height:100vh; overflow:hidden; background:radial-gradient(ci
 .login-preview-pos { position:absolute; z-index:2; left:2px; display:flex; align-items:center; gap:4px; height:18px; transform:translateY(-50%); cursor:ns-resize; }
 .login-preview-pos i { display:block; width:20px; height:3px; border-radius:2px; background:#7fd8ff; box-shadow:0 0 0 1px rgba(0,0,0,.55); }
 .login-preview-pos span { padding:1px 5px; border:1px solid rgba(127,216,255,.55); border-radius:4px; background:rgba(10,20,38,.78); color:#bfe9ff; font-size:10px; white-space:nowrap; }
+.login-preview-pos::before { content:""; position:absolute; top:0; left:0; right:0; border-top:1px dashed rgba(255,92,92,.95); pointer-events:none; }
 .login-preview-pos:hover i { background:#fff; }
 @media (max-width:1280px) { .login-visual-layout { grid-template-columns:1fr; } }
