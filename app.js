@@ -12866,7 +12866,7 @@ function drawBattleFighter(ctx, fighter, x, y, facing, now) {
   const barWidth = Math.max(hiddenVaultEnemy ? 28 : 46, w * 0.72);
   drawBattleHpBar(ctx, fighter, x + offset.x, y + 8 + offset.y, barWidth);
   if (shouldShowBattleEnergyBar(state.battle, fighter)) {
-    drawBattleEnergyBar(ctx, fighter, x + offset.x, y + 18 + offset.y, barWidth);
+    drawBattleEnergyBar(ctx, fighter, x + offset.x, y + 15 + offset.y, barWidth);
   }
   if (fighter.defeated) drawDefeatedCross(ctx, x + offset.x, y - h / 2 + offset.y, Math.max(36, w * 0.64));
   drawBattleStatusIcons(ctx, fighter, x + offset.x, y - h + offset.y);
