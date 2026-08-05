@@ -273,6 +273,8 @@ const placeAllyGridFighter = battlePlacement.placeAllyGridFighter;
 const placeSingleBattleFighter = battlePlacement.placeSingleBattleFighter;
 const placeEnemyGridFighter = battlePlacement.placeEnemyGridFighter;
 const placeElfKingVaultHiddenEnemyFighter = battlePlacement.placeElfKingVaultHiddenEnemyFighter;
+// 战斗血条/精力条绘制模块：基于 blood.png 素材，app.js 只做薄委托
+const battleBars = window.BattleBars;
 let battleSkills = null;
 let battleEngine = null;
 let battleProtocol = null;
@@ -10679,6 +10681,7 @@ async function startBattle(target) {
     loadImage("资源/图片/战斗数字.png"),
     loadImage("资源/图片/战斗箭头.png"),
     loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
+    loadImage("资源/图片/blood.png"),
     ...battleEffectIdsFor(...allies, ...enemyActors).map((id) => loadSpriteOptional(id)),
     ...battleSpriteLoadPromisesFor(...allies, ...enemyActors)
   ]);
@@ -10811,6 +10814,7 @@ async function acceptTeamBattle(msg) {
       loadImage("资源/图片/战斗数字.png"),
       loadImage("资源/图片/战斗箭头.png"),
       loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
+      loadImage("资源/图片/blood.png"),
       ...battleEffectIdsFor(...allies, ...enemies).map((id) => loadSpriteOptional(id)),
       ...battleSpriteLoadPromisesFor(...allies, ...enemies)
     ]);
@@ -12964,6 +12968,11 @@ function battleLungeOffset(fighter, facing) {
 
 function drawBattleHpBar(ctx, fighter, x, y, width) {
   const rate = fighter.maxHp ? Math.max(0, fighter.hp / fighter.maxHp) : 0;
+  const image = state.images.get("资源/图片/blood.png")?.value;
+  if (image) {
+    battleBars.drawBloodBar(ctx, image, x, y, width, 7, rate);
+    return;
+  }
   ctx.save();
   ctx.fillStyle = "rgba(0,0,0,0.62)";
   roundRect(ctx, x - width / 2, y, width, 7, 4);

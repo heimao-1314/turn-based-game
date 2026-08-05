@@ -110,6 +110,26 @@ Use this file when:
 - Changing where battle units are placed on the battle canvas.
 - Adjusting multi-target enemy formation or spacing.
 
+### `battle-bars.js`
+
+Browser-side battle HP / energy bar drawing based on the `blood.png` sprite sheet (42x7).
+
+Main responsibilities:
+
+- `drawBloodBar`: draws an HP bar — stretches the left empty frame (x0-21, y0-3) to the target size, then crops the right red fill (x22-41, y1-2) by the hp ratio onto the inner slot.
+- `drawEnergyBar`: same layout for the energy bar (frame y3-6, blue fill x22-41, y4-5). Reserved for future energy UI; not wired into battle rendering yet.
+
+Notes:
+
+- `drawBattleHpBar` in `app.js` delegates to `drawBloodBar` and keeps the old round-rect drawing as a fallback until `blood.png` finishes loading.
+- `blood.png` is preloaded together with the other battle assets.
+- Browser-global style, exposed through `window.BattleBars`.
+
+Use this file when:
+
+- Changing battle HP bar visuals or proportions.
+- Wiring up an energy / stamina bar UI later.
+
 ### Online Battle Runtime
 
 Server-authoritative online battle orchestration has moved to `../联网战斗/runtime.js`. The old `server-pvp.js` file has been deleted.
