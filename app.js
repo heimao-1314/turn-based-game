@@ -273,7 +273,7 @@ const placeAllyGridFighter = battlePlacement.placeAllyGridFighter;
 const placeSingleBattleFighter = battlePlacement.placeSingleBattleFighter;
 const placeEnemyGridFighter = battlePlacement.placeEnemyGridFighter;
 const placeElfKingVaultHiddenEnemyFighter = battlePlacement.placeElfKingVaultHiddenEnemyFighter;
-// 战斗血条/精力条绘制模块：基于 blood.png 素材，app.js 只做薄委托
+// 战斗血条/精力条一体框绘制模块：基于 HP.png 素材，app.js 只做薄委托
 const battleBars = window.BattleBars;
 let battleSkills = null;
 let battleEngine = null;
@@ -10681,7 +10681,7 @@ async function startBattle(target) {
     loadImage("资源/图片/战斗数字.png"),
     loadImage("资源/图片/战斗箭头.png"),
     loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
-    loadImage("资源/图片/blood.png"),
+    loadImage("资源/图片/HP.png"),
     ...battleEffectIdsFor(...allies, ...enemyActors).map((id) => loadSpriteOptional(id)),
     ...battleSpriteLoadPromisesFor(...allies, ...enemyActors)
   ]);
@@ -10814,7 +10814,7 @@ async function acceptTeamBattle(msg) {
       loadImage("资源/图片/战斗数字.png"),
       loadImage("资源/图片/战斗箭头.png"),
       loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
-      loadImage("资源/图片/blood.png"),
+      loadImage("资源/图片/HP.png"),
       ...battleEffectIdsFor(...allies, ...enemies).map((id) => loadSpriteOptional(id)),
       ...battleSpriteLoadPromisesFor(...allies, ...enemies)
     ]);
@@ -12864,10 +12864,7 @@ function drawBattleFighter(ctx, fighter, x, y, facing, now) {
   const offset = { x: attackOffset.x + hitOffset.x, y: attackOffset.y + hitOffset.y };
   drawSpriteFrame(ctx, sprite, frame, x - w / 2 + offset.x, y - h + offset.y, w, h);
   const barWidth = Math.max(hiddenVaultEnemy ? 28 : 46, w * 0.72);
-  drawBattleHpBar(ctx, fighter, x + offset.x, y + 8 + offset.y, barWidth);
-  if (shouldShowBattleEnergyBar(state.battle, fighter)) {
-    drawBattleEnergyBar(ctx, fighter, x + offset.x, y + 14 + offset.y, barWidth);
-  }
+  drawBattleHpEnergyBar(ctx, fighter, x + offset.x, y + 8 + offset.y, barWidth);
   if (fighter.defeated) drawDefeatedCross(ctx, x + offset.x, y - h / 2 + offset.y, Math.max(36, w * 0.64));
   drawBattleStatusIcons(ctx, fighter, x + offset.x, y - h + offset.y);
   ctx.save();
@@ -12970,23 +12967,6 @@ function battleLungeOffset(fighter, facing) {
   };
 }
 
-function drawBattleHpBar(ctx, fighter, x, y, width) {
-  const rate = fighter.maxHp ? Math.max(0, fighter.hp / fighter.maxHp) : 0;
-  const image = state.images.get("资源/图片/blood.png")?.value;
-  if (image) {
-    battleBars.drawBloodBar(ctx, image, x, y, width, 7, rate);
-    return;
-  }
-  ctx.save();
-  ctx.fillStyle = "rgba(0,0,0,0.62)";
-  roundRect(ctx, x - width / 2, y, width, 7, 4);
-  ctx.fill();
-  ctx.fillStyle = "#bd2f34";
-  roundRect(ctx, x - width / 2 + 1, y + 1, Math.max(0, (width - 2) * rate), 5, 3);
-  ctx.fill();
-  ctx.restore();
-}
-
 function isPvpBattle(battle) {
   return Boolean(battle && (battle.opponentPeerId || battle.arenaServer || (battle.teamBattleServer && battle.pvp)));
 }
@@ -12997,21 +12977,30 @@ function shouldShowBattleEnergyBar(battle, fighter) {
   return isPvpBattle(battle);
 }
 
-function drawBattleEnergyBar(ctx, fighter, x, y, width) {
-  // 接口预留：未来技能消耗精力时由引擎写入 fighter.energy / maxEnergy，此处自动按比例显示；暂未接入时显示满值
-  const rate = fighter.maxEnergy ? Math.max(0, Math.min(1, fighter.energy / fighter.maxEnergy)) : 1;
-  const image = state.images.get("资源/图片/blood.png")?.value;
+function drawBattleHpEnergyBar(ctx, fighter, x, y, width) {
+  const hpRate = fighter.maxHp ? Math.max(0, fighter.hp / fighter.maxHp) : 0;
+  // 精力条接口预留：引擎写入 fighter.energy / maxEnergy 后自动按比例显示；暂未接入时显示满值
+  const energyRate = shouldShowBattleEnergyBar(state.battle, fighter)
+    ? (fighter.maxEnergy ? Math.max(0, Math.min(1, fighter.energy / fighter.maxEnergy)) : 1)
+    : 0;
+  const image = state.images.get("资源/图片/HP.png")?.value;
   if (image) {
-    battleBars.drawEnergyBar(ctx, image, x, y, width, 7, rate);
+    const height = Math.max(1, Math.round(width * 11 / 40));
+    battleBars.drawHpEnergyBar(ctx, image, x, y, width, height, hpRate, energyRate);
     return;
   }
   ctx.save();
   ctx.fillStyle = "rgba(0,0,0,0.62)";
-  roundRect(ctx, x - width / 2, y, width, 7, 4);
+  roundRect(ctx, x - width / 2, y, width, 13, 4);
   ctx.fill();
-  ctx.fillStyle = "#1c5f9e";
-  roundRect(ctx, x - width / 2 + 1, y + 1, Math.max(0, (width - 2) * rate), 5, 3);
+  ctx.fillStyle = "#bd2f34";
+  roundRect(ctx, x - width / 2 + 1, y + 1, Math.max(0, (width - 2) * hpRate), 5, 3);
   ctx.fill();
+  if (energyRate > 0) {
+    ctx.fillStyle = "#1c5f9e";
+    roundRect(ctx, x - width / 2 + 1, y + 7, Math.max(0, (width - 2) * energyRate), 5, 3);
+    ctx.fill();
+  }
   ctx.restore();
 }
 

@@ -112,25 +112,23 @@ Use this file when:
 
 ### `battle-bars.js`
 
-Browser-side battle HP / energy bar drawing based on the `blood.png` sprite sheet (42x7).
+Browser-side battle HP / energy bar drawing based on the `HP.png` sprite sheet (78x11). The empty frame (x0-39, y0-10) holds both bars as one unit, so they are drawn together instead of as separate pieces.
 
 Main responsibilities:
 
-- `drawBloodBar`: draws an HP bar — stretches the left empty frame (x0-21, y0-3) to the target size, then crops the right red fill (x22-41, y1-2) by the hp ratio onto the inner slot.
-- `drawEnergyBar`: same layout for the energy bar (frame y3-6, blue fill x22-41, y4-5).
+- `drawHpEnergyBar`: draws the combined frame in a single `drawImage`, then crops the right fills onto each inner slot by ratio — golden HP fill (x40-77, y1-4) into slot x1-38,y1-4 and cyan energy fill (x40-77, y6-9) into slot x1-38,y6-9. Passing `energyRate = 0` leaves the energy slot empty.
 
 Notes:
 
-- `drawBattleHpBar` in `app.js` delegates to `drawBloodBar` and keeps the old round-rect drawing as a fallback until `blood.png` finishes loading.
-- `blood.png` is preloaded together with the other battle assets.
-- Battle rendering (`app.js`): the energy bar shows on friendly fighters (player / pet / mercenary) and on both sides in PVP (peer duel, arena, team PVP); monsters, bosses and NPCs do not show it. `drawBattleEnergyBar` uses `rate = fighter.energy / fighter.maxEnergy` when those fields exist and falls back to a full bar otherwise, so skill energy costs can be wired in later by writing those fields.
+- `drawBattleHpEnergyBar` in `app.js` delegates to `drawHpEnergyBar` and keeps simplified round-rect bars as a fallback until `HP.png` finishes loading.
+- `HP.png` is preloaded together with the other battle assets.
+- Battle rendering (`app.js`): the energy fill shows on friendly fighters (player / pet / mercenary) and on both sides in PVP (peer duel, arena, team PVP); monsters, bosses and NPCs only get the HP fill. `energyRate` uses `fighter.energy / fighter.maxEnergy` when those fields exist and falls back to a full bar otherwise, so skill energy costs can be wired in later by writing those fields.
 - Browser-global style, exposed through `window.BattleBars`.
 
 Use this file when:
 
-- Changing battle HP bar visuals or proportions.
-- Wiring up an energy / stamina bar UI later.
-
+- Changing battle HP / energy bar visuals or proportions.
+- Wiring up energy costs later.
 ### Online Battle Runtime
 
 Server-authoritative online battle orchestration has moved to `../联网战斗/runtime.js`. The old `server-pvp.js` file has been deleted.
