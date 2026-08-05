@@ -89,6 +89,27 @@ Use this file when:
 - Adjusting what actor data is carried into battle setup.
 - Extending battle initialization payloads.
 
+### `battle-placement.js`
+
+Browser-side battle placement positions.
+
+Main responsibilities:
+
+- `placeEnemyGridFighter`: staggered two-column layout for 4+ enemies. The first half of the targets line up in the left column top-to-bottom and the second half in the right column offset by half a row, so units no longer stack on the same horizontal line.
+- `placeSingleBattleFighter`: triangle positioning for solo teams (pet / actor / mercenary).
+- `placeAllyGridFighter`: ally grid for team battles.
+- `placeElfKingVaultHiddenEnemyFighter`: compact block layout for the 40-target hidden vault fight.
+
+Notes:
+
+- Pure coordinate math only; `drawBattleScene` in `app.js` calls it every frame to write `battleX` / `battleY`.
+- Browser-global style, exposed through `window.BattlePlacement`.
+
+Use this file when:
+
+- Changing where battle units are placed on the battle canvas.
+- Adjusting multi-target enemy formation or spacing.
+
 ### Online Battle Runtime
 
 Server-authoritative online battle orchestration has moved to `../联网战斗/runtime.js`. The old `server-pvp.js` file has been deleted.

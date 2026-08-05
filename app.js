@@ -267,6 +267,12 @@ const subStatBonus = {
 };
 
 const skillCatalog = window.BattleSkills.skillCatalog;
+// 战斗站位模块：纯坐标计算，app.js 只做薄委托
+const battlePlacement = window.BattlePlacement;
+const placeAllyGridFighter = battlePlacement.placeAllyGridFighter;
+const placeSingleBattleFighter = battlePlacement.placeSingleBattleFighter;
+const placeEnemyGridFighter = battlePlacement.placeEnemyGridFighter;
+const placeElfKingVaultHiddenEnemyFighter = battlePlacement.placeElfKingVaultHiddenEnemyFighter;
 let battleSkills = null;
 let battleEngine = null;
 let battleProtocol = null;
@@ -12386,28 +12392,11 @@ function drawBattleScene() {
   battle.enemyTeam.forEach((fighter, index) => {
     if (isElfKingVaultHiddenBattle(battle) && battle.enemyTeam.length === 40) {
       placeElfKingVaultHiddenEnemyFighter(fighter, index, centerX, baseY);
-    } else if (isElfKingVaultBattle(battle) && battle.enemyTeam.length === 10) {
-      placeElfKingVaultEnemyFighter(fighter, index, centerX, baseY);
-    } else if (battle.wildMonsterId === "afei" && battle.enemyTeam.length === 10) {
-      if (index === 0) {
-        fighter.battleX = centerX + 72;
-        fighter.battleY = baseY - 28;
-      } else {
-        const slots = [
-          { col: 0, row: 0 }, { col: 0, row: 1 }, { col: 0, row: 3 }, { col: 0, row: 4 },
-          { col: 1, row: 0 }, { col: 1, row: 1 }, { col: 1, row: 2 }, { col: 1, row: 3 }, { col: 1, row: 4 }
-        ];
-        const slot = slots[index - 1] || { col: (index - 1) % 2, row: Math.floor((index - 1) / 2) };
-        fighter.battleX = centerX + 72 + slot.col * 48;
-        fighter.battleY = baseY - 112 + slot.row * 42;
-      }
-    } else if (!isFighterTeamGrid(battle.enemyTeam, [])) {
-      placeSingleBattleFighter(fighter, battle.enemyTeam, centerX + 92, baseY);
+    } else if (battle.enemyTeam.length >= 4) {
+      // 多目标交错站位：前一半左列、后一半右列错开半格，避免互相遮挡
+      placeEnemyGridFighter(fighter, index, battle.enemyTeam, centerX, baseY);
     } else {
-      const col = index % 2;
-      const row = Math.floor(index / 2);
-      fighter.battleX = centerX + 82 + col * 42;
-      fighter.battleY = baseY - 78 + row * 31;
+      placeSingleBattleFighter(fighter, battle.enemyTeam, centerX + 92, baseY);
     }
     fighter.facing = "left";
   });
@@ -12447,48 +12436,8 @@ function drawAutoBattlePrompt(ctx, width, now) {
   ctx.drawImage(image, Math.round((width - drawW) / 2), 14, drawW, drawH);
 }
 
-function isElfKingVaultBattle(battle) {
-  return Boolean(elfKingVault.stageById(battle?.wildMonsterId) || battle?.enemyTeam?.some((fighter) => fighter.actor?.elfKingVaultBossId || fighter.actor?.elfKingVaultStageId));
-}
-
 function isElfKingVaultHiddenBattle(battle) {
   return Boolean(elfKingVault.stageById(battle?.wildMonsterId)?.hidden || battle?.enemyTeam?.some((fighter) => fighter.actor?.elfKingVaultHidden));
-}
-
-function placeElfKingVaultEnemyFighter(fighter, index, centerX, baseY) {
-  if (index === 0) {
-    fighter.battleX = centerX + 72;
-    fighter.battleY = baseY - 28;
-    return;
-  }
-  const slots = [
-    { col: 0, row: 0 }, { col: 0, row: 1 }, { col: 0, row: 3 }, { col: 0, row: 4 },
-    { col: 1, row: 0 }, { col: 1, row: 1 }, { col: 1, row: 2 }, { col: 1, row: 3 }, { col: 1, row: 4 }
-  ];
-  const slot = slots[index - 1] || { col: (index - 1) % 2, row: Math.floor((index - 1) / 2) };
-  fighter.battleX = centerX + 72 + slot.col * 48;
-  fighter.battleY = baseY - 112 + slot.row * 42;
-}
-
-function placeElfKingVaultHiddenEnemyFighter(fighter, index, centerX, baseY) {
-  const group = Math.floor(index / 10);
-  const localIndex = index % 10;
-  const blockCol = group % 2;
-  const blockRow = Math.floor(group / 2);
-  const originX = centerX + 44 + blockCol * 82;
-  const originY = baseY - 132 + blockRow * 108;
-  if (localIndex === 0) {
-    fighter.battleX = originX;
-    fighter.battleY = originY + 40;
-    return;
-  }
-  const slots = [
-    { col: 0, row: 0 }, { col: 0, row: 1 }, { col: 0, row: 3 }, { col: 0, row: 4 },
-    { col: 1, row: 0 }, { col: 1, row: 1 }, { col: 1, row: 2 }, { col: 1, row: 3 }, { col: 1, row: 4 }
-  ];
-  const slot = slots[localIndex - 1] || { col: (localIndex - 1) % 2, row: Math.floor((localIndex - 1) / 2) };
-  fighter.battleX = originX + slot.col * 28;
-  fighter.battleY = originY + slot.row * 20;
 }
 
 function isBattleTeamGrid(battle) {
@@ -12497,36 +12446,6 @@ function isBattleTeamGrid(battle) {
 
 function isFighterTeamGrid(team, roster = []) {
   return team.length >= 4 || roster.length > 1;
-}
-
-function placeAllyGridFighter(fighter, index, centerX, baseY) {
-  const slots = [
-    { col: 1, row: 0 }, { col: 0, row: 0 },
-    { col: 1, row: 1 }, { col: 0, row: 1 },
-    { col: 1, row: 2 }, { col: 0, row: 2 }
-  ];
-  const slot = slots[index] || { col: index % 2 ? 0 : 1, row: Math.floor(index / 2) };
-  fighter.battleX = centerX - 122 - slot.col * 48;
-  fighter.battleY = baseY - 98 + slot.row * 46;
-}
-
-function placeSingleBattleFighter(fighter, team, x, baseY) {
-  const gap = 56;
-  const roleSlots = [
-    { key: "pet", y: baseY - 54 - gap },
-    { key: "actor", y: baseY - 54 },
-    { key: "mercenary", y: baseY - 54 + gap }
-  ];
-  const key = fighter.actor.isPet ? "pet" : fighter.actor.isMercenary ? "mercenary" : "actor";
-  const roleSlot = roleSlots.find((slot) => slot.key === key);
-  if (roleSlot) {
-    fighter.battleX = x;
-    fighter.battleY = roleSlot.y;
-    return;
-  }
-  const fallbackIndex = team.indexOf(fighter);
-  fighter.battleX = x;
-  fighter.battleY = baseY - 54 + (fallbackIndex - 1) * gap;
 }
 
 function drawSelectedTargetArrow(ctx, now) {
