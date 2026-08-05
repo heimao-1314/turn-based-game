@@ -750,7 +750,7 @@ function createRuntime(deps) {
     }
     if (result.done) {
       // Boss rewards need their own server-issued challenge ticket and cannot reuse wild encounters.
-      if (session.pve && requiresPveEncounter(session.wildMonsterId) && result.winner === "ally" && typeof deps.issuePveRewardTickets === "function") {
+      if (session.pve && isSupportedPveMonster(session.wildMonsterId) && result.winner === "ally" && typeof deps.issuePveRewardTickets === "function") {
         for (const peerId of session.attackerIds) {
           const account = session.participantAccounts.get(peerId);
           const rewardTicket = account ? deps.issuePveRewardTickets({

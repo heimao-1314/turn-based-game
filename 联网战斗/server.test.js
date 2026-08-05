@@ -1,4 +1,4 @@
-const test = require("node:test");
+﻿const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const createOnlineBattleRuntime = require("./server.js");
@@ -270,4 +270,90 @@ test("1V1 stale defender peer can be resolved by account or name", () => {
     ["b", "teamBattleStart", "defender"]
   ]);
   runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "solo-resolve" }, sockets.a);
+});
+test("阿飞 PVE 胜利后服务器发放 teamBattleReward", () => {
+  const sent = [];
+  const issued = [];
+  const sockets = { a: { id: "a" } };
+  const metas = new Map([
+    [sockets.a, { peerId: "a", account: "acctA", name: "甲", mapName: "map", team: { leaderId: "a", members: [] }, leaderId: "a", clientMirror: null }]
+  ]);
+  const rows = new Map([["acctA", { account: "acctA", name: "甲" }]]);
+  for (const row of rows.values()) {
+    row.inventory_json = "x".repeat(50000);
+    row.equipment_json = "x".repeat(50000);
+    row.equipped_json = "{}";
+    row.selection_json = "{}";
+  }
+  const safeJsonArray = (value) => {
+    try {
+      const parsed = JSON.parse(value || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+  const safeJsonObject = (value) => {
+    try {
+      const parsed = JSON.parse(value || "{}");
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  };
+  const runtime = createOnlineBattleRuntime({
+    statLimits: { crit: 100, critDamage: 2000 },
+    safeJsonArray,
+    safeJsonObject,
+    sample: (items) => items[0],
+    activeMercenaryForRow: () => null,
+    arenaMirrorForPlayerRow: (row) => ({
+      actor: {
+        name: row.name,
+        spriteId: 1,
+        stats: { hp: 50000000, attack: 50000000, defense: 0, speed: 9999, mana: 100000, crit: 100, critDamage: 500, skillId: "shining_strike" }
+      },
+      pet: null,
+      mercenary: null,
+      selection: { className: "剑士", gender: "男" }
+    }),
+    fetchPlayerRow: (account) => rows.get(account),
+    findSocketByPeerId: (peerId) => sockets[peerId] || null,
+    findSocketByAccount: (account) => [...metas.entries()].find(([, meta]) => meta.account === account)?.[0] || null,
+    findSocketByName: () => null,
+    sendSocketJson: (socket, payload) => sent.push({ to: socket.id, payload }),
+    getSocketMeta: (socket) => metas.get(socket) || {},
+    setSocketMeta: (socket, meta) => metas.set(socket, meta),
+    consumePveEncounter: () => ({ ok: true }),
+    choiceMs: 60000,
+    issuePveRewardTickets: (ticket) => {
+      issued.push(ticket);
+      return `ticket-afei-${issued.length}`;
+    }
+  });
+  const result = runtime.startPve("acctA", {
+    battleId: "afei-pve",
+    wildMonsterId: "afei",
+    monsterCount: 10,
+    enemies: [{ name: "阿飞", spriteId: 234, battleStats: { hp: 100, attack: 1, defense: 0, speed: 1, mana: 0, crit: 0, critDamage: 100, skillId: "wild_afei_heal" } }]
+  });
+  assert.deepEqual(result, { ok: true, battleId: "afei-pve" });
+  let rounds = 0;
+  let done = false;
+  while (rounds < 40) {
+    rounds += 1;
+    runtime.handleRoomMessage({ type: "teamBattleChoice", battleId: "afei-pve", choice: { actor: { type: "attack" } } }, sockets.a);
+    const turns = sent.filter((item) => item.payload.type === "teamBattleTurn" && item.payload.battleId === "afei-pve");
+    const last = turns[turns.length - 1];
+    if (last?.payload.result?.done) {
+      done = true;
+      break;
+    }
+  }
+  assert.equal(done, true, "阿飞战斗应在若干回合内结束");
+  const reward = sent.find((item) => item.payload.type === "teamBattleReward");
+  assert.ok(reward, "胜利后应发出 teamBattleReward");
+  assert.equal(reward.payload.wildMonsterId, "afei");
+  assert.ok(issued.length >= 1, "issuePveRewardTickets 应被调用");
+  runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "afei-pve" }, sockets.a);
 });

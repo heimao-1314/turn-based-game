@@ -456,7 +456,7 @@ test("a reconnect with a new peerId cannot start a second PVE for the same accou
   runtime.handleRoomMessage({ type: "teamBattleEnd", battleId: "first-account-locked-pve" }, "attacker-reconnected-socket");
 });
 
-test("Afei boss victory does not issue an ordinary wild reward ticket", () => {
+test("Afei boss victory issues an ordinary wild reward ticket", () => {
   const issuedTickets = [];
   const { runtime, sent } = createRoutingHarness({
     playerStats: {
@@ -472,24 +472,27 @@ test("Afei boss victory does not issue an ordinary wild reward ticket", () => {
     },
     issuePveRewardTickets: (ticket) => {
       issuedTickets.push(ticket);
-      return "must-not-be-issued";
+      return "ticket-afei-1";
     }
   });
 
   assert.deepEqual(runtime.startPve("attacker-account", {
-    battleId: "afei-without-wild-ticket",
+    battleId: "afei-with-wild-ticket",
     wildMonsterId: "afei"
-  }), { ok: true, battleId: "afei-without-wild-ticket" });
+  }), { ok: true, battleId: "afei-with-wild-ticket" });
   const start = sent.find((item) => item.payload.type === "teamBattleStart");
   assert.deepEqual(start.payload.enemies.map((enemy) => enemy.name), ["阿飞", "丽丽", "琉璃", "萝莉", "莉莉", "兰兰", "玲玲", "琪琪", "七七", "微微"]);
   runtime.handleRoomMessage({
     type: "teamBattleChoice",
-    battleId: "afei-without-wild-ticket",
+    battleId: "afei-with-wild-ticket",
     choice: { actions: { Attacker: { type: "skill", skillId: "sword_guard" } } }
   }, "attacker-socket");
 
-  assert.equal(issuedTickets.length, 0);
-  assert.equal(sent.some((item) => item.payload.type === "teamBattleReward"), false);
+  assert.equal(issuedTickets.length, 1);
+  assert.equal(issuedTickets[0].monsterId, "afei");
+  const reward = sent.find((item) => item.payload.type === "teamBattleReward");
+  assert.ok(reward, "胜利后应发出 teamBattleReward");
+  assert.equal(reward.payload.wildMonsterId, "afei");
   assert.equal(sent.some((item) => item.payload.type === "teamBattleEnd"), true);
 });
 
