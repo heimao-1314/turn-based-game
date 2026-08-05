@@ -117,12 +117,13 @@ Browser-side battle HP / energy bar drawing based on the `blood.png` sprite shee
 Main responsibilities:
 
 - `drawBloodBar`: draws an HP bar — stretches the left empty frame (x0-21, y0-3) to the target size, then crops the right red fill (x22-41, y1-2) by the hp ratio onto the inner slot.
-- `drawEnergyBar`: same layout for the energy bar (frame y3-6, blue fill x22-41, y4-5). Reserved for future energy UI; not wired into battle rendering yet.
+- `drawEnergyBar`: same layout for the energy bar (frame y3-6, blue fill x22-41, y4-5).
 
 Notes:
 
 - `drawBattleHpBar` in `app.js` delegates to `drawBloodBar` and keeps the old round-rect drawing as a fallback until `blood.png` finishes loading.
 - `blood.png` is preloaded together with the other battle assets.
+- Battle rendering (`app.js`): the energy bar shows on friendly fighters (player / pet / mercenary) and on both sides in PVP (peer duel, arena, team PVP); monsters, bosses and NPCs do not show it. `drawBattleEnergyBar` uses `rate = fighter.energy / fighter.maxEnergy` when those fields exist and falls back to a full bar otherwise, so skill energy costs can be wired in later by writing those fields.
 - Browser-global style, exposed through `window.BattleBars`.
 
 Use this file when:

@@ -12863,7 +12863,11 @@ function drawBattleFighter(ctx, fighter, x, y, facing, now) {
   const hitOffset = battleHitReactionOffset(fighter, now);
   const offset = { x: attackOffset.x + hitOffset.x, y: attackOffset.y + hitOffset.y };
   drawSpriteFrame(ctx, sprite, frame, x - w / 2 + offset.x, y - h + offset.y, w, h);
-  drawBattleHpBar(ctx, fighter, x + offset.x, y + 8 + offset.y, Math.max(hiddenVaultEnemy ? 28 : 46, w * 0.72));
+  const barWidth = Math.max(hiddenVaultEnemy ? 28 : 46, w * 0.72);
+  drawBattleHpBar(ctx, fighter, x + offset.x, y + 8 + offset.y, barWidth);
+  if (shouldShowBattleEnergyBar(state.battle, fighter)) {
+    drawBattleEnergyBar(ctx, fighter, x + offset.x, y + 18 + offset.y, barWidth);
+  }
   if (fighter.defeated) drawDefeatedCross(ctx, x + offset.x, y - h / 2 + offset.y, Math.max(36, w * 0.64));
   drawBattleStatusIcons(ctx, fighter, x + offset.x, y - h + offset.y);
   ctx.save();
@@ -12978,6 +12982,34 @@ function drawBattleHpBar(ctx, fighter, x, y, width) {
   roundRect(ctx, x - width / 2, y, width, 7, 4);
   ctx.fill();
   ctx.fillStyle = "#bd2f34";
+  roundRect(ctx, x - width / 2 + 1, y + 1, Math.max(0, (width - 2) * rate), 5, 3);
+  ctx.fill();
+  ctx.restore();
+}
+
+function isPvpBattle(battle) {
+  return Boolean(battle && (battle.opponentPeerId || battle.arenaServer || (battle.teamBattleServer && battle.pvp)));
+}
+
+function shouldShowBattleEnergyBar(battle, fighter) {
+  if (!battle || !fighter) return false;
+  if (fighter.side === "ally") return true;
+  return isPvpBattle(battle);
+}
+
+function drawBattleEnergyBar(ctx, fighter, x, y, width) {
+  // 接口预留：未来技能消耗精力时由引擎写入 fighter.energy / maxEnergy，此处自动按比例显示；暂未接入时显示满值
+  const rate = fighter.maxEnergy ? Math.max(0, Math.min(1, fighter.energy / fighter.maxEnergy)) : 1;
+  const image = state.images.get("资源/图片/blood.png")?.value;
+  if (image) {
+    battleBars.drawEnergyBar(ctx, image, x, y, width, 7, rate);
+    return;
+  }
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,0.62)";
+  roundRect(ctx, x - width / 2, y, width, 7, 4);
+  ctx.fill();
+  ctx.fillStyle = "#1c5f9e";
   roundRect(ctx, x - width / 2 + 1, y + 1, Math.max(0, (width - 2) * rate), 5, 3);
   ctx.fill();
   ctx.restore();
