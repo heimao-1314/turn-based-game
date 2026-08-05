@@ -275,6 +275,8 @@ const placeEnemyGridFighter = battlePlacement.placeEnemyGridFighter;
 const placeElfKingVaultHiddenEnemyFighter = battlePlacement.placeElfKingVaultHiddenEnemyFighter;
 // 战斗血条/精力条一体框绘制模块：基于 HP.png 素材，app.js 只做薄委托
 const battleBars = window.BattleBars;
+const DEFAULT_BATTLE_BAR_STYLE = "2hp";
+const BATTLE_BAR_STYLE_STORAGE_KEY = "dw-battle-bar-style";
 let battleSkills = null;
 let battleEngine = null;
 let battleProtocol = null;
@@ -679,6 +681,7 @@ const state = {
   actorScales: { player: 1, pet: 1, other: 1 },
   modelScaleAdjustment: null,
   showPetNames: true,
+  battleBarStyle: loadBattleBarStyle(),
   mapViewportX: 0,
   mapViewportY: 0,
   mapViewportW: 0,
@@ -877,6 +880,22 @@ function setQuickMenuHotkeysEnabled(enabled) {
   if (!isEnabled) quickMenuHotkeys?.clear();
   return isEnabled;
 }
+function loadBattleBarStyle() {
+  const saved = localStorage.getItem(BATTLE_BAR_STYLE_STORAGE_KEY);
+  return battleBars.BATTLE_BAR_STYLES[saved] ? saved : DEFAULT_BATTLE_BAR_STYLE;
+}
+
+function battleBarStyle() {
+  return battleBars.BATTLE_BAR_STYLES[state.battleBarStyle] || battleBars.BATTLE_BAR_STYLES[DEFAULT_BATTLE_BAR_STYLE];
+}
+
+function setBattleBarStyle(id) {
+  if (!battleBars.BATTLE_BAR_STYLES[id]) return false;
+  state.battleBarStyle = id;
+  localStorage.setItem(BATTLE_BAR_STYLE_STORAGE_KEY, id);
+  return true;
+}
+
 const MAP_LOADING_MIN_MS = 850;
 const MAP_LOADING_MAX_MS = 5000;
 let rewardDialogAnimationFrame = 0;
@@ -5817,6 +5836,7 @@ function confirmMainMenuItem() {
     confirmModelScaleOptionMenu();
     return true;
   }
+  if (state.menuMode === "battle_bar_style") {     confirmBattleBarStyleMenu();     return true;   }
   if (state.menuMode === "free_claim") {
     confirmFreeClaimMenu();
     return true;
@@ -6429,6 +6449,7 @@ function openDetailSettingsMenu() {
     { label: "调整模型大小", icon: "1.13" },
     { label: `显示宠物名字：${state.showPetNames ? "开" : "关"}`, icon: "2.12" },
     { label: `快捷操作：${quickMenuHotkeysEnabled() ? "开" : "关"}`, icon: "1.13" },
+    { label: `血条样式：${battleBarStyle().label}`, icon: "1.13" },
     { label: "返回系统菜单", icon: "1.13" }
   ]);
   bindCurrentMenuClicks(confirmDetailSettingsMenu);
@@ -6447,7 +6468,33 @@ function confirmDetailSettingsMenu() {
     showMenuHint(`快捷操作已${enabled ? "开启" : "关闭"}`);
     return openDetailSettingsMenu();
   }
-  if (state.menuItem === 4) return openMainMenuAt(4, "细节设置");
+  if (state.menuItem === 4) return openBattleBarStyleMenu();
+  if (state.menuItem === 5) return openMainMenuAt(4, "细节设置");
+}
+
+function openBattleBarStyleMenu() {
+  state.menuMode = "battle_bar_style";
+  const styleIds = Object.keys(battleBars.BATTLE_BAR_STYLES);
+  state.menuItem = Math.max(0, styleIds.indexOf(state.battleBarStyle));
+  setMenuAsSingleList("血条样式", [
+    ...styleIds.map((id) => ({
+      label: `${battleBars.BATTLE_BAR_STYLES[id].label}${id === state.battleBarStyle ? "（当前）" : ""}`,
+      icon: "1.13"
+    })),
+    { label: "返回细节设置", icon: "1.13" }
+  ]);
+  bindCurrentMenuClicks(confirmBattleBarStyleMenu);
+}
+
+function confirmBattleBarStyleMenu() {
+  const styleIds = Object.keys(battleBars.BATTLE_BAR_STYLES);
+  const id = styleIds[state.menuItem];
+  if (!id) {
+    openDetailSettingsMenu();
+    return;
+  }
+  if (setBattleBarStyle(id)) showMenuHint(`血条样式已切换为 ${battleBars.BATTLE_BAR_STYLES[id].label}`);
+  openBattleBarStyleMenu();
 }
 
 function openCameraResolutionMenu() {
@@ -10681,7 +10728,9 @@ async function startBattle(target) {
     loadImage("资源/图片/战斗数字.png"),
     loadImage("资源/图片/战斗箭头.png"),
     loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
+    loadImage("资源/图片/blood.png"),
     loadImage("资源/图片/HP.png"),
+    loadImage("资源/图片/2HP.png"),
     ...battleEffectIdsFor(...allies, ...enemyActors).map((id) => loadSpriteOptional(id)),
     ...battleSpriteLoadPromisesFor(...allies, ...enemyActors)
   ]);
@@ -10814,7 +10863,9 @@ async function acceptTeamBattle(msg) {
       loadImage("资源/图片/战斗数字.png"),
       loadImage("资源/图片/战斗箭头.png"),
       loadImage(BATTLE_ARBITRATION_EFFECT_SRC),
+      loadImage("资源/图片/blood.png"),
       loadImage("资源/图片/HP.png"),
+      loadImage("资源/图片/2HP.png"),
       ...battleEffectIdsFor(...allies, ...enemies).map((id) => loadSpriteOptional(id)),
       ...battleSpriteLoadPromisesFor(...allies, ...enemies)
     ]);
@@ -12983,10 +13034,11 @@ function drawBattleHpEnergyBar(ctx, fighter, x, y, width) {
   const energyRate = shouldShowBattleEnergyBar(state.battle, fighter)
     ? (fighter.maxEnergy ? Math.max(0, Math.min(1, fighter.energy / fighter.maxEnergy)) : 1)
     : 0;
-  const image = state.images.get("资源/图片/HP.png")?.value;
+  const style = battleBarStyle();
+  const image = state.images.get(style.src)?.value;
   if (image) {
-    const height = Math.max(1, Math.round(width * 11 / 40));
-    battleBars.drawHpEnergyBar(ctx, image, x, y, width, height, hpRate, energyRate);
+    const height = style.mode === "frame" ? Math.max(1, Math.round(width * style.frame.h / style.frame.w)) : 7;
+    battleBars.drawBattleBars(ctx, image, x, y, width, height, hpRate, energyRate, style);
     return;
   }
   ctx.save();

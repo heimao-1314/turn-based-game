@@ -112,22 +112,27 @@ Use this file when:
 
 ### `battle-bars.js`
 
-Browser-side battle HP / energy bar drawing based on the `HP.png` sprite sheet (78x11). The empty frame (x0-39, y0-10) holds both bars as one unit, so they are drawn together instead of as separate pieces.
+Browser-side battle HP / energy bar drawing supporting three switchable styles (selected from the in-game detail settings menu):
+
+- `blood` (经典款, `blood.png` 22x7): split drawing — the HP bar and the energy bar are drawn as two touching segments; units without energy only show the HP bar.
+- `hp` (金色款, `HP.png` 78x11): combined frame 40x11 drawn in one `drawImage`, golden HP fill + cyan energy fill.
+- `2hp` (新款式, `2HP.png` 78x9): combined frame 40x9, golden HP fill + cyan energy fill. Default style.
 
 Main responsibilities:
 
-- `drawHpEnergyBar`: draws the combined frame in a single `drawImage`, then crops the right fills onto each inner slot by ratio — golden HP fill (x40-77, y1-4) into slot x1-38,y1-4 and cyan energy fill (x40-77, y6-9) into slot x1-38,y6-9. Passing `energyRate = 0` leaves the energy slot empty.
+- `drawBattleBars`: dispatches by `style.mode` — `split` draws the classic two-segment bars (energy only when `energyRate > 0`); `frame` draws the combined frame once, then crops the right fills onto each slot by ratio, leaving the energy slot empty when `energyRate = 0`.
+- `BATTLE_BAR_STYLES`: style catalog (id / label / src / frame / fills / slots).
 
 Notes:
 
-- `drawBattleHpEnergyBar` in `app.js` delegates to `drawHpEnergyBar` and keeps simplified round-rect bars as a fallback until `HP.png` finishes loading.
-- `HP.png` is preloaded together with the other battle assets.
-- Battle rendering (`app.js`): the energy fill shows on friendly fighters (player / pet / mercenary) and on both sides in PVP (peer duel, arena, team PVP); monsters, bosses and NPCs only get the HP fill. `energyRate` uses `fighter.energy / fighter.maxEnergy` when those fields exist and falls back to a full bar otherwise, so skill energy costs can be wired in later by writing those fields.
-- Browser-global style, exposed through `window.BattleBars`.
+- `app.js` keeps the selected style in `state.battleBarStyle` (persisted under `dw-battle-bar-style`, default `2hp`); `drawBattleHpEnergyBar` delegates to `drawBattleBars` with a simplified round-rect fallback until the style image loads.
+- All three sheets (`blood.png`, `HP.png`, `2HP.png`) are preloaded with the other battle assets.
+- Energy fill shows on friendly fighters (player / pet / mercenary) and on both sides in PVP; monsters, bosses and NPCs get HP only. `energyRate` uses `fighter.energy / fighter.maxEnergy` when present and a full bar otherwise, so skill energy costs can be wired in later.
 
 Use this file when:
 
 - Changing battle HP / energy bar visuals or proportions.
+- Adding or removing selectable bar styles.
 - Wiring up energy costs later.
 ### Online Battle Runtime
 
