@@ -12,6 +12,7 @@ const buildSeed = Number(buildTimestamp.slice(0, 12));
 const outDir = path.join(root, releaseConfig.outputDir || "dist-public");
 const pkgConfigPath = path.join(__dirname, "pkg.config.json");
 const serverExeName = releaseConfig.serverExeName || "game-service.exe";
+const portableNodeName = releaseConfig.portableNodeName || "node.exe";
 const staticEntryFiles = releaseConfig.staticEntryFiles || [];
 const staticRoots = releaseConfig.staticRoots || [];
 const serverFiles = releaseConfig.serverFiles || [];
@@ -553,6 +554,14 @@ function writeReleasePackageJson() {
 }
 
 function buildServerExe() {
+  if (releaseConfig.bundlePortableNode) {
+    serverFiles.forEach(copyRawFile);
+    (releaseConfig.fallbackServerRoots || []).forEach(copyRawDirMissing);
+    writeReleasePackageJson();
+    fs.copyFileSync(process.execPath, path.join(outDir, portableNodeName));
+    return false;
+  }
+
   const output = path.join(outDir, serverExeName);
   const pkgBin = path.join(root, "node_modules", "@yao-pkg", "pkg", "lib-es5", "bin.js");
   const pkgArgs = [
@@ -597,14 +606,20 @@ function randomSecret(prefix) {
 }
 
 function writeReleaseScripts(hasExe) {
-  const runner = hasExe ? serverExeName : "node server.js";
-  const nodeCheck = hasExe
+  const hasPortableNode = fs.existsSync(path.join(outDir, portableNodeName));
+  const runner = hasExe ? serverExeName : hasPortableNode ? `${portableNodeName} server.js` : "node server.js";
+  const nodeCheck = hasExe || hasPortableNode
     ? ""
     : `where node >nul 2>nul\r\nif errorlevel 1 (\r\n  echo Node.js not found. Please install Node.js first.\r\n  pause\r\n  exit /b 1\r\n)\r\n\r\nif not exist node_modules (\r\n  echo Installing production dependencies...\r\n  call npm.cmd install --omit=dev\r\n  if errorlevel 1 (\r\n    echo npm install failed.\r\n    pause\r\n    exit /b 1\r\n  )\r\n)\r\n\r\n`;
   const credentialBat = `@echo off\r\nrem 后台账号口令配置。正式上线前可改成自己的强密码。\r\nset ADMIN_PASSWORD=${randomSecret("local_admin")}\r\nset REMOTE_ADMIN_ACCOUNT=admin_${crypto.randomBytes(4).toString("hex")}\r\nset REMOTE_ADMIN_PASSWORD=${randomSecret("remote_admin")}\r\nset GAME_ADMIN_ACCOUNT=mapadmin_${crypto.randomBytes(4).toString("hex")}\r\nset GAME_ADMIN_PASSWORD=${randomSecret("map_admin")}\r\n`;
   const startBat = `@echo off\r\nsetlocal\r\ncd /d "%~dp0"\r\n\r\n${nodeCheck}if exist "%~dp0admin-secrets.bat" call "%~dp0admin-secrets.bat"\r\nset NODE_ENV=production\r\nset DISABLE_BW_OPT=1\r\n\r\necho ============================================\r\necho   Pocket Spirit - Release Server\r\necho ============================================\r\necho   URL: http://127.0.0.1:6588/index.html\r\necho   DB:  %~dp0players.sqlite\r\necho   Run: ${runner}\r\necho   BW-Opt: disabled by default for online battle\r\necho   Admin config: %~dp0admin-secrets.bat\r\necho ============================================\r\n\r\nstart "Pocket Spirit Release Server" cmd /k "cd /d ""%~dp0"" && ${runner}"\r\ntimeout /t 2 /nobreak >nul\r\npowershell -NoProfile -ExecutionPolicy Bypass -Command "$url='http://127.0.0.1:6588/index.html'; $profile=Join-Path $env:TEMP 'dw-pocket-spirit-release-browser'; $candidates=@((Join-Path \${env:ProgramFiles(x86)} 'Microsoft\Edge\Application\msedge.exe'), (Join-Path $env:ProgramFiles 'Microsoft\Edge\Application\msedge.exe'), (Join-Path \${env:ProgramFiles(x86)} 'Google\Chrome\Application\chrome.exe'), (Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe')); $browser=$candidates | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($browser) { Start-Process -FilePath $browser -ArgumentList @('--app=' + $url, '--user-data-dir=' + $profile, '--no-first-run', '--disable-extensions', '--disable-features=Translate,AutofillServerCommunication'); } else { Start-Process $url; }"\r\nendlocal\r\n`;
   const stopBat = `@echo off\r\nsetlocal\r\necho Stopping Pocket Spirit release server on port 6588...\r\npowershell -NoProfile -ExecutionPolicy Bypass -Command "$pids = Get-NetTCPConnection -LocalPort 6588 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; if (-not $pids) { Write-Host 'No service is listening on port 6588.'; exit 0 }; foreach ($pidValue in $pids) { if ($pidValue -and $pidValue -ne 0) { Stop-Process -Id $pidValue -Force; Write-Host ('Stopped process ' + $pidValue) } }"\r\npause\r\nendlocal\r\n`;
-  const readme = `# 上线包说明\r\n\r\n- 双击 一键启动-上线.bat 启动服务。\r\n- 双击 一键暂停-上线.bat 停止服务。\r\n- 后台账号和口令在 admin-secrets.bat，可在启动前改成自己的强密码。\r\n- 本目录继续使用 players.sqlite / players.sqlite-wal / players.sqlite-shm。\r\n- 服务端已优先封装为 ${serverExeName}，上线包不再暴露 server.js。\r\n- 前端 JS 已混淆；本次打包 seed: ${buildSeed}。\r\n- 数据库、exe、启动脚本、package.json 不允许通过 HTTP 下载。\r\n`;
+  const runtimeNote = hasExe
+    ? `服务端已封装为 ${serverExeName}。`
+    : hasPortableNode
+      ? `上线包已内置 ${portableNodeName}，服务器无需另行安装 Node.js。`
+      : "服务器需要预先安装 Node.js。";
+  const readme = `# 上线包说明\r\n\r\n- 双击 一键启动-上线.bat 启动服务。\r\n- 双击 一键暂停-上线.bat 停止服务。\r\n- 后台账号和口令在 admin-secrets.bat，可在启动前改成自己的强密码。\r\n- 本目录继续使用 players.sqlite / players.sqlite-wal / players.sqlite-shm。\r\n- ${runtimeNote}\r\n- 前端 JS 已混淆；本次打包 seed: ${buildSeed}。\r\n- 数据库、exe、启动脚本、package.json 不允许通过 HTTP 下载。\r\n`;
 
   fs.writeFileSync(path.join(outDir, "一键启动-上线.bat"), startBat, "utf8");
   fs.writeFileSync(path.join(outDir, "一键暂停-上线.bat"), stopBat, "utf8");
@@ -625,4 +640,6 @@ console.log(`Release files written to ${path.relative(root, outDir)}`);
 console.log(`Build timestamp seed: ${buildSeed}`);
 console.log(hasExe
   ? `Server was packaged as ${serverExeName}. Upload dist-public only.`
-  : "Upload dist-public only. pkg failed, but Node fallback files were written.");
+  : releaseConfig.bundlePortableNode
+    ? `Portable Node runtime was bundled as ${portableNodeName}. Upload dist-public only.`
+    : "Upload dist-public only. pkg failed, but Node fallback files were written.");

@@ -140,5 +140,7 @@
     "副本模块",
     "聊天模块",
     "bandwidth-optimizer"
-  ]
+  ],
+  "bundlePortableNode": true,
+  "portableNodeName": "node.exe"
 }
