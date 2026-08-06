@@ -1,0 +1,30 @@
+{
+  "pkg": {
+    "scripts": [
+      "server.js",
+      "src/**/*.js",
+      "战斗/*.js",
+      "队伍/*.js",
+      "联网战斗/*.js",
+      "全服竞技场/*.js",
+      "仙气修炼/*.js",
+      "疯狂吹牛/*.js",
+      "每日新闻/*.js",
+      "好运宝箱/*.js",
+      "地图系统/*.js",
+      "宠物模块/*.js",
+      "职业模块/*.js",
+      "生活技能/*.js",
+      "副本模块/*.js",
+      "聊天模块/*.js",
+      "bandwidth-optimizer/server/*.js",
+      "bandwidth-optimizer/shared/*.js"
+    ],
+    "assets": [
+      "地图系统/地图清单.json"
+    ],
+    "bytecode": true,
+    "fallbackToSource": false,
+    "public": false
+  }
+}

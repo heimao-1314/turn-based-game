@@ -4,6 +4,7 @@
 
 # ---- 依赖 ----
 node_modules/
+dist-public/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
