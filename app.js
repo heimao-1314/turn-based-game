@@ -1661,6 +1661,7 @@ function scheduleLightweightMapPrefetch(currentMapName = "") {
 }
 
 async function changeMap(name, tileX, tileY, options = {}) {
+  const previousMapName = state.mapName;
   name = resolveLegacyNewMapName(name);
   const shouldShowMapLoading = state.player && state.map && name !== state.mapName;
   const loadingToken = shouldShowMapLoading ? beginMapLoadingTransition() : 0;
@@ -1678,6 +1679,7 @@ async function changeMap(name, tileX, tileY, options = {}) {
     const finalTileY = typeof tileY === "string" ? resolvePortalCoord(tileY, sourceTileX, sourceTileY, state.map.height) : tileY;
     placeActorAt(finalTileX, finalTileY);
     broadcastState(true);
+    window.TaoziNpc?.onMapChanged(previousMapName, state.mapName);
   } catch (error) {
     if (shouldShowMapLoading) forceFinishMapLoadingTransition(loadingToken);
     showMenuHint?.(`???????${error.message || error}`);
@@ -4112,7 +4114,12 @@ async function enterGame(initialSaved = null) {
     addPrivateLine: addPrivateChatLine,
     openPrivateDialog: openPrivateChatDialog,
     postApi,
-    showHint: showMenuHint
+    showHint: showMenuHint,
+    playerName: () => state.player?.name || state.account,
+    showLocalBubble: (text) => {
+      const taozi = state.remotes.find((actor) => actor.taoziNpc);
+      if (taozi) Object.assign(taozi, { bubble: String(text || ""), bubbleUntil: performance.now() + 3200 });
+    }
   });
   state.phantom = {
     points: saved?.phantomPoints || 0,

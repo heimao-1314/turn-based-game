@@ -3058,14 +3058,16 @@ function migrateLegacyDb() {
 }
 
 async function handleApi(req, res, url) {
-  if (req.method === "POST" && url.pathname === "/api/taozi/chat") {
+  if (req.method === "POST" && (url.pathname === "/api/taozi/chat" || url.pathname === "/api/taozi/welcome")) {
     const account = requireAuthAccount(req, res, url);
     if (!account) return;
     readJsonBody(req, async (data, error) => {
       if (error) return sendJson(res, 400, { ok: false, error: "invalid_json" });
       try {
         const playerName = db.prepare("SELECT name FROM players WHERE account = ?").get(account)?.name || account;
-        const result = await taoziRuntime.chat(account, data, playerName);
+        const result = url.pathname.endsWith("/welcome")
+          ? await taoziRuntime.welcome(account, playerName)
+          : await taoziRuntime.chat(account, data, playerName);
         sendJson(res, result.ok ? 200 : result.status || 500, result);
       } catch {
         if (!res.headersSent) sendJson(res, 500, { ok: false, error: "server_error" });

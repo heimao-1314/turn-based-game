@@ -1,9 +1,16 @@
 const { buildTaoziSystemPrompt } = require("./prompt.js");
+const { TAOZI_EMOJI_CATALOG } = require("./emoji-catalog.js");
 
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_HISTORY_MESSAGES = 10;
 const RATE_WINDOW_MS = 60_000;
 const RATE_LIMIT = 10;
+const WELCOME_INSTRUCTION = "玩家刚刚从别的地图回到罗克萨斯家。只输出一句自然亲昵的欢迎气泡，必须自然称呼玩家名字，可以使用一个游戏表情 token，不要解释。";
+const EMOJI_TOKENS = new Set(TAOZI_EMOJI_CATALOG.map(({ token }) => token));
+
+function normalizeReply(value, maxLength = 2000) {
+  return String(value || "").trim().replace(/\[(?:e|ico)\d+\]/g, (token) => EMOJI_TOKENS.has(token) ? token : "").slice(0, maxLength);
+}
 
 function createTaoziRuntime({ apiKey, baseUrl, model, fetchImpl = fetch, now = Date.now, recordAnomaly = () => {} }) {
   const attempts = new Map();
@@ -29,10 +36,8 @@ function createTaoziRuntime({ apiKey, baseUrl, model, fetchImpl = fetch, now = D
     return [...safeHistory, { role: "user", content: message }];
   }
 
-  async function chat(account, data, playerName = account) {
+  async function request(account, messages, playerName, maxReplyLength) {
     if (!apiKey || !baseUrl || !model) return { ok: false, status: 503, error: "taozi_ai_unconfigured" };
-    const messages = normalizeMessages(data);
-    if (!messages) return { ok: false, status: 400, error: "invalid_taozi_message" };
     if (!consumeRateLimit(account)) {
       recordAnomaly(account, "taozi_ai_rate_limited", { windowMs: RATE_WINDOW_MS }, 1, "reject");
       return { ok: false, status: 429, error: "taozi_ai_rate_limited" };
@@ -58,12 +63,22 @@ function createTaoziRuntime({ apiKey, baseUrl, model, fetchImpl = fetch, now = D
     if (response.status === 429) return { ok: false, status: 503, error: "taozi_ai_upstream_busy" };
     if (!response.ok) return { ok: false, status: 502, error: "taozi_ai_upstream_error" };
     const payload = await response.json().catch(() => null);
-    const reply = String(payload?.choices?.[0]?.message?.content || "").trim().slice(0, 2000);
+    const reply = normalizeReply(payload?.choices?.[0]?.message?.content, maxReplyLength);
     if (!reply) return { ok: false, status: 502, error: "taozi_ai_empty_reply" };
     return { ok: true, reply };
   }
 
-  return { chat };
+  async function chat(account, data, playerName = account) {
+    const messages = normalizeMessages(data);
+    if (!messages) return { ok: false, status: 400, error: "invalid_taozi_message" };
+    return request(account, messages, playerName);
+  }
+
+  function welcome(account, playerName = account) {
+    return request(account, [{ role: "user", content: WELCOME_INSTRUCTION }], playerName, 120);
+  }
+
+  return { chat, welcome };
 }
 
 module.exports = { createTaoziRuntime, MAX_MESSAGE_LENGTH, MAX_HISTORY_MESSAGES };

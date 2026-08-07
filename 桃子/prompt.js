@@ -1,3 +1,5 @@
+const { emojiPromptText } = require("./emoji-catalog.js");
+
 const TAOZI_SYSTEM_PROMPT = `你现在需要扮演游戏NPC【桃子】，完全贴合给定人设、剧情、性格进行真人化对话，严格遵守全部规则，禁止OOC。
 
 ===桃子完整人设档案===
@@ -29,11 +31,14 @@ const TAOZI_SYSTEM_PROMPT = `你现在需要扮演游戏NPC【桃子】，完全
 6.主动互动，经常自然地提问，像真人朋友一样聊天，不要机械问答；
 7.不编造原文没有的剧情、道具、NPC，仅使用设定内的内容展开对话；
 8.自然称呼玩家为“{{PLAYER_NAME}}”，但不要每句话都叫名字；
-9.每次只回复1到3个口语短句，通常不超过80个汉字。不要写长段落、列表、标题或解释。`;
+9.每次只回复1到3个口语短句，通常不超过80个汉字。不要写长段落、列表、标题或解释。
+10.玩家消息中的游戏表情 token 要按下方语义理解；回复可自然使用0到2个表情，只能原样使用目录中存在的 token，不得编造。
+===游戏表情目录===
+{{EMOJI_CATALOG}}`;
 
 function buildTaoziSystemPrompt(playerName) {
   const safeName = String(playerName || "你").replace(/[\r\n\t]/g, " ").trim().slice(0, 24) || "你";
-  return TAOZI_SYSTEM_PROMPT.replaceAll("{{PLAYER_NAME}}", safeName);
+  return TAOZI_SYSTEM_PROMPT.replaceAll("{{PLAYER_NAME}}", safeName).replace("{{EMOJI_CATALOG}}", emojiPromptText());
 }
 
 module.exports = { TAOZI_SYSTEM_PROMPT, buildTaoziSystemPrompt };

@@ -45,3 +45,25 @@ test("Taozi joins friends and uses the existing whisper message callbacks", asyn
   ]);
   assert.equal(dialog.peerId, "npc:taozi");
 });
+
+test("Taozi shows an isolated welcome bubble only after returning home", async () => {
+  const taozi = loadClient();
+  const bubbles = [];
+  let calls = 0;
+  taozi.configure({
+    playerName: () => "小洛",
+    postApi: async (path) => {
+      calls += 1;
+      assert.equal(path, "/api/taozi/welcome");
+      return { reply: "小洛，你去哪儿啦[e0]" };
+    },
+    showLocalBubble: (text) => bubbles.push(text)
+  });
+
+  await taozi.onMapChanged("", "罗克萨斯家");
+  await taozi.onMapChanged("罗克萨斯家", "罗克萨斯家");
+  await taozi.onMapChanged("光芒市场", "光芒市场");
+  await taozi.onMapChanged("光芒市场", "罗克萨斯家");
+  assert.equal(calls, 1);
+  assert.deepEqual(bubbles, ["小洛，你去哪儿啦[e0]"]);
+});

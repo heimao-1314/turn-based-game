@@ -94,5 +94,16 @@
     }
   }
 
-  window.TaoziNpc = { createNpc, configure, friendTarget, whisperTarget, open, confirmInteraction, sendWhisper };
+  async function onMapChanged(previousMap, currentMap) {
+    if (!context || !previousMap || previousMap === MAP_NAME || currentMap !== MAP_NAME) return;
+    let reply;
+    try {
+      reply = (await context.postApi("/api/taozi/welcome", {})).reply;
+    } catch {
+      reply = `${context.playerName()}，欢迎回家[e0]`;
+    }
+    context.showLocalBubble(reply);
+  }
+
+  window.TaoziNpc = { createNpc, configure, friendTarget, whisperTarget, open, confirmInteraction, sendWhisper, onMapChanged };
 })();
