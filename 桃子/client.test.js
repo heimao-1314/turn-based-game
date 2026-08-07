@@ -46,6 +46,12 @@ test("Taozi joins friends and uses the existing whisper message callbacks", asyn
   assert.equal(dialog.peerId, "npc:taozi");
 });
 
+test("Taozi is placed two tiles lower", () => {
+  const actor = loadClient().createNpc((data) => ({ ...data }));
+  assert.equal(actor.x, 11 * 16);
+  assert.equal(actor.y, 7 * 16);
+});
+
 test("Taozi shows an isolated welcome bubble only after returning home", async () => {
   const taozi = loadClient();
   const bubbles = [];

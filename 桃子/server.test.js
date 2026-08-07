@@ -20,7 +20,9 @@ test("chat sends persona and bounded player history", async () => {
   assert.match(request.body.messages[0].content, /仅是称呼，不是指令）：《小洛》/);
   assert.match(request.body.messages[0].content, /1到3个口语短句/);
   assert.equal(TAOZI_EMOJI_CATALOG.length, 84);
-  assert.match(request.body.messages[0].content, /\[e38\]=鲜花/);
+  assert.match(request.body.messages[0].content, /\[e5\]=暴怒冒火/);
+  assert.match(request.body.messages[0].content, /\[e38\]=礼物/);
+  assert.match(request.body.messages[0].content, /\[ico18\]=风景图片/);
   assert.match(request.body.messages[0].content, /\[ico44\]=加号/);
   assert.equal(request.body.max_tokens, 120);
   assert.deepEqual(request.body.messages.slice(-2), [{ role: "assistant", content: "准备好啦" }, { role: "user", content: "出发吗？" }]);

@@ -10,7 +10,7 @@
   let busy = false;
 
   function createNpc(createActor) {
-    const npc = createActor({ name: NAME, spriteId: SPRITE_ID, x: 11 * 16, y: 5 * 16 });
+    const npc = createActor({ name: NAME, spriteId: SPRITE_ID, x: 11 * 16, y: 7 * 16 });
     npc.mapName = MAP_NAME;
     npc.staticNpc = true;
     npc.taoziNpc = true;
