@@ -1,4 +1,4 @@
-const { TAOZI_SYSTEM_PROMPT } = require("./prompt.js");
+const { buildTaoziSystemPrompt } = require("./prompt.js");
 
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_HISTORY_MESSAGES = 10;
@@ -29,7 +29,7 @@ function createTaoziRuntime({ apiKey, baseUrl, model, fetchImpl = fetch, now = D
     return [...safeHistory, { role: "user", content: message }];
   }
 
-  async function chat(account, data) {
+  async function chat(account, data, playerName = account) {
     if (!apiKey || !baseUrl || !model) return { ok: false, status: 503, error: "taozi_ai_unconfigured" };
     const messages = normalizeMessages(data);
     if (!messages) return { ok: false, status: 400, error: "invalid_taozi_message" };
@@ -46,9 +46,9 @@ function createTaoziRuntime({ apiKey, baseUrl, model, fetchImpl = fetch, now = D
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model,
-          messages: [{ role: "system", content: TAOZI_SYSTEM_PROMPT }, ...messages],
+          messages: [{ role: "system", content: buildTaoziSystemPrompt(playerName) }, ...messages],
           temperature: 0.8,
-          max_tokens: 350
+          max_tokens: 120
         }),
         signal: AbortSignal.timeout(20_000)
       });

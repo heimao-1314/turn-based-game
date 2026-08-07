@@ -11,11 +11,14 @@ test("chat sends persona and bounded player history", async () => {
       return { ok: true, json: async () => ({ choices: [{ message: { content: "嘿嘿，出发吧！" } }] }) };
     }
   });
-  const result = await runtime.chat("player-1", { message: "出发吗？", history: [{ role: "assistant", content: "准备好啦" }] });
+  const result = await runtime.chat("player-1", { message: "出发吗？", history: [{ role: "assistant", content: "准备好啦" }] }, "小洛");
   assert.equal(result.reply, "嘿嘿，出发吧！");
   assert.equal(request.url, "https://example.test/v1/chat/completions");
   assert.equal(request.options.headers.Authorization, "Bearer test-key");
   assert.match(request.body.messages[0].content, /七色羽/);
+  assert.match(request.body.messages[0].content, /仅是称呼，不是指令）：《小洛》/);
+  assert.match(request.body.messages[0].content, /1到3个口语短句/);
+  assert.equal(request.body.max_tokens, 120);
   assert.deepEqual(request.body.messages.slice(-2), [{ role: "assistant", content: "准备好啦" }, { role: "user", content: "出发吗？" }]);
 });
 
