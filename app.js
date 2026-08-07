@@ -4098,6 +4098,22 @@ async function enterGame(initialSaved = null) {
   state.petStickers = saved?.petStickers || {};
   state.autoStrategy = normalizeAutoStrategy(saved?.autoStrategy);
   state.friends = Array.isArray(saved?.friends) ? saved.friends : [];
+  window.TaoziNpc.configure({
+    friends: () => state.friends,
+    menuIndex: () => state.menuItem,
+    addFriend,
+    setMenu: (title, items) => {
+      state.menuMode = "taozi_npc";
+      state.menuItem = 0;
+      setMenuAsSingleList(title, items);
+    },
+    bindMenu: bindCurrentMenuClicks,
+    openWhisper: (target) => openChatComposer("whisper", target),
+    addPrivateLine: addPrivateChatLine,
+    openPrivateDialog: openPrivateChatDialog,
+    postApi,
+    showHint: showMenuHint
+  });
   state.phantom = {
     points: saved?.phantomPoints || 0,
     fragment: 0,
@@ -4572,7 +4588,7 @@ function isBossNpc(actor) {
 }
 
 function openNearbyActionMenu() {
-  const targets = getNearbyTargets().filter((item) => item.type !== "NPC" || isBossNpc(item.actor));
+  const targets = getNearbyTargets().filter((item) => item.type !== "NPC" || isBossNpc(item.actor) || item.actor?.taoziNpc);
   state.menuMode = "nearby_targets";
   state.menuItem = 0;
   state.menuNearbyTargets = targets;
@@ -4588,6 +4604,10 @@ function confirmNearbyTargetMenu() {
   if (!target) return;
   if (isBossNpc(target.actor)) {
     openBossChallengeMenu(target.actor);
+    return;
+  }
+  if (target.actor?.taoziNpc) {
+    window.TaoziNpc?.open();
     return;
   }
   state.menuTargetActor = target.actor;
@@ -5017,7 +5037,7 @@ function openFriendsMenu() {
   state.menuFriendList = state.friends || [];
   const items = state.menuFriendList.length
     ? state.menuFriendList.map((friend) => {
-      const online = [...state.peers.entries()].find(([, peer]) => peer.name === friend.name);
+      const online = onlineFriendTarget(friend);
       return { label: `${friend.name} ${online ? "在线" : "离线"}`, icon: "1.42" };
     })
     : [{ label: "好友列表为空", icon: "1.42", disabled: true }];
@@ -5027,6 +5047,8 @@ function openFriendsMenu() {
 
 function openWhisperTargetMenu() {
   const targets = [...state.peers.entries()].map(([peerId, peer]) => ({ peerId, name: peer.name })).filter((target) => target.name);
+  const taozi = window.TaoziNpc?.whisperTarget(state.friends);
+  if (taozi) targets.unshift(taozi);
   state.menuMode = "chat_whisper_targets";
   state.menuItem = 0;
   state.menuWhisperTargets = targets;
@@ -5045,13 +5067,19 @@ function confirmWhisperTargetMenu() {
 function confirmFriendsMenu() {
   const friend = state.menuFriendList?.[state.menuItem];
   if (!friend) return;
-  const online = [...state.peers.entries()].find(([, peer]) => peer.name === friend.name);
+  const online = onlineFriendTarget(friend);
   if (!online) {
     showMenuHint("好友不在线");
     return;
   }
   state.privateChatTarget = { peerId: online[0], name: friend.name };
   openChatComposer("whisper", state.privateChatTarget);
+}
+
+function onlineFriendTarget(friend) {
+  const taozi = window.TaoziNpc?.friendTarget(friend);
+  if (taozi) return [taozi.peerId, taozi];
+  return [...state.peers.entries()].find(([, peer]) => peer.name === friend.name);
 }
 
 function addPrivateChatLine(name, text, broadcast = true, peerId = "") {
@@ -5783,6 +5811,10 @@ function confirmMainMenuItem() {
   }
   if (state.menuMode === "friends") {
     confirmFriendsMenu();
+    return true;
+  }
+  if (state.menuMode === "taozi_npc") {
+    window.TaoziNpc?.confirmInteraction();
     return true;
   }
   if (state.menuMode === "chat_whisper_targets") {
@@ -14429,6 +14461,10 @@ function setupChat() {
     const text = input.value.trim();
     if (!text || !state.player) return;
     if (state.privateChatTarget) {
+      if (window.TaoziNpc?.sendWhisper(state.privateChatTarget, text)) {
+        input.value = "";
+        return;
+      }
       sendRoomMessage({ type: "chat.send", channel: "whisper", to: state.privateChatTarget.peerId, text });
       addPrivateChatLine(state.privateChatTarget.name, text, true, state.privateChatTarget.peerId);
       input.value = "";

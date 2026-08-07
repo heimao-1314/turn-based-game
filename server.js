@@ -6391,7 +6391,7 @@ const dailyNewsRuntime = createDailyNewsRuntime({ db });
 const taoziRuntime = createTaoziRuntime({
   apiKey: process.env.TAOZI_AI_API_KEY,
   baseUrl: process.env.TAOZI_AI_BASE_URL || "https://ai.txwj.asia/v1",
-  model: process.env.TAOZI_AI_MODEL || "gpt-5.6-luna",
+  model: process.env.TAOZI_AI_MODEL || "gpt-5.6-terra",
   recordAnomaly
 });
 
