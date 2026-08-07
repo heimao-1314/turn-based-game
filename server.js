@@ -29,6 +29,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+try { process.loadEnvFile?.(); } catch (error) { if (error?.code !== "ENOENT") throw error; }
 const { DatabaseSync } = require("node:sqlite");
 const createOnlineBattleRuntime = require("./联网战斗/server.js");
 const createArenaRuntime = require("./全服竞技场/server.js");
@@ -52,6 +53,7 @@ const elfKingVault = require("./副本模块/精灵王宝库.js");
 const luckyBoxModule = require("./好运宝箱/shared.js");
 const { createOnlineStatsRuntime } = require("./src/server/admin/online-stats-runtime.js");
 const { createGrowthConfigRuntime } = require("./src/server/admin/growth-config-runtime.js");
+const { createTaoziRuntime } = require("./桃子/server.js");
 
 // === 带宽优化模块（实验功能，设 ENABLE_BW_OPT=1 才启用）===
 let bandwidthOptimizer = null;
@@ -150,7 +152,7 @@ const types = {
   ".md": "text/markdown; charset=utf-8"
 };
 
-const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "每日新闻", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "聊天模块", "飞图小地图", "后台管理ui", "bandwidth-optimizer"];
+const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "每日新闻", "桃子", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "聊天模块", "飞图小地图", "后台管理ui", "bandwidth-optimizer"];
 const staticAssetExtensions = new Set([".chj", ".css", ".html", ".js", ".json", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webmanifest"]);
 const staticEntryFiles = new Set([
   "index.html",
@@ -3056,6 +3058,20 @@ function migrateLegacyDb() {
 }
 
 async function handleApi(req, res, url) {
+  if (req.method === "POST" && url.pathname === "/api/taozi/chat") {
+    const account = requireAuthAccount(req, res, url);
+    if (!account) return;
+    readJsonBody(req, async (data, error) => {
+      if (error) return sendJson(res, 400, { ok: false, error: "invalid_json" });
+      try {
+        const result = await taoziRuntime.chat(account, data);
+        sendJson(res, result.ok ? 200 : result.status || 500, result);
+      } catch {
+        if (!res.headersSent) sendJson(res, 500, { ok: false, error: "server_error" });
+      }
+    });
+    return;
+  }
   if (req.method === "GET" && adminMapApi.handleGet(req, res, url)) return;
   if (req.method === "GET" && url.pathname === "/api/changelog") {
     const log = updateLogSetting();
@@ -6372,6 +6388,12 @@ madBragRuntime = createMadBragRuntime({
 });
 
 const dailyNewsRuntime = createDailyNewsRuntime({ db });
+const taoziRuntime = createTaoziRuntime({
+  apiKey: process.env.TAOZI_AI_API_KEY,
+  baseUrl: process.env.TAOZI_AI_BASE_URL || "https://ai.txwj.asia/v1",
+  model: process.env.TAOZI_AI_MODEL || "gpt-5.6-luna",
+  recordAnomaly
+});
 
 function encodeFrame(message) {
   const payload = Buffer.from(message);

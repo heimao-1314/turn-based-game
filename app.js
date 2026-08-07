@@ -2241,6 +2241,10 @@ function openStaticNpcMenu(npc) {
     openStorageMenu();
     return true;
   }
+  if (npc.taoziNpc) {
+    window.TaoziNpc?.open();
+    return true;
+  }
   if (isDiziNpc(npc)) {
     if (typeof window.openDiziNpcMenu === "function") window.openDiziNpcMenu();
     else openDiziNpcMenuFallback();
@@ -4128,6 +4132,7 @@ async function enterGame(initialSaved = null) {
     createActor({ name: "引导员", spriteId: 651, x: 5 * 16, y: 9 * 16 }),
     createActor({ name: "小企鹅", spriteId: 161, x: 11 * 16, y: 17 * 16 }),
     createActor({ name: "罗克萨斯", spriteId: 2000, x: 4 * 16, y: 9 * 16 }),
+    window.TaoziNpc.createNpc(createActor),
     createRoleChangeNpc(),
     createStatRankingNpc(),
     createDiziNpc(),
@@ -4143,19 +4148,19 @@ async function enterGame(initialSaved = null) {
   state.remotes[2].mapName = NEW_ROXAS_HOME_MAP;
   state.remotes[2].staticNpc = true;
   state.remotes[2].storageNpc = true;
-  state.remotes[3].mapName = NEW_ROXAS_HOME_MAP;
-  state.remotes[3].staticNpc = true;
-  state.remotes[3].roleChangeNpc = true;
   state.remotes[4].mapName = NEW_ROXAS_HOME_MAP;
   state.remotes[4].staticNpc = true;
-  state.remotes[4].statRankingNpc = true;
-  state.remotes[5].mapName = NEW_MARKET_MAP;
+  state.remotes[4].roleChangeNpc = true;
+  state.remotes[5].mapName = NEW_ROXAS_HOME_MAP;
   state.remotes[5].staticNpc = true;
-  state.remotes[5].npcId = "dizi";
-  state.remotes[5].diziNpc = true;
-  state.remotes[6].mapName = "\u5e7b\u5f71\u72e9\u730e\u573a";
+  state.remotes[5].statRankingNpc = true;
+  state.remotes[6].mapName = NEW_MARKET_MAP;
   state.remotes[6].staticNpc = true;
-  state.remotes[6].phantomNpc = true;
+  state.remotes[6].npcId = "dizi";
+  state.remotes[6].diziNpc = true;
+  state.remotes[7].mapName = "\u5e7b\u5f71\u72e9\u730e\u573a";
+  state.remotes[7].staticNpc = true;
+  state.remotes[7].phantomNpc = true;
   await ensureCurrentMapActorSprites();
   await savePlayerPosition(true);
 
