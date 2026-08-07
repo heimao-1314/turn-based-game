@@ -48,11 +48,13 @@ const { createWebSocketFrameRuntime, encodeControlFrame } = require("./src/serve
 const { createChatRuntime } = require("./聊天模块/server.js");
 const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
+const careerProgress = require("./职业模块/career-progress.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
 const elfKingVault = require("./副本模块/精灵王宝库.js");
 const luckyBoxModule = require("./好运宝箱/shared.js");
 const { createOnlineStatsRuntime } = require("./src/server/admin/online-stats-runtime.js");
 const { createGrowthConfigRuntime } = require("./src/server/admin/growth-config-runtime.js");
+const { createDragonSoulRuntime } = require("./龙魂系统/server.js");
 const { createTaoziRuntime } = require("./桃子/server.js");
 
 // === 带宽优化模块（实验功能，设 ENABLE_BW_OPT=1 才启用）===
@@ -152,7 +154,7 @@ const types = {
   ".md": "text/markdown; charset=utf-8"
 };
 
-const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "每日新闻", "桃子", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "聊天模块", "飞图小地图", "后台管理ui", "bandwidth-optimizer"];
+const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "每日新闻", "桃子", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "聊天模块", "飞图小地图", "后台管理ui", "bandwidth-optimizer", "龙魂系统"];
 const staticAssetExtensions = new Set([".chj", ".css", ".html", ".js", ".json", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webmanifest"]);
 const staticEntryFiles = new Set([
   "index.html",
@@ -192,7 +194,13 @@ const STAT_LIMITS = {
   hit: 1000,
   dodge: 100,
   crit: 100,
-  critDamage: 2000
+  critDamage: 2000,
+  antiCritDamage: 2000,
+  confuseResist: 100,
+  sealResist: 100,
+  paralyzeResist: 100,
+  curseResist: 100,
+  sleepResist: 100
 };
 
 const STAT_MINIMUMS = {
@@ -205,7 +213,13 @@ const STAT_MINIMUMS = {
   hit: 0,
   dodge: 0,
   crit: 0,
-  critDamage: 100
+  critDamage: 100,
+  antiCritDamage: 0,
+  confuseResist: 0,
+  sealResist: 0,
+  paralyzeResist: 0,
+  curseResist: 0,
+  sleepResist: 0
 };
 
 const sharedClassGrowth = careerTree.baseGrowth;
@@ -216,8 +230,6 @@ const classGrowth = {
   "法师": sharedClassGrowth,
   "剑士": sharedClassGrowth
 };
-
-const dragonSoulGrowth = { hp: 2000, defense: 180, speed: 1, attack: 200, mana: 60, crit: 0.03, critDamage: 3 };
 
 // 子职业只区分可用技能，不再修改角色数值。
 const subStatBonus = {
@@ -471,7 +483,10 @@ db.exec(`
     exp INTEGER NOT NULL DEFAULT 0,
     career_level INTEGER NOT NULL DEFAULT 1,
     career_exp INTEGER NOT NULL DEFAULT 0,
-    dragon_soul INTEGER NOT NULL DEFAULT 1,
+    dragon_soul INTEGER NOT NULL DEFAULT 0,
+    dragon_soul_exp INTEGER NOT NULL DEFAULT 0,
+    dragon_soul_daily_key TEXT NOT NULL DEFAULT '',
+    dragon_soul_daily_used INTEGER NOT NULL DEFAULT 0,
     pet_level INTEGER NOT NULL DEFAULT 1,
     pet_exp INTEGER NOT NULL DEFAULT 0,
     pet_progress_json TEXT NOT NULL DEFAULT '{}',
@@ -1377,7 +1392,7 @@ const growthConfigRuntime = createGrowthConfigRuntime({
     expTable: LEVEL_UP_EXP,
     character: {
       growth: classGrowth[careerTree.INITIAL_CLASS],
-      dragonSoul: dragonSoulGrowth
+      dragonSoul: {}
     },
     pet: { growth: petGrowth },
     mercenary: { base: mercenaryBaseStats, minFactor: 0.1, maxFactor: 1 }
@@ -1388,20 +1403,12 @@ function expToNextLevel(level) {
   return growthConfigRuntime.expToNextLevel(level);
 }
 
-// Kept separate so the pending career experience curve can be replaced without touching other progression.
 function careerExpToNextLevel(level) {
-  return expToNextLevel(level);
+  return careerProgressConfigRuntime.getConfig().expPerLevel;
 }
 
 function applyCareerExp(level, exp, gained) {
-  let nextLevel = Math.max(1, Math.min(100, Number(level) || 1));
-  let nextExp = Math.max(0, Number(exp) || 0) + Math.max(0, Number(gained) || 0);
-  while (nextLevel < 100 && nextExp >= careerExpToNextLevel(nextLevel)) {
-    nextExp -= careerExpToNextLevel(nextLevel);
-    nextLevel += 1;
-  }
-  if (nextLevel >= 100) nextExp = 0;
-  return { level: nextLevel, exp: nextExp };
+  return careerProgress.applyExp(level, exp, gained, careerExpToNextLevel(level));
 }
 
 function applyExp(level, exp, gained) {
@@ -1867,12 +1874,12 @@ function sanitizeStoredEquipment(account, row) {
   return { row: { ...row, equipment_json: equipmentJson, equipped_json: equippedJson }, anomalies };
 }
 
-function classBaseStats(className, level = 1, dragonSoul = 1) {
+function classBaseStats(className, level = 1, dragonSoul = 0) {
   const growth = growthConfigRuntime.characterGrowth();
-  const dragonSoulGrowthConfig = growthConfigRuntime.dragonSoulGrowth();
+  const dragonSoulStats = dragonSoulRuntime.statsAt(dragonSoul);
   const stats = {};
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    stats[stat] = growthValue(growth[stat], level) + (dragonSoulGrowthConfig[stat] || 0) * (Math.max(1, dragonSoul) - 1);
+    stats[stat] = growthValue(growth[stat], level) + (dragonSoulStats[stat] || 0);
   });
   return stats;
 }
@@ -1894,6 +1901,12 @@ function mergeStats(base, bonus = {}, clamp = true) {
     dodge: statValue("dodge"),
     crit: statValue("crit"),
     critDamage: statValue("critDamage"),
+    antiCritDamage: statValue("antiCritDamage"),
+    confuseResist: statValue("confuseResist"),
+    sealResist: statValue("sealResist"),
+    paralyzeResist: statValue("paralyzeResist"),
+    curseResist: statValue("curseResist"),
+    sleepResist: statValue("sleepResist"),
     skillId,
     skillIds: [...new Set(["shining_strike", ...(base.skillIds || []), ...(bonus.skillIds || []), skillId].filter(Boolean))],
     forceBasicAttack: bonus.forceBasicAttack || base.forceBasicAttack || false,
@@ -2672,7 +2685,8 @@ function playerRowToApi(row) {
     careerExp: row.career_exp || 0,
     careerStage: careerTree.careerStage(safeJsonObject(row.selection_json)),
     careerName: careerTree.careerName(safeJsonObject(row.selection_json)),
-    dragonSoul: row.dragon_soul || 1,
+    dragonSoul: Number(row.dragon_soul) || 0,
+    dragonSoulState: dragonSoulRuntime.stateFromRow(row),
     petLevel: row.pet_level || 1,
     petExp: row.pet_exp || 0,
     petProgressById: petProgressMapForRow(row),
@@ -2857,6 +2871,9 @@ function ensurePlayerColumns() {
   addColumn("career_level", "career_level INTEGER NOT NULL DEFAULT 1");
   addColumn("career_exp", "career_exp INTEGER NOT NULL DEFAULT 0");
   addColumn("dragon_soul", "dragon_soul INTEGER NOT NULL DEFAULT 1");
+  addColumn("dragon_soul_exp", "dragon_soul_exp INTEGER NOT NULL DEFAULT 0");
+  addColumn("dragon_soul_daily_key", "dragon_soul_daily_key TEXT NOT NULL DEFAULT ''");
+  addColumn("dragon_soul_daily_used", "dragon_soul_daily_used INTEGER NOT NULL DEFAULT 0");
   addColumn("pet_level", "pet_level INTEGER NOT NULL DEFAULT 1");
   addColumn("pet_exp", "pet_exp INTEGER NOT NULL DEFAULT 0");
   addColumn("pet_progress_json", "pet_progress_json TEXT NOT NULL DEFAULT '{}'");
@@ -3014,7 +3031,7 @@ function upsertPlayer({ account, ownerAccount, serverId, characterSlot, gender, 
     mapName,
     Math.max(1, Math.min(100, Number(level ?? current?.level) || 1)),
     Math.max(0, Number(exp ?? current?.exp) || 0),
-    Math.max(1, Math.min(100, Number(dragonSoul ?? current?.dragon_soul) || 1)),
+    Math.max(0, Math.min(70, Number(dragonSoul ?? current?.dragon_soul) || 0)),
     selectedPetProgress.level,
     selectedPetProgress.exp,
     JSON.stringify(progressById),
@@ -3099,7 +3116,11 @@ async function handleApi(req, res, url) {
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/growth-config") {
-    sendJson(res, 200, { ok: true, config: growthConfigRuntime.getConfig() });
+    sendJson(res, 200, { ok: true, config: { ...growthConfigRuntime.getConfig(), dragonSoul: dragonSoulRuntime.getConfig() } });
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/dragon-soul-config") {
+    sendJson(res, 200, { ok: true, config: dragonSoulRuntime.getConfig() });
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/servers") {
@@ -3229,6 +3250,16 @@ async function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/admin/growth-config") {
     if (!checkAdmin(req, res)) return;
     sendJson(res, 200, { ok: true, config: growthConfigRuntime.getConfig(), updatedAt: growthConfigRuntime.updatedAt() });
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/admin/dragon-soul-config") {
+    if (!checkAdmin(req, res)) return;
+    sendJson(res, 200, { ok: true, config: dragonSoulRuntime.getConfig(), updatedAt: dragonSoulRuntime.updatedAt() });
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/admin/career-progress-config") {
+    if (!checkAdmin(req, res)) return;
+    sendJson(res, 200, { ok: true, config: careerProgressConfigRuntime.getConfig() });
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/admin/stat-rankings") {
@@ -3858,7 +3889,8 @@ async function handleApi(req, res, url) {
         exp: ["exp", 0, 999999999],
         careerLevel: ["career_level", 1, 100],
         careerExp: ["career_exp", 0, 999999999],
-        dragonSoul: ["dragon_soul", 1, 100],
+        dragonSoul: ["dragon_soul", 0, 70],
+        dragonSoulExp: ["dragon_soul_exp", 0, 999999999],
         petLevel: ["pet_level", 1, 100],
         petExp: ["pet_exp", 0, 999999999],
         silver: ["silver", 0, 999999999],
@@ -4106,6 +4138,28 @@ async function handleApi(req, res, url) {
       if (!checkAdmin(req, res, data)) return;
       const growthReset = growthConfigRuntime.resetConfig();
       sendJson(res, 200, { ok: true, config: growthReset.config, updatedAt: growthReset.updatedAt });
+      return;
+    }
+    if (url.pathname === "/api/admin/dragon-soul-config") {
+      if (!checkAdmin(req, res, data)) return;
+      const result = dragonSoulRuntime.updateConfig(data);
+      sendJson(res, 200, { ok: true, ...result });
+      return;
+    }
+    if (url.pathname === "/api/admin/dragon-soul-config/reset") {
+      if (!checkAdmin(req, res, data)) return;
+      const result = dragonSoulRuntime.resetConfig();
+      sendJson(res, 200, { ok: true, ...result });
+      return;
+    }
+    if (url.pathname === "/api/admin/career-progress-config") {
+      if (!checkAdmin(req, res, data)) return;
+      sendJson(res, 200, { ok: true, config: careerProgressConfigRuntime.updateConfig(data) });
+      return;
+    }
+    if (url.pathname === "/api/admin/career-progress-config/reset") {
+      if (!checkAdmin(req, res, data)) return;
+      sendJson(res, 200, { ok: true, config: careerProgressConfigRuntime.resetConfig() });
       return;
     }
     const account = requireAuthAccount(req, res, url, data);
@@ -4555,7 +4609,7 @@ async function handleApi(req, res, url) {
       const careerStage = careerTree.careerStage(safeJsonObject(row.selection_json));
       const previousCareerProgress = normalizeProgress({ level: row.career_level, exp: row.career_exp });
       const careerLeveled = careerStage > 0
-        ? applyCareerExp(previousCareerProgress.level, previousCareerProgress.exp, reward.exp)
+        ? applyCareerExp(previousCareerProgress.level, previousCareerProgress.exp, reward.monsterCount)
         : previousCareerProgress;
       const activePetId = activePetIdForRow(row);
       const petProgressById = petProgressMapForRow(row);
@@ -4603,7 +4657,7 @@ async function handleApi(req, res, url) {
         previousCareerLevel: previousCareerProgress.level,
         careerLevel: careerLeveled.level,
         careerExp: careerLeveled.exp,
-        gainedCareerExp: careerStage > 0 ? reward.exp : 0,
+        gainedCareerExp: careerStage > 0 ? reward.monsterCount : 0,
         dragonSoul: next.dragon_soul,
         petLevel: petLeveled.level,
         petExp: petLeveled.exp,
@@ -4792,27 +4846,9 @@ async function handleApi(req, res, url) {
       });
       return;
     }
-    if (url.pathname === "/api/dragon-soul/upgrade") {
-      const row = db.prepare("SELECT dragon_soul, soul_powder FROM players WHERE account = ?").get(account);
-      if (!row) {
-        upsertPlayer({ account, name: account, x: 0, y: 0, mapName: "" });
-      }
-      const current = db.prepare("SELECT dragon_soul, soul_powder FROM players WHERE account = ?").get(account);
-      const dragonSoul = Math.max(1, Math.min(100, Number(current.dragon_soul) || 1));
-      if (dragonSoul >= 100) {
-        sendJson(res, 409, { ok: false, error: "max_level", dragonSoul, soulPowder: current.soul_powder || 0 });
-        return;
-      }
-      const cost = Math.floor(20 + Math.pow(dragonSoul, 1.55) * 8);
-      if ((current.soul_powder || 0) < cost) {
-        sendJson(res, 409, { ok: false, error: "not_enough_powder", cost, dragonSoul, soulPowder: current.soul_powder || 0 });
-        return;
-      }
-      const updatedAt = new Date().toISOString();
-      db.prepare("UPDATE players SET dragon_soul = dragon_soul + 1, soul_powder = soul_powder - ?, updated_at = ? WHERE account = ?")
-        .run(cost, updatedAt, account);
-      const next = db.prepare("SELECT dragon_soul, soul_powder FROM players WHERE account = ?").get(account);
-      sendJson(res, 200, { ok: true, dragonSoul: next.dragon_soul, soulPowder: next.soul_powder, cost });
+    if (url.pathname === "/api/dragon-soul/evolve") {
+      const result = dragonSoulRuntime.evolve(account);
+      sendJson(res, result.status || 200, result);
       return;
     }
     if (url.pathname === "/api/equipment/equip") {
@@ -6397,6 +6433,19 @@ const taoziRuntime = createTaoziRuntime({
   model: process.env.TAOZI_AI_MODEL || "gpt-5.6-terra",
   recordAnomaly
 });
+const dragonSoulRuntime = createDragonSoulRuntime({ db });
+const careerProgressConfigRuntime = {
+  getConfig() {
+    const row = db.prepare("SELECT value_json FROM app_settings WHERE key = ?").get("career_progress_config_v1");
+    try { return { expPerLevel: Math.max(1, Math.min(1000000, Math.floor(Number(JSON.parse(row?.value_json || "{}").expPerLevel) || 100))) }; } catch { return { expPerLevel: 100 }; }
+  },
+  updateConfig(data) {
+    const expPerLevel = Math.max(1, Math.min(1000000, Math.floor(Number(data.expPerLevel) || 100)));
+    db.prepare("INSERT INTO app_settings (key, value_json, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at").run("career_progress_config_v1", JSON.stringify({ expPerLevel }), new Date().toISOString());
+    return { expPerLevel };
+  },
+  resetConfig() { db.prepare("DELETE FROM app_settings WHERE key = ?").run("career_progress_config_v1"); return { expPerLevel: 100 }; }
+};
 
 function encodeFrame(message) {
   const payload = Buffer.from(message);

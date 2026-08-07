@@ -1043,6 +1043,8 @@ const System = (() => {
    ============================================ */
 const GrowthConfig = (() => {
   let config = null;
+  let dragonSoulConfig = null;
+  let careerProgressConfig = null;
 
   const STAT_LABELS = {
     attack: "攻击", hp: "生命", speed: "速度", mana: "法力", defense: "防御",
@@ -1050,6 +1052,13 @@ const GrowthConfig = (() => {
   };
   const BASE_LABELS = {
     hp: "生命", defense: "防御", speed: "速度", attack: "攻击", mana: "法力", crit: "致命", critDamage: "爆伤"
+  };
+  const DRAGON_SOUL_STAGES = ["黄铜", "青铜", "黑铁", "白银", "黄金", "白金", "钻石"];
+  const DRAGON_SOUL_STATS = {
+    attack: "攻击", speed: "速度", defense: "防御", mana: "法力", hp: "生命",
+    critDamage: "暴伤", antiCritDamage: "抗暴伤", hit: "命中", dodge: "闪避",
+    confuseResist: "抗混乱", sealResist: "抗封印", paralyzeResist: "抗麻痹",
+    curseResist: "抗诅咒", sleepResist: "抗昏睡", crit: "致命"
   };
 
   function statPairHtml(prefix, stat, label, pair) {
@@ -1082,12 +1091,36 @@ const GrowthConfig = (() => {
     const statKeys = Object.keys(STAT_LABELS);
     const baseKeys = Object.keys(BASE_LABELS);
     $("#growthCharacterGrid").innerHTML = statKeys.map((s) => statPairHtml("growth-character", s, STAT_LABELS[s], config.character?.growth?.[s])).join("");
-    $("#growthDragonSoulGrid").innerHTML = baseKeys.map((s) => statSingleHtml("growth-dragon", s, BASE_LABELS[s], config.character?.dragonSoul?.[s])).join("");
+    if ($("#growthDragonSoulGrid")) $("#growthDragonSoulGrid").innerHTML = "";
     $("#growthPetGrid").innerHTML = statKeys.map((s) => statPairHtml("growth-pet", s, STAT_LABELS[s], config.pet?.growth?.[s])).join("");
     $("#growthMercenaryGrid").innerHTML = baseKeys.map((s) => statSingleHtml("growth-merc", s, BASE_LABELS[s], config.mercenary?.base?.[s])).join("");
     $("#mercMinFactorInput").value = config.mercenary?.minFactor ?? 0.1;
     $("#mercMaxFactorInput").value = config.mercenary?.maxFactor ?? 1;
     $("#growthExpTableInput").value = Array.isArray(config.expTable) ? config.expTable.slice(1).join("\n") : "";
+    renderDragonSoul();
+    if (careerProgressConfig) $("#careerExpPerLevelInput").value = careerProgressConfig.expPerLevel;
+  }
+
+  function renderDragonSoul() {
+    if (!dragonSoulConfig) return;
+    const rules = [
+      ["cost", "单次粉末", 1], ["normalExp", "普通经验", 1], ["criticalExp", "暴击经验", 1],
+      ["expPerLevel", "每级经验", 1], ["criticalChance", "暴击概率(%)", 0.01], ["dailyLimit", "每日次数", 1]
+    ];
+    $("#dragonSoulRuleGrid").innerHTML = rules.map(([key, label, step]) => `<label>${label}<input id="dragon-soul-rule-${key}" type="number" min="0" step="${step}" value="${key === "criticalChance" ? (Number(dragonSoulConfig[key]) || 0) * 100 : Number(dragonSoulConfig[key]) || 0}" /></label>`).join("");
+    const stats = Object.entries(DRAGON_SOUL_STATS);
+    $("#dragonSoulConfigHead").innerHTML = `<tr><th>阶段</th>${stats.map(([, label]) => `<th>${label}</th>`).join("")}</tr>`;
+    $("#dragonSoulConfigBody").innerHTML = DRAGON_SOUL_STAGES.map((stage, index) => `<tr><th>${stage}</th>${stats.map(([key]) => `<td><input id="dragon-soul-stage-${index}-${key}" type="number" min="0" step="any" value="${Number(dragonSoulConfig.stages?.[index]?.[key]) || 0}" /></td>`).join("")}</tr>`).join("");
+  }
+
+  function readDragonSoulConfig() {
+    const stages = DRAGON_SOUL_STAGES.map((_, index) => Object.fromEntries(Object.keys(DRAGON_SOUL_STATS).map((key) => [key, readNumber(`dragon-soul-stage-${index}-${key}`)])));
+    return {
+      cost: readNumber("dragon-soul-rule-cost"), normalExp: readNumber("dragon-soul-rule-normalExp"),
+      criticalExp: readNumber("dragon-soul-rule-criticalExp"), expPerLevel: readNumber("dragon-soul-rule-expPerLevel"),
+      criticalChance: readNumber("dragon-soul-rule-criticalChance") / 100,
+      dailyLimit: readNumber("dragon-soul-rule-dailyLimit"), stages
+    };
   }
 
   function readNumber(id) {
@@ -1107,8 +1140,6 @@ const GrowthConfig = (() => {
     statKeys.forEach((s) => { characterGrowth[s] = readPair(`growth-character-${s}`); });
     const petGrowth = {};
     statKeys.forEach((s) => { petGrowth[s] = readPair(`growth-pet-${s}`); });
-    const dragonSoul = {};
-    baseKeys.forEach((s) => { dragonSoul[s] = readNumber(`growth-dragon-${s}`); });
     const mercBase = {};
     baseKeys.forEach((s) => { mercBase[s] = readNumber(`growth-merc-${s}`); });
     const expLines = String($("#growthExpTableInput")?.value || "").split(/[\n,]+/).map((v) => v.trim()).filter((v) => v !== "");
@@ -1121,7 +1152,7 @@ const GrowthConfig = (() => {
     });
     return {
       expTable,
-      character: { growth: characterGrowth, dragonSoul },
+      character: { growth: characterGrowth },
       pet: { growth: petGrowth },
       mercenary: {
         base: mercBase,
@@ -1149,8 +1180,14 @@ const GrowthConfig = (() => {
   async function load() {
     bindPaneTabs();
     try {
-      const result = await Core.api("/api/admin/growth-config", { method: "GET" });
+      const [result, dragonSoulResult, careerResult] = await Promise.all([
+        Core.api("/api/admin/growth-config", { method: "GET" }),
+        Core.api("/api/admin/dragon-soul-config", { method: "GET" }),
+        Core.api("/api/admin/career-progress-config", { method: "GET" })
+      ]);
       config = result.config || null;
+      dragonSoulConfig = dragonSoulResult.config || null;
+      careerProgressConfig = careerResult.config || null;
       render();
       Core.message("成长配置已载入");
     } catch (err) {
@@ -1172,11 +1209,15 @@ const GrowthConfig = (() => {
     const previousText = button?.textContent || "保存全部配置";
     if (button) { button.disabled = true; button.textContent = "保存中…"; }
     try {
-      const result = await Core.api("/api/admin/growth-config", {
-        method: "POST",
-        body: JSON.stringify(Core.authBody(payload))
-      });
+      const dragonSoulPayload = readDragonSoulConfig();
+      const [result, dragonSoulResult, careerResult] = await Promise.all([
+        Core.api("/api/admin/growth-config", { method: "POST", body: JSON.stringify(Core.authBody(payload)) }),
+        Core.api("/api/admin/dragon-soul-config", { method: "POST", body: JSON.stringify(Core.authBody(dragonSoulPayload)) }),
+        Core.api("/api/admin/career-progress-config", { method: "POST", body: JSON.stringify(Core.authBody({ expPerLevel: readNumber("careerExpPerLevelInput") })) })
+      ]);
       config = result.config || payload;
+      dragonSoulConfig = dragonSoulResult.config || dragonSoulPayload;
+      careerProgressConfig = careerResult.config || { expPerLevel: readNumber("careerExpPerLevelInput") };
       render();
       Core.message("成长配置已保存并全服生效");
     } catch (err) {
@@ -1190,11 +1231,12 @@ const GrowthConfig = (() => {
     if (!confirm("确定恢复成长与经验配置为代码默认值吗？当前配置将被清空。")) return;
     if (!confirm("再次确认：恢复默认会覆盖当前保存的成长/经验数值。")) return;
     try {
-      const result = await Core.api("/api/admin/growth-config/reset", {
-        method: "POST",
-        body: JSON.stringify(Core.authBody())
-      });
+      const [result, dragonSoulResult] = await Promise.all([
+        Core.api("/api/admin/growth-config/reset", { method: "POST", body: JSON.stringify(Core.authBody()) }),
+        Core.api("/api/admin/dragon-soul-config/reset", { method: "POST", body: JSON.stringify(Core.authBody()) })
+      ]);
       config = result.config || null;
+      dragonSoulConfig = dragonSoulResult.config || null;
       render();
       Core.message("已恢复默认成长与经验配置");
     } catch (err) {

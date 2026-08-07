@@ -1754,6 +1754,46 @@ input {
   opacity: 0.58;
 }
 
+.main-menu-item.dragon-soul-stage-icon-row {
+  display: flex;
+  justify-content: flex-start;
+  min-height: 84px;
+  padding: 6px;
+  background: transparent;
+  color: inherit;
+  opacity: 1;
+}
+
+.main-menu-item.dragon-soul-stage-icon-row.active {
+  background: transparent;
+  color: inherit;
+}
+
+.main-menu-item.dragon-soul-stage-icon-row > small,
+.main-menu-item.dragon-soul-stage-icon-row > .main-menu-icon {
+  display: none;
+}
+
+.main-menu-item.dragon-soul-stage-icon-row > span {
+  width: 130px;
+  height: 72px;
+  overflow: visible;
+}
+
+.dragon-soul-stage-icon {
+  display: block;
+  width: 130px;
+  height: 72px;
+  background: url("资源/图片/lh72x130.png") 0 0 / 910px 72px no-repeat;
+}
+
+.role-stats-dragon-soul-icon {
+  display: inline-block;
+  width: 65px;
+  height: 36px;
+  background: url("资源/图片/lh72x130.png") 0 0 / 455px 36px no-repeat;
+}
+
 .main-menu-item.rare-fragment span,
 .battle-reward-row.rare-fragment span {
   color: #ffeb70;
@@ -1958,6 +1998,27 @@ input {
 .role-stats-crystal {
   display: inline-flex;
   align-items: center;
+}
+
+.role-stats-dragon-soul-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.role-stats-level-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.role-stats-dragon-soul-inline .role-stats-dragon-soul-icon {
+  width: 32px;
+  height: 18px;
+  background-size: 227.5px 18px;
 }
 
 .role-stats-body {

@@ -105,6 +105,11 @@ body { width:100vw; height:100vh; overflow:hidden; background:radial-gradient(ci
 .growth-tab.active { border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 5px 13px rgba(20,121,232,.22); }
 .growth-pane { display:none; }
 .growth-pane.active { display:grid; gap:13px; }
+.dragon-soul-config-table-wrap { overflow-x: auto; border: 1px solid var(--line); }
+.dragon-soul-config-table { min-width: 1180px; }
+.dragon-soul-config-table th,
+.dragon-soul-config-table td { padding: 6px; white-space: nowrap; text-align: center; }
+.dragon-soul-config-table input { width: 72px; min-height: 30px; padding: 4px 5px; text-align: right; }
 
 /* ===== 登录界面可视化编辑器 ===== */
 .login-visual-layout { display:grid; grid-template-columns:240px minmax(0,1fr); gap:18px; align-items:start; }

@@ -178,7 +178,13 @@ const STAT_LIMITS = {
   hit: 1000,
   dodge: 100,
   crit: 100,
-  critDamage: 2000
+  critDamage: 2000,
+  antiCritDamage: 2000,
+  confuseResist: 100,
+  sealResist: 100,
+  paralyzeResist: 100,
+  curseResist: 100,
+  sleepResist: 100
 };
 
 const STAT_MINIMUMS = {
@@ -191,7 +197,13 @@ const STAT_MINIMUMS = {
   hit: 0,
   dodge: 0,
   crit: 0,
-  critDamage: 100
+  critDamage: 100,
+  antiCritDamage: 0,
+  confuseResist: 0,
+  sealResist: 0,
+  paralyzeResist: 0,
+  curseResist: 0,
+  sleepResist: 0
 };
 
 const STAT_ICONS = {
@@ -237,16 +249,6 @@ const classGrowth = {
   "枪手": sharedClassGrowth,
   "法师": sharedClassGrowth,
   "剑士": sharedClassGrowth
-};
-
-const dragonSoulGrowth = {
-  hp: 2000,
-  defense: 180,
-  speed: 1,
-  attack: 200,
-  mana: 60,
-  crit: 0.03,
-  critDamage: 3
 };
 
 // 子职业只区分可用技能，不再修改角色数值。
@@ -1870,9 +1872,8 @@ function expToNextLevel(level) {
   return table[Math.max(1, Math.min(99, Math.floor(Number(level) || 1)))] || 0;
 }
 
-// Career thresholds are intentionally isolated so the pending career curve can be replaced independently.
 function careerExpToNextLevel(level) {
-  return expToNextLevel(level);
+  return 100;
 }
 
 function normalizePetProgress(progress = {}) {
@@ -1899,16 +1900,14 @@ function todayKey(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-function soulPowderCost(level) {
-  return Math.floor(20 + Math.pow(level, 1.55) * 8);
-}
+function soulPowderCost() { return 50; }
 
 function classBaseStats(className, level = state.playerProgress?.level || 100, dragonSoul = state.playerProgress?.dragonSoul || 1) {
   const growthConfigData = growthConfig?.character?.growth || classGrowth[className] || classGrowth[careerTree.INITIAL_CLASS];
-  const dragonSoulConfig = growthConfig?.character?.dragonSoul || dragonSoulGrowth;
+  const dragonSoulConfig = DragonSoul.statsAt(dragonSoul, growthConfig?.dragonSoul?.stages || DragonSoul.DEFAULT_CONFIG.stages);
   const stats = {};
   Object.keys(STAT_LIMITS).forEach((stat) => {
-    stats[stat] = growthValue(growthConfigData[stat], level) + (dragonSoulConfig[stat] || 0) * (Math.max(1, dragonSoul) - 1);
+    stats[stat] = growthValue(growthConfigData[stat], level) + (dragonSoulConfig[stat] || 0);
   });
   return stats;
 }
@@ -1932,6 +1931,12 @@ function mergeStats(base, bonus = {}, clamp = true) {
     dodge: statValue("dodge"),
     crit: statValue("crit"),
     critDamage: statValue("critDamage"),
+    antiCritDamage: statValue("antiCritDamage"),
+    confuseResist: statValue("confuseResist"),
+    sealResist: statValue("sealResist"),
+    paralyzeResist: statValue("paralyzeResist"),
+    curseResist: statValue("curseResist"),
+    sleepResist: statValue("sleepResist"),
     skill: bonus.skill || base.skill || skill.name,
     skillId,
     skillIds,
@@ -4080,7 +4085,8 @@ async function enterGame(initialSaved = null) {
     exp: Math.max(0, Number(saved?.exp) || 0),
     careerLevel: clampStat(saved?.careerLevel || 1, 1, 100),
     careerExp: Math.max(0, Number(saved?.careerExp) || 0),
-    dragonSoul: clampStat(saved?.dragonSoul || 1, 1, 100)
+    dragonSoul: clampStat(saved?.dragonSoul || 0, 0, 70),
+    dragonSoulState: saved?.dragonSoulState || DragonSoul.progress(saved?.dragonSoul || 0)
   };
   state.selected.petId = normalizePetId(state.selected.petId);
   state.petProgressById = Object.fromEntries(Object.entries(saved?.petProgressById || {}).map(([petId, progress]) => [String(normalizePetId(petId)), normalizePetProgress(progress)]).filter(([petId]) => petId !== "0"));
@@ -4334,6 +4340,8 @@ async function refreshServerStats() {
 
 function applyPlayerStateResult(player) {
   if (!player) return;
+  state.playerProgress.dragonSoul = clampStat(player.dragonSoul ?? state.playerProgress.dragonSoul, 0, 70);
+  state.playerProgress.dragonSoulState = player.dragonSoulState || DragonSoul.progress(state.playerProgress.dragonSoul);
   state.playerProgress.careerLevel = clampStat(player.careerLevel ?? state.playerProgress.careerLevel, 1, 100);
   state.playerProgress.careerExp = Math.max(0, Number(player.careerExp ?? state.playerProgress.careerExp) || 0);
   if (player.petProgressById) {
@@ -5637,7 +5645,7 @@ function confirmMainMenuItem() {
     return true;
   }
   if (state.menuMode === "dragon_soul_detail") {
-    openDragonSoulMenu(state.menuItem);
+    openDragonSoulMenu();
     return true;
   }
   if (state.menuMode === "immortal_cultivation") {
@@ -6269,7 +6277,7 @@ function openTaskMenu() {
   const phantomPoints = state.phantom?.points || 0;
   const rows = [
     { label: `主线：提升角色等级 当前${level}/100`, icon: STAT_ICONS.exp, disabled: true },
-    { label: `养成：龙魂修炼 当前${dragonSoul}/100`, icon: "1.49", disabled: true },
+    { label: `养成：龙魂修炼 当前${dragonSoul}/70`, icon: "1.49", disabled: true },
     { label: `狩猎：原野怪区挑战阿木木，获得兑换碎片`, icon: "2.21", disabled: true },
     { label: `幻影：收集幻影碎片 当前${phantomFragment}个`, icon: "1.49", disabled: true },
     { label: `幻影积分：提交碎片累计积分 当前${phantomPoints}分`, icon: "1.49", disabled: true },
@@ -6755,6 +6763,12 @@ function roleStatsIconHtml(ref, size = 18) {
   return `<span class="role-stat-icon-wrap" style="width:${size}px;height:${size}px"><i class="main-menu-icon icon-sheet-${sheet || 1}" style="background-position:-${index * 18}px 0;transform:scale(${size / 18});transform-origin:left top"></i></span>`;
 }
 
+function dragonSoulStatsIconHtml(level) {
+  const progress = DragonSoul.progress(level);
+  const offset = -(progress.stage - 1) * 65;
+  return `<i class="role-stats-dragon-soul-icon" style="display:inline-block;width:65px;height:36px;background-image:url('资源/图片/lh72x130.png');background-repeat:no-repeat;background-size:455px 36px;background-position:${offset}px 0" aria-label="${escapeHtml(progress.stageName)}龙魂"></i>`;
+}
+
 function skillCardIconRef(skill = {}) {
   if (skill.icon) return skill.icon;
   if (skill.type === "passive") return "2.12";
@@ -6793,6 +6807,7 @@ function statsCardSubjectForRole() {
   const role = findRole();
   const level = state.playerProgress.level;
   const stats = statsForRole();
+  const dragonSoul = DragonSoul.progress(state.playerProgress.dragonSoul);
   return {
     kind: "role",
     name: state.player?.name || state.account || "",
@@ -6801,7 +6816,9 @@ function statsCardSubjectForRole() {
     level,
     exp: state.playerProgress.exp,
     expNeed: level < 100 ? expToNextLevel(level) : 0,
-    rank: `等级 ${level} 龙魂${state.playerProgress.dragonSoul}`,
+    rank: `等级 ${level}`,
+    dragonSoulLabel: `${dragonSoul.stageName}龙魂 ${dragonSoul.stageLevel}/10`,
+    dragonSoulLevel: state.playerProgress.dragonSoul,
     careerName: careerTree.careerName(state.selected),
     careerEnabled: careerTree.careerStage(state.selected) > 0,
     careerLevel: state.playerProgress.careerLevel,
@@ -6861,6 +6878,7 @@ function statsCardSubjectForMercenary(mercenary) {
 
 function statsCardSubjectForPeer(player) {
   const stats = player?.stats || {};
+  const dragonSoul = DragonSoul.progress(player?.dragonSoul || 0);
   return {
     kind: "peer",
     name: player?.name || player?.account || "玩家",
@@ -6869,7 +6887,9 @@ function statsCardSubjectForPeer(player) {
     level: player?.level || 1,
     exp: 0,
     expNeed: 0,
-    rank: `等级 ${player?.level || 1} 龙魂${player?.dragonSoul || 1}`,
+    rank: `等级 ${player?.level || 1}`,
+    dragonSoulLabel: `${dragonSoul.stageName}龙魂 ${dragonSoul.stageLevel}/10`,
+    dragonSoulLevel: player?.dragonSoul || 0,
     headerMode: "各项抗性",
     classLine: `战斗力 ${combatPowerForStats(stats)}`,
     skills: skillsForStats(stats)
@@ -6886,7 +6906,7 @@ function roleStatsMainHtml(subject) {
     ${roleStatRow({ label: subject.kind === "pet" ? "元素属性" : subject.classLine, value: subject.kind === "pet" || subject.kind === "peer" ? "" : `技能 ${stats.skill || skillById(stats.skillId).name}`, icon: "1.49", className: "accent", full: true })}
     ${subject.kind === "mercenary" ? roleStatRowHtml({ label: "经验", html: expHtml, icon: "2.12" }) : subject.kind === "peer" ? roleStatRow({ label: "等级", value: `${subject.level}/100`, icon: STAT_ICONS.exp }) : roleStatRowHtml({ label: "经验", html: expHtml, icon: "2.12" })}
     ${roleStatRow({ label: subject.kind === "role" ? "职业经验" : "守护等级", value: subject.kind === "role" ? (!subject.careerEnabled ? "未开启" : subject.careerLevel >= 100 ? "满级" : `${subject.careerExp}/${subject.careerExpNeed}`) : "", icon: "2.12", className: "accent" })}
-    ${roleStatRow({ label: subject.kind === "pet" ? "修炼" : subject.kind === "mercenary" ? "技能数" : subject.kind === "peer" ? "龙魂" : "职业等级", value: subject.kind === "mercenary" ? Math.max(0, subject.skills.length - 1) : subject.kind === "peer" ? `${String(subject.rank).split("龙魂")[1] || 1}` : subject.kind === "role" ? (subject.careerEnabled ? `${subject.careerLevel}/100` : "未开启") : "", icon: "2.12", className: "cyan" })}
+    ${roleStatRow({ label: subject.kind === "pet" ? "修炼" : subject.kind === "mercenary" ? "技能数" : subject.kind === "peer" ? "龙魂" : "职业等级", value: subject.kind === "mercenary" ? Math.max(0, subject.skills.length - 1) : subject.kind === "peer" ? `${String(subject.rank).split("龙魂")[1] || 1}` : subject.kind === "role" ? (subject.careerEnabled ? `第${Math.ceil(subject.careerLevel / 10)}阶 ${((subject.careerLevel - 1) % 10) + 1}级` : "未开启") : "", icon: "2.12", className: "cyan" })}
     ${roleStatRow({ label: subject.kind === "pet" ? "宠物类型" : subject.kind === "mercenary" ? "佣兵类型" : subject.kind === "peer" ? "玩家" : "职业", value: subject.kind === "pet" ? "灵兽" : subject.kind === "mercenary" ? subject.classLine.split(" / ")[0] : subject.kind === "peer" ? subject.name : subject.careerName, icon: "2.12", className: "cyan" })}
     ${roleStatRow({ label: "攻击", value: stats.attack, icon: STAT_ICONS.attack })}
     ${roleStatRow({ label: "防御", value: stats.defense, icon: STAT_ICONS.defense })}
@@ -6932,6 +6952,7 @@ function petStickerStatsHtml(stickers) {
 }
 
 function roleStatsResistHtml(subject) {
+  const stats = subject.stats || {};
   const skillRows = (subject.skills || []).slice(0, 6).map((id, index) => {
     const skill = skillById(id);
     return roleStatRowHtml({
@@ -6945,13 +6966,12 @@ function roleStatsResistHtml(subject) {
   return `<div class="role-stat-grid">
     ${roleStatRow({ label: "物理攻击抗性", value: 0, icon: STAT_ICONS.defense, full: true })}
     ${roleStatRow({ label: "技能攻击抗性", value: 0, icon: "2.10", full: true })}
-    ${roleStatRow({ label: "混乱", value: 0, icon: "1.39" })}
-    ${roleStatRow({ label: "昏睡", value: 0, icon: "1.49" })}
-    ${roleStatRow({ label: "麻痹", value: 0, icon: "1.41" })}
-    ${roleStatRow({ label: "封印", value: 0, icon: "2.7" })}
-    ${roleStatRow({ label: "诅咒", value: 0, icon: "1.14", full: true })}
-    ${roleStatRow({ label: "抗致命", value: 0, icon: STAT_ICONS.crit })}
-    ${roleStatRow({ label: "抗暴伤", value: 0, icon: STAT_ICONS.critDamage })}
+    ${roleStatRow({ label: "抗混乱", value: stats.confuseResist || 0, icon: "1.39" })}
+    ${roleStatRow({ label: "抗昏睡", value: stats.sleepResist || 0, icon: "1.49" })}
+    ${roleStatRow({ label: "抗麻痹", value: stats.paralyzeResist || 0, icon: "1.41" })}
+    ${roleStatRow({ label: "抗封印", value: stats.sealResist || 0, icon: "2.7" })}
+    ${roleStatRow({ label: "抗诅咒", value: stats.curseResist || 0, icon: "1.14", full: true })}
+    ${roleStatRow({ label: "抗暴伤", value: stats.antiCritDamage || 0, icon: STAT_ICONS.critDamage })}
     ${roleStatRow({ label: "抗人物", value: 0, icon: "2.10" })}
     ${roleStatRow({ label: "抗宠物", value: 0, icon: "2.12" })}
     ${roleStatRowHtml({ label: `${subject.kind === "pet" ? "宠物" : subject.kind === "mercenary" ? "佣兵" : subject.kind === "peer" ? "对方" : "人物"}会 ${subject.skills.length} 项技能`, html: "", icon: "2.12", full: true })}
@@ -6966,8 +6986,15 @@ function renderRoleStatsCard() {
   $("#roleStatsName").textContent = subject.name;
   $("#roleStatsMedal").innerHTML = subject.kind === "pet" ? roleStatsIconHtml("1.49") : roleStatsIconHtml("2.6");
   $("#roleStatsFlight").textContent = state.roleStatsPage === "resist" ? subject.headerMode : "";
-  $("#roleStatsCrystal").innerHTML = state.roleStatsPage === "resist" ? "" : roleStatsIconHtml("2.12");
-  $("#roleStatsRank").textContent = state.roleStatsPage === "resist" ? "" : subject.rank;
+  $("#roleStatsCrystal").innerHTML = state.roleStatsPage === "resist" || subject.kind === "role" || subject.kind === "peer" ? "" : roleStatsIconHtml("2.12");
+  if (state.roleStatsPage === "resist") {
+    $("#roleStatsRank").textContent = "";
+  } else if (subject.kind === "role" || subject.kind === "peer") {
+    const levelIcon = subject.kind === "role" ? roleStatsIconHtml("1.14", 16) : "";
+    $("#roleStatsRank").innerHTML = `<span class="role-stats-level-inline">${levelIcon}<span>${escapeHtml(subject.rank)}</span></span><span class="role-stats-dragon-soul-inline">${dragonSoulStatsIconHtml(subject.dragonSoulLevel)}<span>${escapeHtml(subject.dragonSoulLabel || "")}</span></span>`;
+  } else {
+    $("#roleStatsRank").textContent = subject.rank;
+  }
   $("#roleStatsBody").innerHTML = state.roleStatsPage === "resist" ? roleStatsResistHtml(subject) : roleStatsMainHtml(subject);
   panel.classList.add("active");
   panel.setAttribute("aria-hidden", "false");
@@ -7294,47 +7321,68 @@ function openDragonSoulMenu(keepIndex = 0) {
   state.menuMode = "dragon_soul";
   state.menuItem = keepIndex;
   const level = state.playerProgress.dragonSoul;
-  const cost = level < 100 ? soulPowderCost(level) : 0;
-  setMenuAsSingleList("龙魂系统", [
-    { label: `龙魂等级 ${level}/100（查看属性）`, icon: "1.49" },
-    { label: cost ? `消耗 ${cost} 灵魂粉末升级` : "龙魂已满级", icon: "1.11", disabled: level >= 100 }
-  ]);
+  const soulState = state.playerProgress.dragonSoulState || DragonSoul.progress(level);
+  const currentStageIndex = Math.min(6, Math.floor(level / 10));
+  const rows = DragonSoul.STAGE_NAMES.map((stageName, index) => {
+    const stageStart = index * 10;
+    const stageLevel = Math.max(0, Math.min(10, level - stageStart));
+    if (stageLevel >= 10) return { label: `${stageName}龙魂 10/10（已满级，点击查看属性）`, icon: "1.49", action: "detail" };
+    if (index !== currentStageIndex || level >= 70) {
+      return { label: `${stageName}龙魂 0/10（上一阶段满级后解锁）`, icon: "1.49", disabled: true };
+    }
+    return {
+      label: `${stageName}龙魂 ${stageLevel}/10　经验 ${soulState.exp}/${soulState.expPerLevel || 1000}　进化消耗${soulState.cost || soulPowderCost()}粉末（今日余${soulState.dailyRemaining ?? 10}次）`,
+      icon: "1.11"
+    };
+  });
+  setMenuAsSingleList("龙魂系统", rows);
   bindCurrentMenuClicks(confirmDragonSoulMenu);
 }
 
 async function confirmDragonSoulMenu() {
-  if (state.menuItem === 0) {
-    openDragonSoulDetailMenu();
+  const level = state.playerProgress.dragonSoul;
+  const selectedStage = state.menuItem;
+  if (selectedStage < Math.floor(level / 10)) {
+    openDragonSoulDetailMenu(selectedStage);
     return;
   }
-  if (state.menuItem !== 1 || state.playerProgress.dragonSoul >= 100) return;
+  if (level >= 70 || state.menuItem !== Math.floor(level / 10)) return;
   try {
-    const result = await postApi("/api/dragon-soul/upgrade", { account: state.account });
-    state.playerProgress.dragonSoul = result.dragonSoul;
-    showMenuHint(`龙魂升级成功：${result.dragonSoul}/100`);
-    openDragonSoulMenu(1);
+    const result = await postApi("/api/dragon-soul/evolve", { account: state.account });
+    state.playerProgress.dragonSoul = result.state.level;
+    state.playerProgress.dragonSoulState = result.state;
+    showMenuHint(`${result.critical ? "暴击！" : ""} 龙魂经验 +${result.gainedExp}`);
+    openDragonSoulMenu(Math.min(6, Math.floor(result.state.level / 10)));
   } catch (error) {
-    showMenuHint(error.message === "not_enough_powder" ? "灵魂粉末不足" : "龙魂升级失败");
+    showMenuHint(error.message === "not_enough_powder" ? "灵魂粉末不足" : error.message === "daily_limit" ? "今日普通进化次数已用完" : "龙魂进化失败");
   }
 }
 
-function openDragonSoulDetailMenu() {
+function openDragonSoulDetailMenu(stageIndex = Math.min(6, Math.floor(state.playerProgress.dragonSoul / 10))) {
   state.menuMode = "dragon_soul_detail";
   state.menuItem = 0;
   const level = state.playerProgress.dragonSoul;
-  const soul = {};
-  const dragonSoulConfig = growthConfig?.character?.dragonSoul || dragonSoulGrowth;
-  Object.keys(STAT_LIMITS).forEach((stat) => {
-    soul[stat] = Math.round((dragonSoulConfig[stat] || 0) * (level - 1));
-  });
-  setMenuAsSingleList(`龙魂属性 ${level}/100`, [
-    { label: `生命 +${soul.hp}`, icon: STAT_ICONS.hp, disabled: true },
-    { label: `防御 +${soul.defense}`, icon: STAT_ICONS.defense, disabled: true },
-    { label: `速度 +${soul.speed}`, icon: STAT_ICONS.speed, disabled: true },
-    { label: `攻击 +${soul.attack}`, icon: STAT_ICONS.attack, disabled: true },
-    { label: `法力 +${soul.mana}`, icon: STAT_ICONS.mana, disabled: true },
-    { label: `致命 +${soul.crit}`, icon: STAT_ICONS.crit, disabled: true },
-    { label: `爆伤 +${soul.critDamage}`, icon: STAT_ICONS.critDamage, disabled: true }
+  const stages = growthConfig?.dragonSoul?.stages || DragonSoul.DEFAULT_CONFIG.stages;
+  const stageName = DragonSoul.STAGE_NAMES[stageIndex] || DragonSoul.STAGE_NAMES[0];
+  const soul = DragonSoul.stageStatsAt(stageIndex, 10, stages);
+  const display = (stat) => `+${soul[stat] || 0}`;
+  setMenuAsSingleList(`${stageName}龙魂属性 10/10`, [
+    { label: stageName, labelHtml: `<i class="dragon-soul-stage-icon" style="background-position:${-stageIndex * 130}px 0" aria-label="${escapeHtml(stageName)}龙魂"></i>`, icon: "", disabled: true, hideIndex: true, className: "dragon-soul-stage-icon-row" },
+    { label: `攻击 ${display("attack")}`, icon: STAT_ICONS.attack, disabled: true },
+    { label: `速度 ${display("speed")}`, icon: STAT_ICONS.speed, disabled: true },
+    { label: `防御 ${display("defense")}`, icon: STAT_ICONS.defense, disabled: true },
+    { label: `法力 ${display("mana")}`, icon: STAT_ICONS.mana, disabled: true },
+    { label: `生命 ${display("hp")}`, icon: STAT_ICONS.hp, disabled: true },
+    { label: `暴伤 ${display("critDamage")}`, icon: STAT_ICONS.critDamage, disabled: true },
+    { label: `抗暴伤 ${display("antiCritDamage")}`, icon: STAT_ICONS.critDamage, disabled: true },
+    { label: `命中 ${display("hit")}`, icon: STAT_ICONS.attack, disabled: true },
+    { label: `闪避 ${display("dodge")}`, icon: STAT_ICONS.speed, disabled: true },
+    { label: `抗混乱 ${display("confuseResist")}`, icon: "1.39", disabled: true },
+    { label: `抗封印 ${display("sealResist")}`, icon: "2.7", disabled: true },
+    { label: `抗麻痹 ${display("paralyzeResist")}`, icon: "1.41", disabled: true },
+    { label: `抗诅咒 ${display("curseResist")}`, icon: "1.14", disabled: true },
+    { label: `抗昏睡 ${display("sleepResist")}`, icon: "1.49", disabled: true },
+    { label: `致命 ${display("crit")}`, icon: STAT_ICONS.crit, disabled: true }
   ]);
 }
 
