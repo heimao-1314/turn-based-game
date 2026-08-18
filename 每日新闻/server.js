@@ -2,7 +2,8 @@ const NEWS_URL = "https://60s.viki.moe/v2/60s?encoding=text";
 const NEWS_CACHE_MS = 10 * 60 * 1000;
 
 const EXCHANGE_CATALOG = [
-  { id: "lucky_box", name: "好运宝箱", icon: "1.11", cost: 1, reward: { type: "player_column", column: "lucky_box", quantity: 1 } }
+  { id: "lucky_box", name: "好运宝箱", icon: "1.11", cost: 1, reward: { type: "player_column", column: "lucky_box", quantity: 1 } },
+  { id: "elf_waist_bag", name: "精灵腰包", icon: "2.8", cost: 1, reward: { type: "player_column", column: "elf_waist_bag", quantity: 1 } }
 ];
 
 function createDailyNewsRuntime({ db, fetchNews = fetch, now = () => new Date() }) {
@@ -93,11 +94,11 @@ function createDailyNewsRuntime({ db, fetchNews = fetch, now = () => new Date() 
         db.exec("ROLLBACK");
         return { ok: false, status: 409, error: "not_enough_reading_points" };
       }
-      if (item.reward.type !== "player_column" || item.reward.column !== "lucky_box") {
+      if (item.reward.type !== "player_column" || !["lucky_box", "elf_waist_bag"].includes(item.reward.column)) {
         db.exec("ROLLBACK");
         return { ok: false, status: 500, error: "reading_exchange_misconfigured" };
       }
-      db.prepare("UPDATE players SET reading_points = reading_points - ?, lucky_box = lucky_box + ?, updated_at = ? WHERE account = ?")
+      db.prepare(`UPDATE players SET reading_points = reading_points - ?, ${item.reward.column} = ${item.reward.column} + ?, updated_at = ? WHERE account = ?`)
         .run(item.cost, item.reward.quantity, nowIso(), account);
       const readingPoints = Number(db.prepare("SELECT reading_points FROM players WHERE account = ?").get(account)?.reading_points) || 0;
       db.exec("COMMIT");
