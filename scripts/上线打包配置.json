@@ -29,6 +29,7 @@
     "疯狂吹牛",
     "每日新闻",
     "好运宝箱",
+    "桃子",
     "宠物模块",
     "职业模块",
     "副本模块",
@@ -37,7 +38,8 @@
     "聊天模块",
     "飞图小地图",
     "后台管理ui",
-    "bandwidth-optimizer"
+    "bandwidth-optimizer",
+    "龙魂系统"
   ],
   "serverFiles": [
     "server.js",
@@ -63,7 +65,9 @@
     "bandwidth-optimizer/server/state-tracker.js",
     "bandwidth-optimizer/server/ws-manager.js",
     "bandwidth-optimizer/shared/constants.js",
-    "副本模块/精灵王宝库.js"
+    "副本模块/精灵王宝库.js",
+    "桃子/server.js",
+    "龙魂系统/server.js"
   ],
   "publicClientFiles": [
     "战斗/skills.js",
@@ -76,7 +80,9 @@
     "联网战斗/client.js",
     "疯狂吹牛/client.js",
     "bandwidth-optimizer/shared/constants.js",
-    "副本模块/精灵王宝库.js"
+    "副本模块/精灵王宝库.js",
+    "桃子/client.js",
+    "龙魂系统/shared.js"
   ],
   "runtimeDataFiles": [
     "地图系统/地图清单.json"
@@ -139,6 +145,8 @@
     "生活技能",
     "副本模块",
     "聊天模块",
+    "桃子",
+    "龙魂系统",
     "bandwidth-optimizer"
   ],
   "bundlePortableNode": true,
