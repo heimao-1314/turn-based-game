@@ -532,6 +532,8 @@ db.exec(`
     fashion_ticket_fragment INTEGER NOT NULL DEFAULT 0,
     phantom_fragment INTEGER NOT NULL DEFAULT 0,
     phantom_points INTEGER NOT NULL DEFAULT 0,
+    elf_waist_bag INTEGER NOT NULL DEFAULT 0,
+    bag_capacity_bonus INTEGER NOT NULL DEFAULT 0,
     mysterious_paint INTEGER NOT NULL DEFAULT 0,
     immortal_pill INTEGER NOT NULL DEFAULT 0,
     immortal_cultivation_json TEXT NOT NULL DEFAULT '{}',
@@ -2139,6 +2141,7 @@ function itemColumnForId(id) {
   if (id === "soul_powder") return "soul_powder";
   if (id === "immortal_pill") return "immortal_pill";
   if (id === "mysterious_paint") return "mysterious_paint";
+  if (id === "elf_waist_bag") return "elf_waist_bag";
   const card = skillCardItems.find((item) => item.id === id);
   if (card) return card.column;
   return fragmentItems.find((item) => item.id === id)?.column || "";
@@ -2419,12 +2422,14 @@ function playerBagItems(row) {
   const immortalPill = row?.immortal_pill || 0;
   const mysteriousPaint = row?.mysterious_paint || 0;
   const luckyBox = row?.lucky_box || 0;
+  const elfWaistBag = row?.elf_waist_bag || 0;
   const luckyBoxItems = safeJsonObject(row?.lucky_box_items_json);
   if (soulPowder > 0) items.push({ id: "soul_powder", name: "灵魂粉末", icon: "1.11", quantity: soulPowder });
   if (forgeGem > 0) items.push({ id: "forge_gem", name: "锻造宝石", icon: "1.13", quantity: forgeGem });
   if (immortalPill > 0) items.push({ id: "immortal_pill", name: "仙丹", icon: "1.49", quantity: immortalPill });
   if (mysteriousPaint > 0) items.push({ id: "mysterious_paint", name: "神秘颜料", icon: "2.8", quantity: mysteriousPaint });
   if (luckyBox > 0) items.push({ id: "lucky_box", name: "好运宝箱", icon: "1.11", quantity: luckyBox });
+  if (elfWaistBag > 0) items.push({ id: "elf_waist_bag", name: "精灵腰包", icon: "2.8", quantity: elfWaistBag, kind: "consumable" });
   fragmentItems.forEach((fragment) => {
     const amount = row?.[fragment.column] || 0;
     if (amount > 0) items.push({ id: fragment.id, name: fragmentName(fragment.id), icon: fragment.icon, quantity: amount });
@@ -2440,6 +2445,10 @@ function playerBagItems(row) {
   });
   items.push(...safeJsonArray(row?.equipment_json).map((item) => normalizeBagItem(item, equipped)));
   return items;
+}
+
+function bagCapacityForRow(row) {
+  return Math.min(300, careerTree.BAG_CAPACITY + Math.max(0, Number(row?.bag_capacity_bonus) || 0));
 }
 
 function normalizeBagItem(item, equipped = {}) {
@@ -2894,6 +2903,8 @@ function ensurePlayerColumns() {
   addColumn("selection_json", "selection_json TEXT NOT NULL DEFAULT '{}'");
   addColumn("friends_json", "friends_json TEXT NOT NULL DEFAULT '[]'");
   addColumn("phantom_points", "phantom_points INTEGER NOT NULL DEFAULT 0");
+  addColumn("elf_waist_bag", "elf_waist_bag INTEGER NOT NULL DEFAULT 0");
+  addColumn("bag_capacity_bonus", "bag_capacity_bonus INTEGER NOT NULL DEFAULT 0");
   addColumn("mysterious_paint", "mysterious_paint INTEGER NOT NULL DEFAULT 0");
   addColumn("immortal_pill", "immortal_pill INTEGER NOT NULL DEFAULT 0");
   addColumn("immortal_cultivation_json", "immortal_cultivation_json TEXT NOT NULL DEFAULT '{}'");
@@ -3404,13 +3415,13 @@ async function handleApi(req, res, url) {
     if (!account) return;
     const fragmentColumns = fragmentItems.map((item) => item.column).join(", ");
     const skillCardColumns = skillCardItems.map((item) => item.column).join(", ");
-    const row = db.prepare(`SELECT silver, yuanbao, soul_powder, immortal_pill, forge_gem, lucky_box, lucky_box_items_json, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json, storage_json FROM players WHERE account = ?`).get(account);
+    const row = db.prepare(`SELECT silver, yuanbao, soul_powder, immortal_pill, forge_gem, lucky_box, elf_waist_bag, bag_capacity_bonus, lucky_box_items_json, mysterious_paint, ${fragmentColumns}, ${skillCardColumns}, equipment_json, equipped_json, storage_json FROM players WHERE account = ?`).get(account);
     const items = playerBagItems(row);
     sendJson(res, 200, {
       ok: true,
       silver: row?.silver || 0,
       yuanbao: row?.yuanbao || 0,
-      capacity: careerTree.BAG_CAPACITY,
+      capacity: bagCapacityForRow(row),
       storageCapacity: 300,
       storageItems: storageItems(normalizeStorage(row?.storage_json)),
       items
@@ -4626,7 +4637,7 @@ async function handleApi(req, res, url) {
       const equipment = safeJsonArray(row.equipment_json);
       let rewardEquipment = null;
       const rewardCount = Math.max(0, Math.min(5, reward.equipmentCount));
-      for (let i = 0; i < rewardCount && equipment.length < careerTree.BAG_CAPACITY; i += 1) {
+      for (let i = 0; i < rewardCount && equipment.length < bagCapacityForRow(row); i += 1) {
         const created = generateDroppedEquipment(reward.monsterLevel);
         equipment.push(created);
         if (!rewardEquipment) rewardEquipment = created;
@@ -4851,6 +4862,28 @@ async function handleApi(req, res, url) {
       sendJson(res, result.status || 200, result);
       return;
     }
+    if (url.pathname === "/api/bag/use") {
+      if (String(data.id || "") !== "elf_waist_bag") {
+        sendJson(res, 400, { ok: false, error: "item_not_usable" });
+        return;
+      }
+      const row = db.prepare("SELECT elf_waist_bag, bag_capacity_bonus FROM players WHERE account = ?").get(account);
+      if (!row || Number(row.elf_waist_bag) < 1) {
+        sendJson(res, 409, { ok: false, error: "not_enough_item" });
+        return;
+      }
+      const currentCapacity = bagCapacityForRow(row);
+      if (currentCapacity >= 300) {
+        sendJson(res, 409, { ok: false, error: "bag_capacity_max" });
+        return;
+      }
+      const bonus = Math.min(300 - careerTree.BAG_CAPACITY, Math.max(0, Number(row.bag_capacity_bonus) || 0) + 10);
+      db.prepare("UPDATE players SET elf_waist_bag = elf_waist_bag - 1, bag_capacity_bonus = ?, updated_at = ? WHERE account = ?")
+        .run(bonus, new Date().toISOString(), account);
+      const next = db.prepare("SELECT * FROM players WHERE account = ?").get(account);
+      sendJson(res, 200, { ok: true, capacity: bagCapacityForRow(next), items: playerBagItems(next), player: playerRowToApi(next) });
+      return;
+    }
     if (url.pathname === "/api/equipment/equip") {
       const id = String(data.id || "");
       const requestedSlot = String(data.slot || "");
@@ -5000,7 +5033,7 @@ async function handleApi(req, res, url) {
         return;
       }
       const targetEquipment = safeJsonArray(target.equipment_json);
-      if (targetEquipment.length >= careerTree.BAG_CAPACITY) {
+      if (targetEquipment.length >= bagCapacityForRow(target)) {
         sendJson(res, 409, { ok: false, error: "target_bag_full" });
         return;
       }
@@ -5057,7 +5090,7 @@ async function handleApi(req, res, url) {
           const item = sellerEquipment.find((entry) => entry.id === id);
           if (!item) throw new Error("item_not_found");
           const buyerEquipment = safeJsonArray(buyer.equipment_json);
-          if (buyerEquipment.length >= careerTree.BAG_CAPACITY) throw new Error("bag_full");
+          if (buyerEquipment.length >= bagCapacityForRow(buyer)) throw new Error("bag_full");
           db.prepare("UPDATE players SET equipment_json = ?, silver = silver + ?, updated_at = ? WHERE account = ?")
             .run(JSON.stringify(sellerEquipment.filter((entry) => entry.id !== id)), price, updatedAt, sellerAccount);
           db.prepare("UPDATE players SET equipment_json = ?, silver = silver - ?, updated_at = ? WHERE account = ?")
@@ -5163,7 +5196,7 @@ async function handleApi(req, res, url) {
         return;
       }
       const equipment = safeJsonArray(row.equipment_json);
-      if (equipment.length >= careerTree.BAG_CAPACITY) {
+      if (equipment.length >= bagCapacityForRow(row)) {
         sendJson(res, 409, { ok: false, error: "bag_full" });
         return;
       }
@@ -5412,7 +5445,7 @@ async function handleApi(req, res, url) {
         return;
       }
       const equipment = safeJsonArray(row.equipment_json);
-      if (equipment.length >= careerTree.BAG_CAPACITY) {
+      if (equipment.length >= bagCapacityForRow(row)) {
         sendJson(res, 409, { ok: false, error: "bag_full" });
         return;
       }
@@ -5451,7 +5484,7 @@ async function handleApi(req, res, url) {
         sendJson(res, 409, { ok: false, error: "not_enough_ticket" });
         return;
       }
-      if (equipment.length >= careerTree.BAG_CAPACITY) {
+      if (equipment.length >= bagCapacityForRow(row)) {
         sendJson(res, 409, { ok: false, error: "bag_full" });
         return;
       }

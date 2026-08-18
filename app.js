@@ -666,7 +666,7 @@ const state = {
   ownedPetIds: [],
   petExtraSkills: {},
   roleExtraSkills: [],
-  bag: { items: [], forgeGem: 0, equipped: {} },
+  bag: { items: [], forgeGem: 0, equipped: {}, capacity: careerTree.BAG_CAPACITY },
   autoBattlePersistent: false,
   autoStrategy: { actor: { mode: "skill", skillId: "" }, petById: {} },
   users: loadUsers(),
@@ -7810,7 +7810,7 @@ async function openBagMenu() {
         ].filter(Boolean).join(" ")
       }))
       : [{ label: "背包为空", icon: "2.8", disabled: true }];
-    setMenuAsSingleList(`物品行囊 ${items.length}/${careerTree.BAG_CAPACITY}`, items);
+    setMenuAsSingleList(`物品行囊 ${items.length}/${state.bag.capacity || careerTree.BAG_CAPACITY}`, items);
     bindCurrentMenuClicks(confirmBagMenu);
   } catch {
     setMenuAsSingleList("物品行囊", [{ label: "背包读取失败", icon: "2.8", disabled: true }]);
@@ -7820,6 +7820,7 @@ async function openBagMenu() {
 async function refreshBag() {
   const result = await apiGet(`/api/bag?account=${encodeURIComponent(state.account)}`);
   state.bag.items = result.items || [];
+  state.bag.capacity = Number(result.capacity) || careerTree.BAG_CAPACITY;
   if (typeof result.silver === "number") state.silver = result.silver;
   if (typeof result.yuanbao === "number") state.yuanbao = result.yuanbao;
   state.bag.forgeGem = result.items?.find((item) => item.id === "forge_gem")?.quantity || 0;
@@ -7834,6 +7835,17 @@ function bagItemLabel(item) {
   if (item.id === "forge_gem") return `${item.name}${groupLabel}（点击强化装备）`;
   if (item.id === "lucky_box") return `${item.name}${groupLabel}（点击抽奖）`;
   return `${item.name}${groupLabel}`;
+}
+
+async function useElfWaistBag() {
+  try {
+    const result = await postApi("/api/bag/use", { account: state.account, id: "elf_waist_bag" });
+    await refreshBag();
+    showMenuHint(`精灵腰包已使用，背包容量 ${result.capacity}/300`);
+    openBagMenu();
+  } catch (error) {
+    showMenuHint(error.message === "bag_capacity_max" ? "背包容量已达上限" : "使用失败");
+  }
 }
 
 function itemQuantityGroupLabel(quantity) {
@@ -8404,6 +8416,7 @@ function openBagItemActionMenu(item) {
   if (isMercenarySkillCard(item)) actions.push({ key: "learn_mercenary_skill", label: "让佣兵学习技能", icon: "1.9", disabled: !(state.mercenaries || []).length });
   if (item.id === "forge_gem") actions.push({ key: "forge", label: "强化装备", icon: "1.13" });
   if (item.id === "lucky_box") actions.push({ key: "open_lucky_box", label: "开启好运宝箱", icon: "1.11" });
+  if (item.id === "elf_waist_bag") actions.push({ key: "use_elf_waist_bag", label: "使用精灵腰包（+10容量）", icon: item.icon || "2.8" });
   if (item.kind === "equipment") {
     actions.push(item.equipped
       ? { key: "unequip", label: "卸下装备", icon: item.icon || "2.18" }
@@ -8436,6 +8449,10 @@ function confirmBagItemActionMenu() {
   }
   if (action.key === "open_lucky_box") {
     openLuckyBox();
+    return;
+  }
+  if (action.key === "use_elf_waist_bag") {
+    useElfWaistBag();
     return;
   }
   if (action.key === "equip") {
