@@ -8415,7 +8415,7 @@ function openBagItemActionMenu(item) {
   if (isPeerlessRoleSkillCard(item)) actions.push({ key: "learn_role_skill", label: "学习人物技能", icon: "1.49" });
   if (isMercenarySkillCard(item)) actions.push({ key: "learn_mercenary_skill", label: "让佣兵学习技能", icon: "1.9", disabled: !(state.mercenaries || []).length });
   if (item.id === "forge_gem") actions.push({ key: "forge", label: "强化装备", icon: "1.13" });
-  if (["forge_refine_gem", "light_forge_gem", "elf_forge_gem", "miracle_three_star_gem", "elf_king_three_star_gem"].includes(item.id)) actions.push({ key: "forge_with_material", label: "使用此宝石强化装备", icon: item.icon || "1.13" });
+  if (["forge_refine_gem", "light_forge_gem", "elf_forge_gem", "elf_king_three_star_gem"].includes(item.id)) actions.push({ key: "forge_with_material", label: "使用此宝石强化装备", icon: item.icon || "1.13" });
   if (item.damaged) actions.push({ key: "repair_equipment", label: "使用修复宝石修复", icon: "1.13" });
   if (item.id === "lucky_box") actions.push({ key: "open_lucky_box", label: "开启好运宝箱", icon: "1.11" });
   if (item.id === "elf_waist_bag") actions.push({ key: "use_elf_waist_bag", label: "使用精灵腰包（+10容量）", icon: item.icon || "2.8" });
