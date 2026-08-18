@@ -7829,7 +7829,7 @@ async function refreshBag() {
 }
 
 function bagItemLabel(item) {
-  if (item.kind === "equipment") return `${item.equipped ? "[已装备] " : ""}${formatEquipment(item)}`;
+  if (item.kind === "equipment") return `${item.damaged ? "[损坏] " : item.equipped ? "[已装备] " : ""}${formatEquipment(item)}`;
   if (item.kind === "fashion") return `${item.equipped ? "[已装备] " : ""}${item.name} 属性+30%`;
   const groupLabel = itemQuantityGroupLabel(item.quantity);
   if (item.id === "forge_gem") return `${item.name}${groupLabel}（点击强化装备）`;
@@ -8415,6 +8415,8 @@ function openBagItemActionMenu(item) {
   if (isPeerlessRoleSkillCard(item)) actions.push({ key: "learn_role_skill", label: "学习人物技能", icon: "1.49" });
   if (isMercenarySkillCard(item)) actions.push({ key: "learn_mercenary_skill", label: "让佣兵学习技能", icon: "1.9", disabled: !(state.mercenaries || []).length });
   if (item.id === "forge_gem") actions.push({ key: "forge", label: "强化装备", icon: "1.13" });
+  if (["forge_refine_gem", "light_forge_gem", "elf_forge_gem", "elf_king_three_star_gem"].includes(item.id)) actions.push({ key: "forge_with_material", label: "使用此宝石强化装备", icon: item.icon || "1.13" });
+  if (item.damaged) actions.push({ key: "repair_equipment", label: "使用修复宝石修复", icon: "1.13" });
   if (item.id === "lucky_box") actions.push({ key: "open_lucky_box", label: "开启好运宝箱", icon: "1.11" });
   if (item.id === "elf_waist_bag") actions.push({ key: "use_elf_waist_bag", label: "使用精灵腰包（+10容量）", icon: item.icon || "2.8" });
   if (item.kind === "equipment") {
@@ -8444,7 +8446,17 @@ function confirmBagItemActionMenu() {
     return;
   }
   if (action.key === "forge") {
+    state.forgeGemId = "forge_gem";
     openForgeEquipmentMenu();
+    return;
+  }
+  if (action.key === "forge_with_material") {
+    state.forgeGemId = item.id;
+    openForgeEquipmentMenu();
+    return;
+  }
+  if (action.key === "repair_equipment") {
+    repairEquipment(item.id);
     return;
   }
   if (action.key === "open_lucky_box") {
@@ -9609,7 +9621,7 @@ async function discardBagItem(item) {
 
 function openEquipmentEquipMenu() {
   state.menuMode = "equipment_equip";
-  const equipment = (state.bag.items || []).filter((item) => item.kind === "equipment");
+  const equipment = (state.bag.items || []).filter((item) => item.kind === "equipment" && !item.damaged);
   const items = equipment.length
     ? equipment.map((item) => ({ label: bagItemLabel(item), icon: item.icon || equipmentForgeStats[item.type]?.icon || "2.18", longText: true }))
     : [{ label: "暂无装备", icon: "1.3", disabled: true }];
@@ -9748,7 +9760,8 @@ function openForgeEquipmentMenu() {
   const items = equipment.length
     ? equipment.map((item) => ({ label: `${item.name} 强化 ${item.forgeLevel || 0}/${item.maxForgeLevel || 15}`, icon: item.icon || equipmentForgeStats[item.type]?.icon || "2.18" }))
     : [{ label: "暂无可强化装备", icon: "1.3", disabled: true }];
-  setMenuAsSingleList(`装备强化 宝石${state.bag.forgeGem}`, items);
+  const material = state.bag.items.find((item) => item.id === (state.forgeGemId || "forge_gem"));
+  setMenuAsSingleList(`装备强化 ${material?.name || "锻造宝石"}${material ? `x${material.quantity}` : ""}`, items);
   state.menuEquipmentList = equipment;
   bindCurrentMenuClicks(confirmForgeEquipmentMenu);
 }
@@ -9758,17 +9771,28 @@ async function confirmForgeEquipmentMenu() {
   if (!item) return;
   const keepIndex = state.menuItem;
   try {
-    const result = await postApi("/api/equipment/forge", { account: state.account, id: item.id });
+    const result = await postApi("/api/equipment/forge", { account: state.account, id: item.id, gemId: state.forgeGemId || "forge_gem" });
     const rateText = `${Math.round((result.successRate || 0) * 100)}%`;
     showMenuHint(result.success
       ? `${result.equipment.name} 强化成功（${rateText}），剩余宝石 ${result.forgeGem}`
-      : `强化失败（${rateText}），剩余宝石 ${result.forgeGem}`);
+      : result.damaged ? `强化失败，装备已损坏（${rateText}）` : `强化失败（${rateText}），剩余宝石 ${result.forgeGem}`);
     await refreshBag();
     await refreshServerStats();
     state.menuItem = keepIndex;
     openForgeEquipmentMenu();
   } catch (error) {
-    showMenuHint(error.message === "not_enough_gem" ? "锻造宝石不足" : "强化失败");
+    showMenuHint(error.message === "not_enough_gem" ? "强化宝石不足" : "强化失败");
+  }
+}
+
+async function repairEquipment(id) {
+  try {
+    await postApi("/api/equipment/repair", { account: state.account, id });
+    await refreshBag();
+    showMenuHint("装备已修复");
+    openBagMenu();
+  } catch (error) {
+    showMenuHint(error.message === "not_enough_repair_gem" ? "修复宝石不足" : "修复失败");
   }
 }
 
