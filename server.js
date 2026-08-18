@@ -2916,7 +2916,7 @@ function ensurePlayerColumns() {
   addColumn("lucky_box_items_json", "lucky_box_items_json TEXT NOT NULL DEFAULT '{}'");
   addColumn("reading_points", "reading_points INTEGER NOT NULL DEFAULT 0");
   addColumn("forge_gem", "forge_gem INTEGER NOT NULL DEFAULT 0");
-  forgeMaterialItems.filter((item) => item.column).forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
+  forgeMaterialItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   fragmentItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   skillCardItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   addColumn("equipment_json", "equipment_json TEXT NOT NULL DEFAULT '[]'");
