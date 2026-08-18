@@ -289,14 +289,6 @@ const fragmentItems = [
   { id: "phantom_fragment", name: "幻影碎片", icon: "1.49", column: "phantom_fragment" }
 ];
 
-const forgeMaterialItems = [
-  { id: "forge_refine_gem", name: "精炼宝石", icon: "1.13", column: "forge_refine_gem" },
-  { id: "repair_gem", name: "修复宝石", icon: "1.13", column: "repair_gem" },
-  { id: "light_forge_gem", name: "轻锻宝石", icon: "1.13", column: "light_forge_gem" },
-  { id: "elf_forge_gem", name: "精灵锻造", icon: "1.13", column: "elf_forge_gem" },
-  { id: "elf_king_three_star_gem", name: "精灵王三星石", icon: "1.13", column: "elf_king_three_star_gem" }
-];
-
 const wildMonsterRewards = {
   amumu: {
     level: 18,
@@ -506,11 +498,6 @@ db.exec(`
     lucky_box_items_json TEXT NOT NULL DEFAULT '{}',
     soul_powder INTEGER NOT NULL DEFAULT 0,
     forge_gem INTEGER NOT NULL DEFAULT 0,
-    forge_refine_gem INTEGER NOT NULL DEFAULT 0,
-    repair_gem INTEGER NOT NULL DEFAULT 0,
-    light_forge_gem INTEGER NOT NULL DEFAULT 0,
-    elf_forge_gem INTEGER NOT NULL DEFAULT 0,
-    elf_king_three_star_gem INTEGER NOT NULL DEFAULT 0,
     peerless_skill_fragment INTEGER NOT NULL DEFAULT 0,
     peerless_skill_ticket INTEGER NOT NULL DEFAULT 0,
     peerless_role_skill_ticket INTEGER NOT NULL DEFAULT 0,
@@ -1728,7 +1715,6 @@ function normalizeEquipmentItem(item, account = "", anomalies = []) {
     mainStat: base.stat,
     mainValue: expectedMainValue,
     affixes,
-    damaged: Boolean(item.damaged),
     createdAt: item.createdAt || new Date().toISOString()
   };
 }
@@ -2156,8 +2142,6 @@ function itemColumnForId(id) {
   if (id === "immortal_pill") return "immortal_pill";
   if (id === "mysterious_paint") return "mysterious_paint";
   if (id === "elf_waist_bag") return "elf_waist_bag";
-  const forgeMaterial = forgeMaterialItems.find((item) => item.id === id);
-  if (forgeMaterial) return forgeMaterial.column;
   const card = skillCardItems.find((item) => item.id === id);
   if (card) return card.column;
   return fragmentItems.find((item) => item.id === id)?.column || "";
@@ -2442,10 +2426,6 @@ function playerBagItems(row) {
   const luckyBoxItems = safeJsonObject(row?.lucky_box_items_json);
   if (soulPowder > 0) items.push({ id: "soul_powder", name: "灵魂粉末", icon: "1.11", quantity: soulPowder });
   if (forgeGem > 0) items.push({ id: "forge_gem", name: "锻造宝石", icon: "1.13", quantity: forgeGem });
-  forgeMaterialItems.forEach((material) => {
-    const quantity = Number(row?.[material.column]) || 0;
-    if (quantity > 0) items.push({ ...material, quantity, kind: "consumable" });
-  });
   if (immortalPill > 0) items.push({ id: "immortal_pill", name: "仙丹", icon: "1.49", quantity: immortalPill });
   if (mysteriousPaint > 0) items.push({ id: "mysterious_paint", name: "神秘颜料", icon: "2.8", quantity: mysteriousPaint });
   if (luckyBox > 0) items.push({ id: "lucky_box", name: "好运宝箱", icon: "1.11", quantity: luckyBox });
@@ -2914,7 +2894,6 @@ function ensurePlayerColumns() {
   addColumn("lucky_box_items_json", "lucky_box_items_json TEXT NOT NULL DEFAULT '{}'");
   addColumn("reading_points", "reading_points INTEGER NOT NULL DEFAULT 0");
   addColumn("forge_gem", "forge_gem INTEGER NOT NULL DEFAULT 0");
-  forgeMaterialItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   fragmentItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   skillCardItems.forEach((item) => addColumn(item.column, `${item.column} INTEGER NOT NULL DEFAULT 0`));
   addColumn("equipment_json", "equipment_json TEXT NOT NULL DEFAULT '[]'");
@@ -3255,7 +3234,6 @@ async function handleApi(req, res, url) {
         { id: luckyBoxModule.boxId, name: luckyBoxModule.boxName },
         { id: "soul_powder", name: "灵魂粉末" },
         { id: "forge_gem", name: "锻造宝石" },
-        ...forgeMaterialItems.map((item) => ({ id: item.id, name: item.name })),
         { id: "immortal_pill", name: "仙丹" },
         { id: "mysterious_paint", name: "神秘颜料" },
         ...fragmentItems.map((item) => ({ id: item.id, name: item.name })),
@@ -4916,10 +4894,6 @@ async function handleApi(req, res, url) {
         sendJson(res, 404, { ok: false, error: "equipment_not_found" });
         return;
       }
-      if (item.damaged) {
-        sendJson(res, 409, { ok: false, error: "damaged_equipment" });
-        return;
-      }
       const slot = requestedSlot || equipmentSlotForType(item.type);
       if (!equipmentSlots[slot]?.includes(item.type)) {
         sendJson(res, 400, { ok: false, error: "invalid_equipment_slot" });
@@ -6079,10 +6053,7 @@ async function handleApi(req, res, url) {
     }
     if (url.pathname === "/api/equipment/forge") {
       const id = String(data.id || "");
-      const gemId = String(data.gemId || "forge_gem");
-      const material = gemId === "forge_gem" ? { id: "forge_gem", column: "forge_gem" } : forgeMaterialItems.find((entry) => entry.id === gemId);
-      const materialColumns = ["forge_gem", ...forgeMaterialItems.map((entry) => entry.column)].join(", ");
-      const row = db.prepare(`SELECT ${materialColumns}, equipment_json FROM players WHERE account = ?`).get(account);
+      const row = db.prepare("SELECT forge_gem, equipment_json FROM players WHERE account = ?").get(account);
       const equipment = normalizeEquipmentList(row?.equipment_json, account).equipment;
       const item = equipment.find((entry) => entry.id === id);
       if (!item) {
@@ -6094,13 +6065,12 @@ async function handleApi(req, res, url) {
         sendJson(res, 409, { ok: false, error: "max_forge", forgeGem: row?.forge_gem || 0 });
         return;
       }
-      if (!material || (row?.[material.column] || 0) < 1) {
+      if ((row?.forge_gem || 0) < 1) {
         sendJson(res, 409, { ok: false, error: "not_enough_gem", forgeGem: row?.forge_gem || 0 });
         return;
       }
       const targetLevel = (item.forgeLevel || 0) + 1;
-      const baseRate = forgeSuccessRate(targetLevel);
-      const successRate = material.id === "elf_king_three_star_gem" ? 1 : Math.min(1, baseRate + (material.id === "forge_refine_gem" ? 0.1 : material.id === "elf_forge_gem" ? 0.3 : 0));
+      const successRate = forgeSuccessRate(targetLevel);
       const success = Math.random() < successRate;
       const perLevel = {
         hat: 10000 / 15,
@@ -6117,33 +6087,12 @@ async function handleApi(req, res, url) {
         item.forgeLevel = targetLevel;
         item.mainValue = Math.round(perLevel * item.forgeLevel);
         item.name = item.name.replace(/\+\d+$/, `+${item.forgeLevel}`);
-        item.damaged = false;
-      } else if (material.id === "light_forge_gem") {
-        item.forgeLevel = Math.max(0, targetLevel - 1);
-        item.mainValue = Math.round(perLevel * item.forgeLevel);
-        item.name = item.name.replace(/\+\d+$/, `+${item.forgeLevel}`);
-      } else {
-        item.damaged = true;
       }
       const updatedAt = new Date().toISOString();
-      db.prepare(`UPDATE players SET ${material.column} = ${material.column} - 1, equipment_json = ?, updated_at = ? WHERE account = ?`)
+      db.prepare("UPDATE players SET forge_gem = forge_gem - 1, equipment_json = ?, updated_at = ? WHERE account = ?")
         .run(JSON.stringify(equipment), updatedAt, account);
-      const next = db.prepare(`SELECT ${materialColumns} FROM players WHERE account = ?`).get(account);
-      sendJson(res, 200, { ok: true, success, successRate, targetLevel, damaged: Boolean(item.damaged), equipment: item, forgeGem: next.forge_gem });
-      return;
-    }
-    if (url.pathname === "/api/equipment/repair") {
-      const id = String(data.id || "");
-      const row = db.prepare("SELECT repair_gem, equipment_json FROM players WHERE account = ?").get(account);
-      if ((row?.repair_gem || 0) < 1) { sendJson(res, 409, { ok: false, error: "not_enough_repair_gem" }); return; }
-      const equipment = normalizeEquipmentList(row?.equipment_json, account).equipment;
-      const item = equipment.find((entry) => entry.id === id);
-      if (!item) { sendJson(res, 404, { ok: false, error: "equipment_not_found" }); return; }
-      if (!item.damaged) { sendJson(res, 409, { ok: false, error: "equipment_not_damaged" }); return; }
-      item.damaged = false;
-      db.prepare("UPDATE players SET repair_gem = repair_gem - 1, equipment_json = ?, updated_at = ? WHERE account = ?")
-        .run(JSON.stringify(equipment), new Date().toISOString(), account);
-      sendJson(res, 200, { ok: true, equipment: item });
+      const next = db.prepare("SELECT forge_gem FROM players WHERE account = ?").get(account);
+      sendJson(res, 200, { ok: true, success, successRate, targetLevel, equipment: item, forgeGem: next.forge_gem });
       return;
     }
     sendJson(res, 404, { ok: false, error: "not_found" });
