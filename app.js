@@ -13747,6 +13747,25 @@ function setupAuth() {
   setupCoverLogin();
 }
 
+async function quickLoginWithBrowserCredential(messageEl = $("#authMessage")) {
+  if (!navigator.credentials?.get) {
+    messageEl.textContent = "当前浏览器不支持快速登录，请手动输入密码。";
+    return;
+  }
+  try {
+    const credential = await navigator.credentials.get({ password: true, mediation: "optional" });
+    if (!credential?.id || !credential?.password) {
+      messageEl.textContent = "没有找到已保存的登录凭据。";
+      return;
+    }
+    $("#accountInput").value = credential.id;
+    $("#coverAccountInput").value = credential.id;
+    await authenticateAccount({ account: credential.id, password: credential.password, mode: "login", messageEl });
+  } catch {
+    messageEl.textContent = "快速登录失败，请手动输入密码。";
+  }
+}
+
 function saveBrowserCredential(account, password) {
   if (!window.PasswordCredential || !navigator.credentials?.store || !account || !password) return;
   const credential = new window.PasswordCredential({ id: account, password, name: account });
@@ -14009,7 +14028,9 @@ async function activateCoverSelection(index) {
       $("#coverMessage").textContent = "请先登录一次。";
       return;
     }
-    openCoverLoginDialog();
+    quickLoginWithBrowserCredential($("#coverAuthMessage")).then((ok) => {
+      if (!ok) openCoverLoginDialog();
+    });
   } else if (index === 1) {
     openCoverLoginDialog();
   } else if (index === 2) {
