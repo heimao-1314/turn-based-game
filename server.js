@@ -294,8 +294,9 @@ const forgeMaterialItems = [
   { id: "repair_gem", name: "修复宝石", icon: "1.13", column: "repair_gem" },
   { id: "light_forge_gem", name: "轻锻宝石", icon: "1.13", column: "light_forge_gem" },
   { id: "elf_forge_gem", name: "精灵锻造", icon: "1.13", column: "elf_forge_gem" },
-  { id: "elf_king_three_star_gem", name: "精灵王三星石", icon: "1.13", column: "elf_king_three_star_gem" }
+  { id: "miracle_three_star_gem", name: "神迹三星石", icon: "1.13", column: "elf_king_three_star_gem" }
 ];
+const FORGE_MATERIAL_ALIASES = { elf_king_three_star_gem: "miracle_three_star_gem" };
 
 const wildMonsterRewards = {
   amumu: {
@@ -2151,6 +2152,7 @@ function forgeSuccessRate(targetLevel) {
 }
 
 function itemColumnForId(id) {
+  id = FORGE_MATERIAL_ALIASES[id] || id;
   if (id === "forge_gem") return "forge_gem";
   if (id === "soul_powder") return "soul_powder";
   if (id === "immortal_pill") return "immortal_pill";
@@ -6079,7 +6081,7 @@ async function handleApi(req, res, url) {
     }
     if (url.pathname === "/api/equipment/forge") {
       const id = String(data.id || "");
-      const gemId = String(data.gemId || "forge_gem");
+      const gemId = FORGE_MATERIAL_ALIASES[String(data.gemId || "forge_gem")] || String(data.gemId || "forge_gem");
       const material = gemId === "forge_gem" ? { id: "forge_gem", column: "forge_gem" } : forgeMaterialItems.find((entry) => entry.id === gemId);
       const materialColumns = ["forge_gem", ...forgeMaterialItems.map((entry) => entry.column)].join(", ");
       const row = db.prepare(`SELECT ${materialColumns}, equipment_json FROM players WHERE account = ?`).get(account);
@@ -6100,7 +6102,7 @@ async function handleApi(req, res, url) {
       }
       const targetLevel = (item.forgeLevel || 0) + 1;
       const baseRate = forgeSuccessRate(targetLevel);
-      const successRate = material.id === "elf_king_three_star_gem" ? 1 : Math.min(1, baseRate + (material.id === "forge_refine_gem" ? 0.1 : material.id === "elf_forge_gem" ? 0.3 : 0));
+      const successRate = material.id === "miracle_three_star_gem" ? 1 : Math.min(1, baseRate + (material.id === "forge_refine_gem" ? 0.1 : material.id === "elf_forge_gem" ? 0.3 : 0));
       const success = Math.random() < successRate;
       const perLevel = {
         hat: 10000 / 15,
