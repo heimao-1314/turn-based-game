@@ -13779,6 +13779,10 @@ async function authenticateAccount({ account, password, mode = "login", autoRegi
       if (messageEl) messageEl.textContent = "账号已存在，请直接登录。";
       return false;
     }
+    if (!response.ok && result.error === "registration_rate_limited") {
+      if (messageEl) messageEl.textContent = "注册请求过于频繁，请稍后再试。";
+      return false;
+    }
     if (!response.ok) {
       if (messageEl) messageEl.textContent = "注册失败，请稍后再试。";
       return false;
@@ -13800,7 +13804,14 @@ async function authenticateAccount({ account, password, mode = "login", autoRegi
         if (messageEl) messageEl.textContent = `账号已被封禁：${reason}${bannedAt}`;
         return false;
       }
-      if (autoRegister) return doRegister();
+      if (result.error === "auth_rate_limited") {
+        if (messageEl) messageEl.textContent = "登录尝试过于频繁，请稍后再试。";
+        return false;
+      }
+      // Only an actual credential failure may fall back to first-time registration.
+      // Network/proxy/server errors must remain login errors; otherwise the failed
+      // registration hides the real cause from the player.
+      if (autoRegister && result.error === "bad_credentials") return doRegister();
       if (messageEl) messageEl.textContent = "账号或密码不正确。";
       return false;
     }

@@ -65,7 +65,8 @@ function createAuthRuntime({ db, now = () => Date.now(), recordAnomaly = () => {
     attempts.delete(rateKey(ip, account));
   }
 
-  function consumeRegistration(ip) {
+  function consumeRegistration(ip, { skipRateLimit = false } = {}) {
+    if (skipRateLimit) return true;
     const key = String(ip || "unknown");
     const current = registrations.get(key);
     const entry = !current || current.resetAt <= now()
@@ -89,12 +90,12 @@ function createAuthRuntime({ db, now = () => Date.now(), recordAnomaly = () => {
     `).run(account, hashPassword(password), timestamp, timestamp);
   }
 
-  function verifyAccountPassword(account, password, ip) {
-    if (isRateLimited(ip, account)) return { ok: false, error: "auth_rate_limited", status: 429 };
+  function verifyAccountPassword(account, password, ip, { skipRateLimit = false } = {}) {
+    if (!skipRateLimit && isRateLimited(ip, account)) return { ok: false, error: "auth_rate_limited", status: 429 };
     const row = db.prepare("SELECT password_hash FROM accounts WHERE account = ?").get(account);
     const verified = row ? verifyPassword(password, row.password_hash) : { ok: false };
     if (!verified.ok) {
-      recordFailure(ip, account);
+      if (!skipRateLimit) recordFailure(ip, account);
       return { ok: false, error: "bad_credentials", status: 401 };
     }
     clearFailures(ip, account);

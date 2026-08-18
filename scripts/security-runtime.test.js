@@ -27,10 +27,24 @@ test("login attempts are rate limited after repeated failures", () => {
   assert.equal(runtime.verifyAccountPassword("missing", "wrong", "127.0.0.1").error, "auth_rate_limited");
 });
 
+test("local proxy requests bypass authentication rate limits", () => {
+  const runtime = createAuthRuntime({ db: authDb() });
+  for (let index = 0; index < 10; index += 1) runtime.verifyAccountPassword("missing", "wrong", "203.0.113.10");
+  assert.equal(
+    runtime.verifyAccountPassword("missing", "wrong", "203.0.113.10", { skipRateLimit: true }).error,
+    "bad_credentials"
+  );
+});
+
 test("registrations are rate limited per source IP", () => {
   const runtime = createAuthRuntime({ db: authDb() });
   for (let index = 0; index < 5; index += 1) assert.equal(runtime.consumeRegistration("127.0.0.1"), true);
   assert.equal(runtime.consumeRegistration("127.0.0.1"), false);
+});
+
+test("local proxy requests bypass registration rate limits", () => {
+  const runtime = createAuthRuntime({ db: authDb() });
+  for (let index = 0; index < 6; index += 1) assert.equal(runtime.consumeRegistration("127.0.0.1", { skipRateLimit: true }), true);
 });
 
 test("redeem code grants once and rejects a duplicate claim", () => {

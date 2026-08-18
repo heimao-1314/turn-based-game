@@ -3546,7 +3546,7 @@ async function handleApi(req, res, url) {
         sendJson(res, 400, { ok: false, error: "bad_auth" });
         return;
       }
-      if (!authRuntime.consumeRegistration(requestClientIp(req))) {
+      if (!authRuntime.consumeRegistration(requestClientIp(req), { skipRateLimit: isLocalRequest(req) })) {
         sendJson(res, 429, { ok: false, error: "registration_rate_limited" });
         return;
       }
@@ -3563,7 +3563,7 @@ async function handleApi(req, res, url) {
     if (url.pathname === "/api/auth/login") {
       const account = String(data.account || "").trim();
       const password = String(data.password || "");
-      const auth = authRuntime.verifyAccountPassword(account, password, requestClientIp(req));
+      const auth = authRuntime.verifyAccountPassword(account, password, requestClientIp(req), { skipRateLimit: isLocalRequest(req) });
       if (!auth.ok) {
         sendJson(res, auth.status || 401, { ok: false, error: auth.error || "bad_credentials" });
         return;
@@ -3786,7 +3786,7 @@ async function handleApi(req, res, url) {
       if (!account) return;
       const oldPassword = String(data.oldPassword || "");
       const newPassword = String(data.newPassword || "");
-      const verified = authRuntime.verifyAccountPassword(account, oldPassword, requestClientIp(req));
+      const verified = authRuntime.verifyAccountPassword(account, oldPassword, requestClientIp(req), { skipRateLimit: isLocalRequest(req) });
       if (!verified.ok) {
         sendJson(res, verified.status || 401, { ok: false, error: verified.error || "bad_credentials" });
         return;
