@@ -294,9 +294,9 @@ const forgeMaterialItems = [
   { id: "repair_gem", name: "修复宝石", icon: "1.13", column: "repair_gem" },
   { id: "light_forge_gem", name: "轻锻宝石", icon: "1.13", column: "light_forge_gem" },
   { id: "elf_forge_gem", name: "精灵锻造", icon: "1.13", column: "elf_forge_gem" },
-  { id: "miracle_three_star_stone", name: "神迹三星石", icon: "1.13", column: null }
+  { id: "miracle_three_star_gem", name: "神迹三星石", icon: "1.13", column: "elf_king_three_star_gem" }
 ];
-const FORGE_MATERIAL_ALIASES = { elf_king_three_star_gem: "miracle_three_star_stone", miracle_three_star_gem: "miracle_three_star_stone" };
+const FORGE_MATERIAL_ALIASES = { elf_king_three_star_gem: "miracle_three_star_gem" };
 
 const wildMonsterRewards = {
   amumu: {
@@ -6083,8 +6083,8 @@ async function handleApi(req, res, url) {
       const id = String(data.id || "");
       const gemId = FORGE_MATERIAL_ALIASES[String(data.gemId || "forge_gem")] || String(data.gemId || "forge_gem");
       const material = gemId === "forge_gem" ? { id: "forge_gem", column: "forge_gem" } : forgeMaterialItems.find((entry) => entry.id === gemId);
-      const materialColumns = ["forge_gem", ...forgeMaterialItems.map((entry) => entry.column).filter(Boolean)].join(", ");
-      const row = db.prepare(`SELECT ${materialColumns}, lucky_box_items_json, equipment_json FROM players WHERE account = ?`).get(account);
+      const materialColumns = ["forge_gem", ...forgeMaterialItems.map((entry) => entry.column)].join(", ");
+      const row = db.prepare(`SELECT ${materialColumns}, equipment_json FROM players WHERE account = ?`).get(account);
       const equipment = normalizeEquipmentList(row?.equipment_json, account).equipment;
       const item = equipment.find((entry) => entry.id === id);
       if (!item) {
@@ -6096,9 +6096,7 @@ async function handleApi(req, res, url) {
         sendJson(res, 409, { ok: false, error: "max_forge", forgeGem: row?.forge_gem || 0 });
         return;
       }
-      const luckyItems = safeJsonObject(row?.lucky_box_items_json);
-      const materialCount = material?.column ? row?.[material.column] || 0 : luckyItems[material?.id] || 0;
-      if (!material || materialCount < 1) {
+      if (!material || (row?.[material.column] || 0) < 1) {
         sendJson(res, 409, { ok: false, error: "not_enough_gem", forgeGem: row?.forge_gem || 0 });
         return;
       }
@@ -6130,15 +6128,8 @@ async function handleApi(req, res, url) {
         item.damaged = true;
       }
       const updatedAt = new Date().toISOString();
-      if (material.column) {
-        db.prepare(`UPDATE players SET ${material.column} = ${material.column} - 1, equipment_json = ?, updated_at = ? WHERE account = ?`)
-          .run(JSON.stringify(equipment), updatedAt, account);
-      } else {
-        luckyItems[material.id] = materialCount - 1;
-        if (luckyItems[material.id] <= 0) delete luckyItems[material.id];
-        db.prepare("UPDATE players SET lucky_box_items_json = ?, equipment_json = ?, updated_at = ? WHERE account = ?")
-          .run(JSON.stringify(luckyItems), JSON.stringify(equipment), updatedAt, account);
-      }
+      db.prepare(`UPDATE players SET ${material.column} = ${material.column} - 1, equipment_json = ?, updated_at = ? WHERE account = ?`)
+        .run(JSON.stringify(equipment), updatedAt, account);
       const next = db.prepare(`SELECT ${materialColumns} FROM players WHERE account = ?`).get(account);
       sendJson(res, 200, { ok: true, success, successRate, targetLevel, damaged: Boolean(item.damaged), equipment: item, forgeGem: next.forge_gem });
       return;
