@@ -9,6 +9,7 @@
     "test:sharding": "node scripts/server-sharding.test.js",
     "test:security": "node --test scripts/security-runtime.test.js",
     "test:daily-news": "node scripts/daily-news-runtime.test.js",
+    "test:forge": "node --test scripts/forge-runtime.test.js",
     "test:online-stats": "node scripts/online-stats-runtime.test.js"
   },
   "devDependencies": {

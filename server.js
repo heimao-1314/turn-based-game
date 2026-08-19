@@ -40,6 +40,7 @@ const { createMapRegistry } = require("./地图系统/map-registry.js");
 const { createAdminMapApi } = require("./地图系统/admin-map-api.js");
 const { createAuthRuntime } = require("./src/server/auth/runtime.js");
 const { createRedeemCodeRuntime } = require("./src/server/economy/redeem-code-runtime.js");
+const { createForgeRuntime } = require("./src/server/equipment/forge-runtime.js");
 const { createRewardTicketRuntime } = require("./战斗/reward-ticket-runtime.js");
 const { createEncounterRuntime } = require("./联网战斗/encounter-runtime.js");
 const { createTeamRuntime } = require("./队伍/server.js");
@@ -1715,6 +1716,7 @@ function normalizeEquipmentItem(item, account = "", anomalies = []) {
     mainStat: base.stat,
     mainValue: expectedMainValue,
     affixes,
+    damaged: Boolean(item.damaged),
     createdAt: item.createdAt || new Date().toISOString()
   };
 }
@@ -2148,6 +2150,7 @@ function itemColumnForId(id) {
 }
 
 const redeemCodeRuntime = createRedeemCodeRuntime({ db, itemColumnForId });
+const forgeRuntime = createForgeRuntime({ db, normalizeEquipmentList, safeJsonObject, forgeSuccessRate, equipmentIconForType });
 const rewardTicketRuntime = createRewardTicketRuntime({ db });
 const encounterRuntime = createEncounterRuntime({
   sendSocketJson,
@@ -4894,6 +4897,10 @@ async function handleApi(req, res, url) {
         sendJson(res, 404, { ok: false, error: "equipment_not_found" });
         return;
       }
+      if (item.damaged) {
+        sendJson(res, 409, { ok: false, error: "damaged_equipment" });
+        return;
+      }
       const slot = requestedSlot || equipmentSlotForType(item.type);
       if (!equipmentSlots[slot]?.includes(item.type)) {
         sendJson(res, 400, { ok: false, error: "invalid_equipment_slot" });
@@ -6052,47 +6059,13 @@ async function handleApi(req, res, url) {
       return;
     }
     if (url.pathname === "/api/equipment/forge") {
-      const id = String(data.id || "");
-      const row = db.prepare("SELECT forge_gem, equipment_json FROM players WHERE account = ?").get(account);
-      const equipment = normalizeEquipmentList(row?.equipment_json, account).equipment;
-      const item = equipment.find((entry) => entry.id === id);
-      if (!item) {
-        sendJson(res, 404, { ok: false, error: "equipment_not_found" });
-        return;
-      }
-      const maxForgeLevel = Math.max(0, Number(item.maxForgeLevel) || 15);
-      if ((item.forgeLevel || 0) >= maxForgeLevel) {
-        sendJson(res, 409, { ok: false, error: "max_forge", forgeGem: row?.forge_gem || 0 });
-        return;
-      }
-      if ((row?.forge_gem || 0) < 1) {
-        sendJson(res, 409, { ok: false, error: "not_enough_gem", forgeGem: row?.forge_gem || 0 });
-        return;
-      }
-      const targetLevel = (item.forgeLevel || 0) + 1;
-      const successRate = forgeSuccessRate(targetLevel);
-      const success = Math.random() < successRate;
-      const perLevel = {
-        hat: 10000 / 15,
-        armor: 100000 / 15,
-        pants: 50000 / 15,
-        belt: 500000 / 15,
-        shoes: 10000 / 15,
-        firearm: 10000 / 15,
-        sword: 50000 / 15,
-        staff: 10000 / 15
-      }[item.type] || 0;
-      item.icon = item.icon || equipmentIconForType(item.type);
-      if (success) {
-        item.forgeLevel = targetLevel;
-        item.mainValue = Math.round(perLevel * item.forgeLevel);
-        item.name = item.name.replace(/\+\d+$/, `+${item.forgeLevel}`);
-      }
-      const updatedAt = new Date().toISOString();
-      db.prepare("UPDATE players SET forge_gem = forge_gem - 1, equipment_json = ?, updated_at = ? WHERE account = ?")
-        .run(JSON.stringify(equipment), updatedAt, account);
-      const next = db.prepare("SELECT forge_gem FROM players WHERE account = ?").get(account);
-      sendJson(res, 200, { ok: true, success, successRate, targetLevel, equipment: item, forgeGem: next.forge_gem });
+      const result = forgeRuntime.forge(account, String(data.id || ""), String(data.gemId || "forge_gem"));
+      sendJson(res, result.status || 200, result);
+      return;
+    }
+    if (url.pathname === "/api/equipment/repair") {
+      const result = forgeRuntime.repair(account, String(data.id || ""));
+      sendJson(res, result.status || 200, result);
       return;
     }
     sendJson(res, 404, { ok: false, error: "not_found" });

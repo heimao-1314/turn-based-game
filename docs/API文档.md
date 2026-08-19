@@ -584,6 +584,14 @@ POST /api/admin/growth-config/reset
 
 ---
 
+## 装备强化与修复
+
+玩家接口均要求有效会话，账号以服务端会话为准。
+
+- `POST /api/equipment/forge`：`{ id, gemId }`。`gemId` 支持 `forge_gem`、`forge_refine_gem`、`light_forge_gem`、`elf_forge_gem`、`miracle_three_star_stone`；服务端扣除材料并判定结果。
+- `POST /api/equipment/repair`：`{ id }`。消耗一个 `repair_gem` 修复已损坏装备。
+- 普通强化失败会损坏并自动卸下装备；损坏装备不能装配或继续强化。
+
 ## 队伍与组队战斗
 
 ### 队伍人数与野怪数量对照
