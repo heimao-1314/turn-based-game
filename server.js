@@ -3448,13 +3448,7 @@ async function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/soul-powder/status") {
     const account = requireAuthAccount(req, res, url);
     if (!account) return;
-    const row = db.prepare("SELECT soul_powder, soul_powder_300_at, soul_powder_400_at FROM players WHERE account = ?").get(account);
-    sendJson(res, 200, {
-      ok: true,
-      soulPowder: row?.soul_powder || 0,
-      soulPowder300At: row?.soul_powder_300_at || "",
-      soulPowder400At: row?.soul_powder_400_at || ""
-    });
+    sendJson(res, 200, dragonSoulRuntime.soulPowderStatus(account));
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/immortal-cultivation/status") {
@@ -4401,44 +4395,8 @@ async function handleApi(req, res, url) {
       return;
     }
     if (url.pathname === "/api/soul-powder/claim") {
-      const type = String(data.type || "");
-      const config = type === "300"
-        ? { amount: 300, hours: 8, column: "soul_powder_300_at" }
-        : type === "400"
-          ? { amount: 400, hours: 4, column: "soul_powder_400_at" }
-          : null;
-      if (!config) {
-        sendJson(res, 400, { ok: false, error: "bad_claim_type" });
-        return;
-      }
-      const existing = db.prepare("SELECT name FROM players WHERE account = ?").get(account);
-      if (!existing) {
-        upsertPlayer({ account, name: account, x: 0, y: 0, mapName: "" });
-      }
-      const row = db.prepare(`SELECT soul_powder, ${config.column} AS last_at FROM players WHERE account = ?`).get(account);
-      const lastTime = row?.last_at ? Date.parse(row.last_at) : 0;
-      const cooldownMs = config.hours * 60 * 60 * 1000;
-      const now = Date.now();
-      if (lastTime && now - lastTime < cooldownMs) {
-        sendJson(res, 409, {
-          ok: false,
-          error: "cooldown",
-          remainingMs: cooldownMs - (now - lastTime),
-          soulPowder: row?.soul_powder || 0
-        });
-        return;
-      }
-      const updatedAt = new Date().toISOString();
-      db.prepare(`UPDATE players SET soul_powder = soul_powder + ?, ${config.column} = ?, updated_at = ? WHERE account = ?`)
-        .run(config.amount, updatedAt, updatedAt, account);
-      const next = db.prepare("SELECT soul_powder, soul_powder_300_at, soul_powder_400_at FROM players WHERE account = ?").get(account);
-      sendJson(res, 200, {
-        ok: true,
-        amount: config.amount,
-        soulPowder: next.soul_powder,
-        soulPowder300At: next.soul_powder_300_at || "",
-        soulPowder400At: next.soul_powder_400_at || ""
-      });
+      const result = dragonSoulRuntime.claimSoulPowder(account, String(data.type || ""));
+      sendJson(res, result.status || 200, result);
       return;
     }
     if (url.pathname === "/api/redeem-code/claim") {
@@ -6439,7 +6397,14 @@ const taoziRuntime = createTaoziRuntime({
   model: process.env.TAOZI_AI_MODEL || "gpt-5.6-terra",
   recordAnomaly
 });
-const dragonSoulRuntime = createDragonSoulRuntime({ db });
+const dragonSoulRuntime = createDragonSoulRuntime({
+  db,
+  ensurePlayer(account) {
+    if (!db.prepare("SELECT 1 FROM players WHERE account = ?").get(account)) {
+      upsertPlayer({ account, name: account, x: 0, y: 0, mapName: "" });
+    }
+  }
+});
 const careerProgressConfigRuntime = {
   getConfig() {
     const row = db.prepare("SELECT value_json FROM app_settings WHERE key = ?").get("career_progress_config_v1");

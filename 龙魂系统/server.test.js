@@ -6,8 +6,8 @@ const rules = require("./shared.js");
 
 function setup(random) {
   const db = new DatabaseSync(":memory:");
-  db.exec("CREATE TABLE app_settings (key TEXT PRIMARY KEY, value_json TEXT, updated_at TEXT); CREATE TABLE players (account TEXT PRIMARY KEY, dragon_soul INTEGER, dragon_soul_exp INTEGER, dragon_soul_daily_key TEXT, dragon_soul_daily_used INTEGER, soul_powder INTEGER, updated_at TEXT)");
-  db.prepare("INSERT INTO players VALUES (?, 0, 0, '', 0, 1000, '')").run("a");
+  db.exec("CREATE TABLE app_settings (key TEXT PRIMARY KEY, value_json TEXT, updated_at TEXT); CREATE TABLE players (account TEXT PRIMARY KEY, dragon_soul INTEGER, dragon_soul_exp INTEGER, dragon_soul_daily_key TEXT, dragon_soul_daily_used INTEGER, soul_powder INTEGER, soul_powder_300_at TEXT, soul_powder_400_at TEXT, updated_at TEXT)");
+  db.prepare("INSERT INTO players VALUES (?, 0, 0, '', 0, 1000, '', '', '')").run("a");
   return { db, runtime: createDragonSoulRuntime({ db, random, now: () => new Date("2026-08-08T12:00:00+08:00") }) };
 }
 
@@ -55,4 +55,15 @@ test("角色累计属性保留龙魂抗性供个人面板和战斗调用", () =>
   assert.equal(stats.curseResist, 30);
   assert.equal(stats.sleepResist, 30);
   assert.equal(stats.antiCritDamage, 100);
+});
+
+test("领取粉末按领取类型独立冷却，冷却中不重复发放", () => {
+  const { runtime } = setup(() => 0.9);
+  const first = runtime.claimSoulPowder("a", "300");
+  const second = runtime.claimSoulPowder("a", "300");
+  const other = runtime.claimSoulPowder("a", "400");
+  assert.equal(first.soulPowder, 1300);
+  assert.equal(second.error, "cooldown");
+  assert.equal(second.soulPowder, 1300);
+  assert.equal(other.soulPowder, 1700);
 });
