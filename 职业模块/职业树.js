@@ -6,7 +6,7 @@
   const INITIAL_CLASS = "初始角色";
   const INITIAL_SUB = "未转职";
   const FIRST_TRANSFER_LEVEL = 40;
-  const SECOND_TRANSFER_CAREER_LEVEL = 40;
+  const SECOND_TRANSFER_CAREER_LEVEL = 10;
   const BAG_CAPACITY = 50;
 
   const branches = {

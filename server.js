@@ -1410,8 +1410,8 @@ function careerExpToNextLevel(level) {
   return careerProgressConfigRuntime.getConfig().expPerLevel;
 }
 
-function applyCareerExp(level, exp, gained) {
-  return careerProgress.applyExp(level, exp, gained, careerExpToNextLevel(level));
+function applyCareerExp(level, exp, gained, maxLevel) {
+  return careerProgress.applyExp(level, exp, gained, careerExpToNextLevel(level), maxLevel);
 }
 
 function applyExp(level, exp, gained) {
@@ -4622,8 +4622,11 @@ async function handleApi(req, res, url) {
       const leveled = applyExp(row.level, row.exp, reward.exp);
       const careerStage = careerTree.careerStage(safeJsonObject(row.selection_json));
       const previousCareerProgress = normalizeProgress({ level: row.career_level, exp: row.career_exp });
+      const careerTransferReady = careerStage === 1 && previousCareerProgress.level >= careerTree.SECOND_TRANSFER_CAREER_LEVEL;
       const careerLeveled = careerStage > 0
-        ? applyCareerExp(previousCareerProgress.level, previousCareerProgress.exp, reward.monsterCount)
+        ? careerTransferReady
+          ? { ...previousCareerProgress, atCap: true }
+          : applyCareerExp(previousCareerProgress.level, previousCareerProgress.exp, reward.monsterCount, careerStage === 1 ? careerTree.SECOND_TRANSFER_CAREER_LEVEL : careerProgress.MAX_LEVEL)
         : previousCareerProgress;
       const activePetId = activePetIdForRow(row);
       const petProgressById = petProgressMapForRow(row);
@@ -4671,6 +4674,7 @@ async function handleApi(req, res, url) {
         previousCareerLevel: previousCareerProgress.level,
         careerLevel: careerLeveled.level,
         careerExp: careerLeveled.exp,
+        careerTransferRequired: careerStage === 1 && careerLeveled.atCap,
         gainedCareerExp: careerStage > 0 ? reward.monsterCount : 0,
         dragonSoul: next.dragon_soul,
         petLevel: petLeveled.level,

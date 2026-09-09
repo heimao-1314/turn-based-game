@@ -1876,6 +1876,10 @@ function careerExpToNextLevel(level) {
   return 100;
 }
 
+function careerTransferReady() {
+  return careerTree.careerStage(state.selected) === 1 && state.playerProgress.careerLevel >= careerTree.SECOND_TRANSFER_CAREER_LEVEL;
+}
+
 function normalizePetProgress(progress = {}) {
   return {
     level: clampStat(progress.level || 1, 1, 100),
@@ -6905,7 +6909,7 @@ function roleStatsMainHtml(subject) {
     ${roleStatRow({ label: "精力", value: stats.energy, icon: "1.14", full: true })}
     ${roleStatRow({ label: subject.kind === "pet" ? "元素属性" : subject.classLine, value: subject.kind === "pet" || subject.kind === "peer" ? "" : `技能 ${stats.skill || skillById(stats.skillId).name}`, icon: "1.49", className: "accent", full: true })}
     ${subject.kind === "mercenary" ? roleStatRowHtml({ label: "经验", html: expHtml, icon: "2.12" }) : subject.kind === "peer" ? roleStatRow({ label: "等级", value: `${subject.level}/100`, icon: STAT_ICONS.exp }) : roleStatRowHtml({ label: "经验", html: expHtml, icon: "2.12" })}
-    ${roleStatRow({ label: subject.kind === "role" ? "职业经验" : "守护等级", value: subject.kind === "role" ? (!subject.careerEnabled ? "未开启" : subject.careerLevel >= 100 ? "满级" : `${subject.careerExp}/${subject.careerExpNeed}`) : "", icon: "2.12", className: "accent" })}
+    ${roleStatRow({ label: subject.kind === "role" ? "职业经验" : "守护等级", value: subject.kind === "role" ? (!subject.careerEnabled ? "未开启" : careerTransferReady() ? "经验已满：罗克萨斯家转职导师" : subject.careerLevel >= 100 ? "满级" : `${subject.careerExp}/${subject.careerExpNeed}`) : "", icon: "2.12", className: "accent" })}
     ${roleStatRow({ label: subject.kind === "pet" ? "修炼" : subject.kind === "mercenary" ? "技能数" : subject.kind === "peer" ? "龙魂" : "职业等级", value: subject.kind === "mercenary" ? Math.max(0, subject.skills.length - 1) : subject.kind === "peer" ? `${String(subject.rank).split("龙魂")[1] || 1}` : subject.kind === "role" ? (subject.careerEnabled ? `第${Math.ceil(subject.careerLevel / 10)}阶 ${((subject.careerLevel - 1) % 10) + 1}级` : "未开启") : "", icon: "2.12", className: "cyan" })}
     ${roleStatRow({ label: subject.kind === "pet" ? "宠物类型" : subject.kind === "mercenary" ? "佣兵类型" : subject.kind === "peer" ? "玩家" : "职业", value: subject.kind === "pet" ? "灵兽" : subject.kind === "mercenary" ? subject.classLine.split(" / ")[0] : subject.kind === "peer" ? subject.name : subject.careerName, icon: "2.12", className: "cyan" })}
     ${roleStatRow({ label: "攻击", value: stats.attack, icon: STAT_ICONS.attack })}
@@ -10060,7 +10064,8 @@ async function grantWildBattleReward(monsterId, monsterCount = 1, rewardTicket =
         previousLevel: previousCareerLevel,
         level: state.playerProgress.careerLevel,
         exp: state.playerProgress.careerExp,
-        expNeed: state.playerProgress.careerLevel < 100 ? careerExpToNextLevel(state.playerProgress.careerLevel) : 0,
+        expNeed: result.careerTransferRequired ? careerExpToNextLevel(state.playerProgress.careerLevel) : state.playerProgress.careerLevel < 100 ? careerExpToNextLevel(state.playerProgress.careerLevel) : 0,
+        transferRequired: Boolean(result.careerTransferRequired),
         gainedExp: result.gainedCareerExp ?? 0,
         levelUp: careerLevelUp
       } : null,
@@ -10081,6 +10086,7 @@ async function grantWildBattleReward(monsterId, monsterCount = 1, rewardTicket =
     }
     if (roleLevelUp) showMenuHint(`角色升级到 ${state.playerProgress.level} 级`);
     if (careerLevelUp) showMenuHint(`职业等级提升到 ${state.playerProgress.careerLevel} 级`);
+    if (result.careerTransferRequired && previousCareerLevel < careerTree.SECOND_TRANSFER_CAREER_LEVEL) showMenuHint("职业经验已满，请前往罗克萨斯家寻找转职导师");
     if (petLevelUp) showMenuHint(`宠物升级到 ${state.petProgress.level} 级`);
     if (mercenaryLevelUp) showMenuHint(`${mercenary.name}升级到 ${mercenary.level} 级`);
   } catch (error) {
@@ -10146,7 +10152,7 @@ function showBattleRewardPanel() {
       { icon: "1.13", text: `锻造宝石 +${reward.forgeGem}`, meta: "材料" }
     ];
     if (reward.mercenary) rows.splice(2, 0, { icon: "1.9", text: `${reward.mercenary.name}经验 +${reward.mercenary.gainedExp}`, meta: reward.mercenary.expNeed ? `Lv.${reward.mercenary.level} ${reward.mercenary.exp}/${reward.mercenary.expNeed}` : "满级" });
-    if (reward.career) rows.splice(1, 0, { icon: "1.49", text: `职业经验 +${reward.career.gainedExp}`, meta: reward.career.expNeed ? `Lv.${reward.career.level} ${reward.career.exp}/${reward.career.expNeed}` : "满级" });
+    if (reward.career) rows.splice(1, 0, { icon: "1.49", text: `职业经验 +${reward.career.gainedExp}`, meta: reward.career.transferRequired ? "经验已满：前往罗克萨斯家寻找转职导师" : reward.career.expNeed ? `Lv.${reward.career.level} ${reward.career.exp}/${reward.career.expNeed}` : "满级" });
     if (reward.roleLevelUp) rows.unshift({ icon: STAT_ICONS.exp, text: `角色升级 ${reward.previousLevel} -> ${reward.level}`, meta: "升级" });
     if (reward.career?.levelUp) rows.unshift({ icon: "1.49", text: `职业升级 ${reward.career.previousLevel} -> ${reward.career.level}`, meta: reward.career.name });
     if (reward.petLevelUp) rows.unshift({ icon: "2.12", text: `宠物升级 ${reward.previousPetLevel} -> ${reward.petLevel}`, meta: "升级" });

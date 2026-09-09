@@ -23,8 +23,8 @@ test("career transitions are level gated and branch locked", () => {
   assert.equal(careerTree.transitionCheck(initial, firstMage, { playerLevel: 40, careerLevel: 1 }).ok, true);
 
   const secondMage = careerTree.secondTransferSelections(firstMage).find((selection) => selection.sub === "神圣");
-  assert.equal(careerTree.transitionCheck(firstMage, secondMage, { playerLevel: 40, careerLevel: 39 }).error, "second_transfer_level_required");
-  assert.equal(careerTree.transitionCheck(firstMage, secondMage, { playerLevel: 40, careerLevel: 40 }).ok, true);
+  assert.equal(careerTree.transitionCheck(firstMage, secondMage, { playerLevel: 40, careerLevel: 9 }).error, "second_transfer_level_required");
+  assert.equal(careerTree.transitionCheck(firstMage, secondMage, { playerLevel: 40, careerLevel: 10 }).ok, true);
 
   const firstSword = careerTree.firstTransferSelections(initial).find((selection) => selection.className === "剑士");
   const secondSword = careerTree.secondTransferSelections(firstSword)[0];
