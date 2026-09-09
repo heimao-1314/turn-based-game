@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { DatabaseSync } = require("node:sqlite");
 const { createAuthRuntime, legacyPasswordHash } = require("../src/server/auth/runtime.js");
 const { createRedeemCodeRuntime, codeHash } = require("../src/server/economy/redeem-code-runtime.js");
+const { DEFAULT_REDEEM_CODES } = require("../src/server/economy/default-redeem-codes.js");
 const { createRewardTicketRuntime } = require("../战斗/reward-ticket-runtime.js");
 const { createRewardDeliveryRuntime } = require("../战斗/reward-delivery-runtime.js");
 
@@ -75,6 +76,15 @@ test("redeem code grants the seven-day phantom first-place title once", () => {
   assert.equal(player.equipped_title, "幻影狩猎者（1）");
   assert.equal(JSON.parse(player.claimed_titles_json)[0].title, "幻影狩猎者（1）");
   assert.equal(runtime.claim("player", "title").error, "already_claimed");
+});
+
+test("release database is seeded with the default per-character redemption code", () => {
+  const db = new DatabaseSync(":memory:");
+  db.exec("CREATE TABLE players (account TEXT PRIMARY KEY, updated_at TEXT NOT NULL DEFAULT '')");
+  createRedeemCodeRuntime({ db, itemColumnForId: () => "", initialCodes: DEFAULT_REDEEM_CODES });
+  const seeded = db.prepare("SELECT rewards_json, per_account_limit FROM redeem_codes WHERE code_hash = ?").get(DEFAULT_REDEEM_CODES[0].codeHash);
+  assert.equal(seeded.per_account_limit, 1);
+  assert.equal(JSON.parse(seeded.rewards_json).phantom_title_first_7d, 1);
 });
 
 test("server-issued battle reward ticket can only be consumed once by its owner", () => {

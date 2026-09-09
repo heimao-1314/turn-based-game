@@ -40,6 +40,7 @@ const { createMapRegistry } = require("./地图系统/map-registry.js");
 const { createAdminMapApi } = require("./地图系统/admin-map-api.js");
 const { createAuthRuntime } = require("./src/server/auth/runtime.js");
 const { createRedeemCodeRuntime } = require("./src/server/economy/redeem-code-runtime.js");
+const { DEFAULT_REDEEM_CODES } = require("./src/server/economy/default-redeem-codes.js");
 const { createForgeRuntime } = require("./src/server/equipment/forge-runtime.js");
 const { createRewardTicketRuntime } = require("./战斗/reward-ticket-runtime.js");
 const { createEncounterRuntime } = require("./联网战斗/encounter-runtime.js");
@@ -154,6 +155,8 @@ const types = {
   ".chj": "application/octet-stream",
   ".md": "text/markdown; charset=utf-8"
 };
+
+const NEW_CHARACTER_SPAWN = { mapName: "仓库", x: 7 * 16, y: 10 * 16 };
 
 const staticAssetRoots = ["assets", "资源", "maps", "战斗", "队伍", "联网战斗", "全服竞技场", "仙气修炼", "疯狂吹牛", "每日新闻", "桃子", "宠物模块", "职业模块", "副本模块", "生活技能", "菜单UI", "聊天模块", "飞图小地图", "后台管理ui", "bandwidth-optimizer", "龙魂系统"];
 const staticAssetExtensions = new Set([".chj", ".css", ".html", ".js", ".json", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webmanifest"]);
@@ -2154,7 +2157,8 @@ const PHANTOM_TITLE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const redeemCodeRuntime = createRedeemCodeRuntime({
   db,
   itemColumnForId,
-  titleReward: { id: "phantom_title_first_7d", title: phantomTitleForRank(1), durationMs: PHANTOM_TITLE_DURATION_MS }
+  titleReward: { id: "phantom_title_first_7d", title: phantomTitleForRank(1), durationMs: PHANTOM_TITLE_DURATION_MS },
+  initialCodes: DEFAULT_REDEEM_CODES
 });
 const forgeRuntime = createForgeRuntime({ db, normalizeEquipmentList, safeJsonObject, forgeSuccessRate, equipmentIconForType });
 const rewardTicketRuntime = createRewardTicketRuntime({ db });
@@ -3669,9 +3673,9 @@ async function handleApi(req, res, url) {
           characterSlot,
           gender,
           name,
-          x: 0,
-          y: 0,
-          mapName: "",
+          x: NEW_CHARACTER_SPAWN.x,
+          y: NEW_CHARACTER_SPAWN.y,
+          mapName: NEW_CHARACTER_SPAWN.mapName,
           selection
         });
         db.exec("COMMIT");

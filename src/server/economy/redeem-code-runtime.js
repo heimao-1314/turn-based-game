@@ -4,7 +4,7 @@ function codeHash(code) {
   return crypto.createHash("sha256").update(String(code || "").trim().toUpperCase(), "utf8").digest("hex");
 }
 
-function createRedeemCodeRuntime({ db, itemColumnForId, titleReward, now = () => new Date() }) {
+function createRedeemCodeRuntime({ db, itemColumnForId, titleReward, initialCodes = [], now = () => new Date() }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS redeem_codes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +28,16 @@ function createRedeemCodeRuntime({ db, itemColumnForId, titleReward, now = () =>
       FOREIGN KEY (code_id) REFERENCES redeem_codes(id)
     );
   `);
+
+  const createdAt = now().toISOString();
+  for (const entry of initialCodes) {
+    const hash = String(entry?.codeHash || "");
+    if (!/^[a-f0-9]{64}$/i.test(hash) || !entry?.rewards || typeof entry.rewards !== "object") continue;
+    db.prepare(`
+      INSERT OR IGNORE INTO redeem_codes (code_hash, rewards_json, max_claims, claimed_count, per_account_limit, enabled, created_at, updated_at)
+      VALUES (?, ?, 0, 0, ?, 1, ?, ?)
+    `).run(hash, JSON.stringify(entry.rewards), Math.max(1, Math.floor(Number(entry.perAccountLimit) || 1)), createdAt, createdAt);
+  }
 
   function normalizedRewards(value) {
     const source = value && typeof value === "object" ? value : {};
