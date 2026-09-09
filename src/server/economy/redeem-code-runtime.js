@@ -4,7 +4,7 @@ function codeHash(code) {
   return crypto.createHash("sha256").update(String(code || "").trim().toUpperCase(), "utf8").digest("hex");
 }
 
-function createRedeemCodeRuntime({ db, itemColumnForId, now = () => new Date() }) {
+function createRedeemCodeRuntime({ db, itemColumnForId, titleReward, now = () => new Date() }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS redeem_codes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +37,8 @@ function createRedeemCodeRuntime({ db, itemColumnForId, now = () => new Date() }
       const amount = Math.floor(Number(rawAmount) || 0);
       if (column && amount > 0 && amount <= 999999999) rewards.push({ id, column, amount });
     }
-    return rewards;
+    const title = Math.floor(Number(source[titleReward?.id]) || 0) > 0 ? titleReward : null;
+    return { rewards, title };
   }
 
   function claim(account, code) {
@@ -55,10 +56,19 @@ function createRedeemCodeRuntime({ db, itemColumnForId, now = () => new Date() }
       if (entry.max_claims > 0 && entry.claimed_count >= entry.max_claims) throw new Error("code_exhausted");
       const existing = db.prepare("SELECT claim_count FROM redeem_claims WHERE code_id = ? AND account = ?").get(entry.id, account);
       if (existing && existing.claim_count >= entry.per_account_limit) throw new Error("already_claimed");
-      const rewards = normalizedRewards(JSON.parse(entry.rewards_json || "{}"));
-      if (!rewards.length) throw new Error("invalid_code_reward");
-      const assignments = rewards.map((reward) => `${reward.column} = ${reward.column} + ?`).join(", ");
-      const updated = db.prepare(`UPDATE players SET ${assignments}, updated_at = ? WHERE account = ?`).run(...rewards.map((reward) => reward.amount), timestamp, account);
+      const { rewards, title } = normalizedRewards(JSON.parse(entry.rewards_json || "{}"));
+      if (!rewards.length && !title) throw new Error("invalid_code_reward");
+      const player = title ? db.prepare("SELECT claimed_titles_json FROM players WHERE account = ?").get(account) : null;
+      if (title && !player) throw new Error("player_not_found");
+      const assignments = rewards.map((reward) => `${reward.column} = ${reward.column} + ?`);
+      const params = rewards.map((reward) => reward.amount);
+      if (title) {
+        const claimed = JSON.parse(player.claimed_titles_json || "[]").filter((entry) => entry?.title !== title.title);
+        claimed.push({ title: title.title, claimedAt: timestamp, expiresAt: new Date(now().getTime() + title.durationMs).toISOString() });
+        assignments.push("claimed_titles_json = ?", "equipped_title = ?");
+        params.push(JSON.stringify(claimed), title.title);
+      }
+      const updated = db.prepare(`UPDATE players SET ${assignments.join(", ")}, updated_at = ? WHERE account = ?`).run(...params, timestamp, account);
       if (!updated.changes) throw new Error("player_not_found");
       db.prepare(`
         INSERT INTO redeem_claims (code_id, account, claim_count, claimed_at) VALUES (?, ?, 1, ?)
@@ -70,7 +80,7 @@ function createRedeemCodeRuntime({ db, itemColumnForId, now = () => new Date() }
       `).run(timestamp, entry.id);
       if (!counted.changes) throw new Error("code_exhausted");
       db.exec("COMMIT");
-      return { ok: true, rewards: rewards.map(({ id, amount }) => ({ id, amount })) };
+      return { ok: true, rewards: rewards.map(({ id, amount }) => ({ id, amount })), title: title ? { title: title.title, durationMs: title.durationMs } : null };
     } catch (error) {
       try { db.exec("ROLLBACK"); } catch {}
       const errorCode = ["bad_code", "code_exhausted", "already_claimed", "invalid_code_reward", "player_not_found"].includes(error.message)

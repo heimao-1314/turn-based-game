@@ -2139,6 +2139,7 @@ function forgeSuccessRate(targetLevel) {
 }
 
 function itemColumnForId(id) {
+  if (id === "silver" || id === "yuanbao") return id;
   if (id === "forge_gem") return "forge_gem";
   if (id === "soul_powder") return "soul_powder";
   if (id === "immortal_pill") return "immortal_pill";
@@ -2149,7 +2150,11 @@ function itemColumnForId(id) {
   return fragmentItems.find((item) => item.id === id)?.column || "";
 }
 
-const redeemCodeRuntime = createRedeemCodeRuntime({ db, itemColumnForId });
+const redeemCodeRuntime = createRedeemCodeRuntime({
+  db,
+  itemColumnForId,
+  titleReward: { id: "phantom_title_first_7d", title: phantomTitleForRank(1), durationMs: PHANTOM_TITLE_DURATION_MS }
+});
 const forgeRuntime = createForgeRuntime({ db, normalizeEquipmentList, safeJsonObject, forgeSuccessRate, equipmentIconForType });
 const rewardTicketRuntime = createRewardTicketRuntime({ db });
 const encounterRuntime = createEncounterRuntime({

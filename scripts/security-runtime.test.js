@@ -59,6 +59,24 @@ test("redeem code grants once and rejects a duplicate claim", () => {
   assert.equal(runtime.claim("player", "welcome").error, "code_exhausted");
 });
 
+test("redeem code grants the seven-day phantom first-place title once", () => {
+  const db = new DatabaseSync(":memory:");
+  db.exec("CREATE TABLE players (account TEXT PRIMARY KEY, soul_powder INTEGER NOT NULL DEFAULT 0, claimed_titles_json TEXT NOT NULL DEFAULT '[]', equipped_title TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT '')");
+  db.prepare("INSERT INTO players (account) VALUES (?)").run("player");
+  const runtime = createRedeemCodeRuntime({
+    db,
+    itemColumnForId: (id) => id === "soul_powder" ? "soul_powder" : "",
+    titleReward: { id: "phantom_title_first_7d", title: "幻影狩猎者（1）", durationMs: 7 * 24 * 60 * 60 * 1000 }
+  });
+  db.prepare(`INSERT INTO redeem_codes (code_hash, rewards_json, max_claims, claimed_count, per_account_limit, enabled, created_at, updated_at)
+    VALUES (?, ?, 0, 0, 1, 1, ?, ?)`).run(codeHash("TITLE"), JSON.stringify({ soul_powder: 1, phantom_title_first_7d: 1 }), new Date().toISOString(), new Date().toISOString());
+  assert.equal(runtime.claim("player", "title").ok, true);
+  const player = db.prepare("SELECT * FROM players WHERE account = ?").get("player");
+  assert.equal(player.equipped_title, "幻影狩猎者（1）");
+  assert.equal(JSON.parse(player.claimed_titles_json)[0].title, "幻影狩猎者（1）");
+  assert.equal(runtime.claim("player", "title").error, "already_claimed");
+});
+
 test("server-issued battle reward ticket can only be consumed once by its owner", () => {
   const runtime = createRewardTicketRuntime({ db: new DatabaseSync(":memory:") });
   const ticket = runtime.issue({ battleId: "battle-1", account: "player", monsterId: "amumu", monsterCount: 1 });
