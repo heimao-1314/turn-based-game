@@ -2150,6 +2150,7 @@ function itemColumnForId(id) {
   return fragmentItems.find((item) => item.id === id)?.column || "";
 }
 
+const PHANTOM_TITLE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const redeemCodeRuntime = createRedeemCodeRuntime({
   db,
   itemColumnForId,
@@ -2221,8 +2222,6 @@ function phantomTitleBoost(title = "") {
   const rank = Number(String(title).match(/幻影狩猎者（(\d+)）/)?.[1] || 0);
   return rank >= 1 && rank <= 50 ? (51 - rank) / 100 : 0;
 }
-
-const PHANTOM_TITLE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 function normalizeClaimedTitles(raw, now = Date.now()) {
   return safeJsonArray(raw)
