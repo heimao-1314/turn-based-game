@@ -51,6 +51,7 @@ const { createChatRuntime } = require("./聊天模块/server.js");
 const petModule = require("./宠物模块/宠物目录.js");
 const careerTree = require("./职业模块/职业树.js");
 const careerProgress = require("./职业模块/career-progress.js");
+const { questStatus, creditBattle } = require("./职业模块/transfer-quest.js");
 const stickerModule = require("./生活技能/贴纸生产.js");
 const elfKingVault = require("./副本模块/精灵王宝库.js");
 const luckyBoxModule = require("./好运宝箱/shared.js");
@@ -487,6 +488,7 @@ db.exec(`
     exp INTEGER NOT NULL DEFAULT 0,
     career_level INTEGER NOT NULL DEFAULT 1,
     career_exp INTEGER NOT NULL DEFAULT 0,
+    transfer_amumu_kills INTEGER NOT NULL DEFAULT 0,
     dragon_soul INTEGER NOT NULL DEFAULT 0,
     dragon_soul_exp INTEGER NOT NULL DEFAULT 0,
     dragon_soul_daily_key TEXT NOT NULL DEFAULT '',
@@ -2703,6 +2705,7 @@ function playerRowToApi(row) {
     exp: row.exp || 0,
     careerLevel: row.career_level || 1,
     careerExp: row.career_exp || 0,
+    transferQuest: questStatus(row, careerTree),
     careerStage: careerTree.careerStage(safeJsonObject(row.selection_json)),
     careerName: careerTree.careerName(safeJsonObject(row.selection_json)),
     dragonSoul: Number(row.dragon_soul) || 0,
@@ -2890,6 +2893,7 @@ function ensurePlayerColumns() {
   addColumn("exp", "exp INTEGER NOT NULL DEFAULT 0");
   addColumn("career_level", "career_level INTEGER NOT NULL DEFAULT 1");
   addColumn("career_exp", "career_exp INTEGER NOT NULL DEFAULT 0");
+  addColumn("transfer_amumu_kills", "transfer_amumu_kills INTEGER NOT NULL DEFAULT 0");
   addColumn("dragon_soul", "dragon_soul INTEGER NOT NULL DEFAULT 1");
   addColumn("dragon_soul_exp", "dragon_soul_exp INTEGER NOT NULL DEFAULT 0");
   addColumn("dragon_soul_daily_key", "dragon_soul_daily_key TEXT NOT NULL DEFAULT ''");
@@ -4370,12 +4374,16 @@ async function handleApi(req, res, url) {
         sendJson(res, 409, { ok: false, error: transition.error });
         return;
       }
+      if (careerTree.careerStage(safeJsonObject(current.selection_json)) === 1 && !questStatus(current, careerTree).complete) {
+        sendJson(res, 409, { ok: false, error: "transfer_quest_incomplete", transferQuest: questStatus(current, careerTree) });
+        return;
+      }
       const progressById = petProgressMapForRow(current);
       const petProgress = progressById[String(normalizePetId(selection.petId))] || normalizeProgress();
       if (selection.petId) progressById[String(normalizePetId(selection.petId))] = petProgress;
       const careerLevel = transition.resetCareerProgress ? 1 : Math.max(1, Number(current.career_level) || 1);
       const careerExp = transition.resetCareerProgress ? 0 : Math.max(0, Number(current.career_exp) || 0);
-      db.prepare("UPDATE players SET selection_json = ?, gender = ?, career_level = ?, career_exp = ?, pet_level = ?, pet_exp = ?, pet_progress_json = ?, updated_at = ? WHERE account = ?")
+      db.prepare("UPDATE players SET selection_json = ?, gender = ?, career_level = ?, career_exp = ?, transfer_amumu_kills = 0, pet_level = ?, pet_exp = ?, pet_progress_json = ?, updated_at = ? WHERE account = ?")
         .run(JSON.stringify(selection), selection.gender || current.gender || "", careerLevel, careerExp, petProgress.level, petProgress.exp, JSON.stringify(progressById), new Date().toISOString(), account);
       const next = db.prepare("SELECT * FROM players WHERE account = ?").get(account);
       sendJson(res, 200, { ok: true, careerStage: careerTree.careerStage(selection), careerName: careerTree.careerName(selection), player: playerRowToApi(next) });
@@ -4670,6 +4678,7 @@ async function handleApi(req, res, url) {
         SET level = ?, exp = ?, career_level = ?, career_exp = ?, pet_level = ?, pet_exp = ?, pet_progress_json = ?, mercenaries_json = ?, forge_gem = forge_gem + ?, ${fragmentSql ? `${fragmentSql}, ` : ""}equipment_json = ?, updated_at = ?
         WHERE account = ?
       `).run(leveled.level, leveled.exp, careerLeveled.level, careerLeveled.exp, petLeveled.level, petLeveled.exp, JSON.stringify(petProgressById), JSON.stringify(mercenaryStateForReward.mercenaries), reward.forgeGem, ...fragmentParams, JSON.stringify(equipment), updatedAt, account);
+      creditBattle(db, account, { stage: careerStage, careerLevel: previousCareerProgress.level, monsterId: reward.monsterId, monsterCount: data.monsterCount });
       const next = db.prepare("SELECT * FROM players WHERE account = ?").get(account);
       sendJson(res, 200, {
         ok: true,

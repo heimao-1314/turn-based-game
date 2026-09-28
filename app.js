@@ -1877,7 +1877,7 @@ function careerExpToNextLevel(level) {
 }
 
 function careerTransferReady() {
-  return careerTree.careerStage(state.selected) === 1 && state.playerProgress.careerLevel >= careerTree.SECOND_TRANSFER_CAREER_LEVEL;
+  return careerTree.careerStage(state.selected) === 1 && Boolean(state.transferQuest?.complete);
 }
 
 function normalizePetProgress(progress = {}) {
@@ -4092,6 +4092,7 @@ async function enterGame(initialSaved = null) {
     dragonSoul: clampStat(saved?.dragonSoul || 0, 0, 70),
     dragonSoulState: saved?.dragonSoulState || DragonSoul.progress(saved?.dragonSoul || 0)
   };
+  state.transferQuest = saved?.transferQuest || { eligible: false, kills: 0, required: 999, complete: false };
   state.selected.petId = normalizePetId(state.selected.petId);
   state.petProgressById = Object.fromEntries(Object.entries(saved?.petProgressById || {}).map(([petId, progress]) => [String(normalizePetId(petId)), normalizePetProgress(progress)]).filter(([petId]) => petId !== "0"));
   if (!state.petProgressById[String(state.selected.petId)]) {
@@ -4344,6 +4345,7 @@ async function refreshServerStats() {
 
 function applyPlayerStateResult(player) {
   if (!player) return;
+  if (player.transferQuest) state.transferQuest = player.transferQuest;
   state.playerProgress.dragonSoul = clampStat(player.dragonSoul ?? state.playerProgress.dragonSoul, 0, 70);
   state.playerProgress.dragonSoulState = player.dragonSoulState || DragonSoul.progress(state.playerProgress.dragonSoul);
   state.playerProgress.careerLevel = clampStat(player.careerLevel ?? state.playerProgress.careerLevel, 1, 100);
@@ -4702,7 +4704,7 @@ function roleOptionLabel(selection) {
 function availableRoleSelections() {
   const stage = careerTree.careerStage(state.selected);
   if (stage === 0 && state.playerProgress.level >= careerTree.FIRST_TRANSFER_LEVEL) return careerTree.firstTransferSelections(state.selected);
-  if (stage === 1 && state.playerProgress.careerLevel >= careerTree.SECOND_TRANSFER_CAREER_LEVEL) return careerTree.secondTransferSelections(state.selected);
+  if (stage === 1 && state.transferQuest?.complete) return careerTree.secondTransferSelections(state.selected);
   return [];
 }
 
@@ -4713,9 +4715,9 @@ function openRoleChangeMenu() {
   state.menuRoleSelections = availableRoleSelections();
   let rows = state.menuRoleSelections.map((selection) => ({ label: roleOptionLabel(selection), icon: selection.gender === "女" ? "2.10" : "1.49" }));
   if (!rows.length && stage === 0) rows = [{ label: `人物达到${careerTree.FIRST_TRANSFER_LEVEL}级后可领取一次转职任务（当前${state.playerProgress.level}级）`, icon: "1.49", disabled: true }];
-  if (!rows.length && stage === 1) rows = [{ label: `职业达到${careerTree.SECOND_TRANSFER_CAREER_LEVEL}级后可领取二次转职任务（当前${state.playerProgress.careerLevel}级）`, icon: "1.49", disabled: true }];
+  if (!rows.length && stage === 1) rows = [{ label: state.playerProgress.careerLevel < careerTree.SECOND_TRANSFER_CAREER_LEVEL ? `职业达到${careerTree.SECOND_TRANSFER_CAREER_LEVEL}级后开启二转任务（当前${state.playerProgress.careerLevel}级）` : `二转任务：原野怪区击败阿木木 ${state.transferQuest?.kills || 0}/${state.transferQuest?.required || 999}`, icon: "1.49", disabled: true }];
   if (!rows.length && stage === 2) rows = [{ label: `${roleOptionLabel(state.selected)}已完成二次转职`, icon: "1.49", disabled: true }];
-  const title = stage === 0 ? "一次转职任务（任务待定）" : stage === 1 ? "二次转职任务（任务待定）" : "转职导师";
+  const title = stage === 0 ? "一次转职" : stage === 1 ? "二次转职任务" : "转职导师";
   setMenuAsSingleList(title, rows);
   bindCurrentMenuClicks(confirmRoleChangeMenu);
 }
@@ -4738,7 +4740,8 @@ async function confirmRoleChangeMenu() {
     const messages = {
       bad_selection: "转职选择无效",
       first_transfer_level_required: "人物等级达到40级后才能领取一次转职任务",
-      second_transfer_level_required: "职业等级达到40级后才能领取二次转职任务",
+      second_transfer_level_required: "职业等级达到10级后才能领取二次转职任务",
+      transfer_quest_incomplete: "请先在原野怪区击败999个阿木木",
       invalid_career_transition: "该职业不在当前转职分支中",
       career_max_stage: "当前职业已完成二次转职",
       gender_locked: "转职不能改变角色性别"
@@ -6909,7 +6912,7 @@ function roleStatsMainHtml(subject) {
     ${roleStatRow({ label: "精力", value: stats.energy, icon: "1.14", full: true })}
     ${roleStatRow({ label: subject.kind === "pet" ? "元素属性" : subject.classLine, value: subject.kind === "pet" || subject.kind === "peer" ? "" : `技能 ${stats.skill || skillById(stats.skillId).name}`, icon: "1.49", className: "accent", full: true })}
     ${subject.kind === "mercenary" ? roleStatRowHtml({ label: "经验", html: expHtml, icon: "2.12" }) : subject.kind === "peer" ? roleStatRow({ label: "等级", value: `${subject.level}/100`, icon: STAT_ICONS.exp }) : roleStatRowHtml({ label: "经验", html: expHtml, icon: "2.12" })}
-    ${roleStatRow({ label: subject.kind === "role" ? "职业经验" : "守护等级", value: subject.kind === "role" ? (!subject.careerEnabled ? "未开启" : careerTransferReady() ? "经验已满：罗克萨斯家转职导师" : subject.careerLevel >= 100 ? "满级" : `${subject.careerExp}/${subject.careerExpNeed}`) : "", icon: "2.12", className: "accent" })}
+    ${roleStatRow({ label: subject.kind === "role" ? "职业经验" : "守护等级", value: subject.kind === "role" ? (!subject.careerEnabled ? "未开启" : careerTransferReady() ? "任务完成：罗克萨斯家转职导师" : careerTree.careerStage(state.selected) === 1 && subject.careerLevel >= careerTree.SECOND_TRANSFER_CAREER_LEVEL ? `二转任务：阿木木 ${state.transferQuest?.kills || 0}/999` : subject.careerLevel >= 100 ? "满级" : `${subject.careerExp}/${subject.careerExpNeed}`) : "", icon: "2.12", className: "accent" })}
     ${roleStatRow({ label: subject.kind === "pet" ? "修炼" : subject.kind === "mercenary" ? "技能数" : subject.kind === "peer" ? "龙魂" : "职业等级", value: subject.kind === "mercenary" ? Math.max(0, subject.skills.length - 1) : subject.kind === "peer" ? `${String(subject.rank).split("龙魂")[1] || 1}` : subject.kind === "role" ? (subject.careerEnabled ? `第${Math.ceil(subject.careerLevel / 10)}阶 ${((subject.careerLevel - 1) % 10) + 1}级` : "未开启") : "", icon: "2.12", className: "cyan" })}
     ${roleStatRow({ label: subject.kind === "pet" ? "宠物类型" : subject.kind === "mercenary" ? "佣兵类型" : subject.kind === "peer" ? "玩家" : "职业", value: subject.kind === "pet" ? "灵兽" : subject.kind === "mercenary" ? subject.classLine.split(" / ")[0] : subject.kind === "peer" ? subject.name : subject.careerName, icon: "2.12", className: "cyan" })}
     ${roleStatRow({ label: "攻击", value: stats.attack, icon: STAT_ICONS.attack })}
@@ -10025,12 +10028,14 @@ async function grantWildBattleReward(monsterId, monsterCount = 1, rewardTicket =
     const reward = result.reward || {};
     const previousLevel = result.previousLevel || state.playerProgress.level;
     const previousCareerLevel = result.previousCareerLevel ?? state.playerProgress.careerLevel;
+    const previousQuestComplete = Boolean(state.transferQuest?.complete);
     const previousPetLevel = result.previousPetLevel || state.petProgress.level;
     const previousMercenaryLevel = result.previousMercenaryLevel ?? activeMercenary()?.level ?? null;
     state.playerProgress.level = result.level || state.playerProgress.level;
     state.playerProgress.exp = result.exp ?? state.playerProgress.exp;
     state.playerProgress.careerLevel = result.careerLevel ?? state.playerProgress.careerLevel;
     state.playerProgress.careerExp = result.careerExp ?? state.playerProgress.careerExp;
+    if (result.player?.transferQuest) state.transferQuest = result.player.transferQuest;
     state.playerProgress.dragonSoul = result.dragonSoul || state.playerProgress.dragonSoul;
     if (result.petProgressById) {
       state.petProgressById = Object.fromEntries(Object.entries(result.petProgressById).map(([petId, progress]) => [String(normalizePetId(petId)), normalizePetProgress(progress)]));
@@ -10086,7 +10091,8 @@ async function grantWildBattleReward(monsterId, monsterCount = 1, rewardTicket =
     }
     if (roleLevelUp) showMenuHint(`角色升级到 ${state.playerProgress.level} 级`);
     if (careerLevelUp) showMenuHint(`职业等级提升到 ${state.playerProgress.careerLevel} 级`);
-    if (result.careerTransferRequired && previousCareerLevel < careerTree.SECOND_TRANSFER_CAREER_LEVEL) showMenuHint("职业经验已满，请前往罗克萨斯家寻找转职导师");
+    if (result.careerTransferRequired && previousCareerLevel < careerTree.SECOND_TRANSFER_CAREER_LEVEL) showMenuHint("二转任务开启：在原野怪区击败999个阿木木");
+    if (result.player?.transferQuest?.complete && !previousQuestComplete) showMenuHint("二转任务完成，请前往罗克萨斯家寻找转职导师");
     if (petLevelUp) showMenuHint(`宠物升级到 ${state.petProgress.level} 级`);
     if (mercenaryLevelUp) showMenuHint(`${mercenary.name}升级到 ${mercenary.level} 级`);
   } catch (error) {
@@ -10152,7 +10158,7 @@ function showBattleRewardPanel() {
       { icon: "1.13", text: `锻造宝石 +${reward.forgeGem}`, meta: "材料" }
     ];
     if (reward.mercenary) rows.splice(2, 0, { icon: "1.9", text: `${reward.mercenary.name}经验 +${reward.mercenary.gainedExp}`, meta: reward.mercenary.expNeed ? `Lv.${reward.mercenary.level} ${reward.mercenary.exp}/${reward.mercenary.expNeed}` : "满级" });
-    if (reward.career) rows.splice(1, 0, { icon: "1.49", text: `职业经验 +${reward.career.gainedExp}`, meta: reward.career.transferRequired ? "经验已满：前往罗克萨斯家寻找转职导师" : reward.career.expNeed ? `Lv.${reward.career.level} ${reward.career.exp}/${reward.career.expNeed}` : "满级" });
+    if (reward.career) rows.splice(1, 0, { icon: "1.49", text: `职业经验 +${reward.career.gainedExp}`, meta: reward.career.transferRequired ? state.transferQuest?.complete ? "二转任务完成：前往罗克萨斯家寻找转职导师" : `二转任务：阿木木 ${state.transferQuest?.kills || 0}/999` : reward.career.expNeed ? `Lv.${reward.career.level} ${reward.career.exp}/${reward.career.expNeed}` : "满级" });
     if (reward.roleLevelUp) rows.unshift({ icon: STAT_ICONS.exp, text: `角色升级 ${reward.previousLevel} -> ${reward.level}`, meta: "升级" });
     if (reward.career?.levelUp) rows.unshift({ icon: "1.49", text: `职业升级 ${reward.career.previousLevel} -> ${reward.career.level}`, meta: reward.career.name });
     if (reward.petLevelUp) rows.unshift({ icon: "2.12", text: `宠物升级 ${reward.previousPetLevel} -> ${reward.petLevel}`, meta: "升级" });

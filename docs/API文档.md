@@ -175,7 +175,7 @@ Content-Type: application/json
 
 **请求头:** 需要认证
 
-人物达到40级可一转；一转职业达到10级且经验已满后，前往「罗克萨斯家」的转职导师完成二转。
+人物达到40级可一转。一转职业达到10级后开启二转任务：在「原野怪区」通过服务端权威战斗击败999个阿木木。任务进度随玩家存档返回的 `transferQuest` 字段持久化（`kills`、`required`、`complete`）；未完成时二转返回 `transfer_quest_incomplete`。完成后前往「罗克萨斯家」的转职导师选择同职业分支二转。重复领取同一战斗票据不会增加任务计数。
 
 ### 改名
 
@@ -220,7 +220,7 @@ Content-Type: application/json
 
 **请求头:** 需要认证
 
-请求体只接受服务端通过 WebSocket `teamBattleReward` 下发的 `rewardTicket`。服务端会校验票据所属账号、有效期与未领取状态，并从票据而非客户端请求读取怪物和数量。可交易奖励仅能由服务端权威联网 PVE 结算发放；本地客户端战斗不会产生经济奖励。一转职业在10级经验已满时，响应包含 `careerTransferRequired: true`，客户端指引玩家前往「罗克萨斯家」的转职导师。
+请求体只接受服务端通过 WebSocket `teamBattleReward` 下发的 `rewardTicket`。服务端会校验票据所属账号、有效期与未领取状态，并从票据而非客户端请求读取怪物和数量。可交易奖励仅能由服务端权威联网 PVE 结算发放；本地客户端战斗不会产生经济奖励。一转职业在10级经验已满时，响应包含 `careerTransferRequired: true`，客户端指引玩家完成阿木木任务。
 
 ### 服务端 PvE 开战
 
