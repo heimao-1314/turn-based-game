@@ -165,6 +165,7 @@ const staticEntryFiles = new Set([
   "index.html",
   "styles.css",
   "app.js",
+  "地图系统/viewport.js",
   "map-admin-editor.js",
   "app-config.js",
   "font-theme.css",

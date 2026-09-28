@@ -3985,15 +3985,7 @@ function render(now = performance.now()) {
 
   const worldW = state.map.width * MAP_TILE_SIZE;
   const worldH = state.map.height * MAP_TILE_SIZE;
-  state.mapScale = Math.min(width / MAP_VIEW_WORLD_W, height / MAP_VIEW_WORLD_H);
-  state.mapViewportW = MAP_VIEW_WORLD_W * state.mapScale;
-  state.mapViewportH = MAP_VIEW_WORLD_H * state.mapScale;
-  state.mapViewportX = (width - state.mapViewportW) / 2;
-  state.mapViewportY = 0;
-  const targetCameraX = (state.player.x + MAP_TILE_SIZE / 2) - MAP_VIEW_WORLD_W / 2;
-  const targetCameraY = (state.player.y + MAP_TILE_SIZE / 2) - MAP_VIEW_WORLD_H / 2;
-  state.cameraX = worldW <= MAP_VIEW_WORLD_W ? -(MAP_VIEW_WORLD_W - worldW) / 2 : Math.max(0, Math.min(worldW - MAP_VIEW_WORLD_W, targetCameraX));
-  state.cameraY = worldH <= MAP_VIEW_WORLD_H ? -(MAP_VIEW_WORLD_H - worldH) / 2 : Math.max(0, Math.min(worldH - MAP_VIEW_WORLD_H, targetCameraY));
+  Object.assign(state, window.MapViewport.compute({ width, height, worldWidth: worldW, worldHeight: worldH, viewWidth: MAP_VIEW_WORLD_W, viewHeight: MAP_VIEW_WORLD_H, playerX: state.player.x, playerY: state.player.y, tileSize: MAP_TILE_SIZE }));
 
   drawMapBackdrop(ctx, width, height);
   drawMapUiDecoration(ctx);
