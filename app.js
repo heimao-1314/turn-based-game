@@ -3744,7 +3744,7 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function drawActor(ctx, actor, now, scale = 1.2, nameColor = "#ffffff") {
+function drawActor(ctx, actor, now, scale = 1.2, nameColor = "#ffffff", dpr = 1) {
   const sprite = state.sprites.get(actor.spriteId);
   if (!sprite) {
     loadSpriteOptional(actor.spriteId);
@@ -3755,7 +3755,7 @@ function drawActor(ctx, actor, now, scale = 1.2, nameColor = "#ffffff") {
     : getFrame(sprite, actor);
   const w = sprite.frameWidth * state.mapScale * scale;
   const h = sprite.frameHeight * state.mapScale * scale;
-  const p = worldToScreen(actor.x + 8, actor.y + 15);
+  const p = window.MapViewport.snapPoint(worldToScreen(actor.x + 8, actor.y + 15), dpr);
   drawSpriteFrame(ctx, sprite, frame, p.x - w / 2, p.y - h, w, h);
   ctx.save();
   ctx.font = `${MAP_NAME_FONT_SIZE * state.mapScale}px ${MAP_NAME_FONT_FAMILY}`;
@@ -3985,7 +3985,7 @@ function render(now = performance.now()) {
 
   const worldW = state.map.width * MAP_TILE_SIZE;
   const worldH = state.map.height * MAP_TILE_SIZE;
-  Object.assign(state, window.MapViewport.compute({ width, height, worldWidth: worldW, worldHeight: worldH, viewWidth: MAP_VIEW_WORLD_W, viewHeight: MAP_VIEW_WORLD_H, playerX: state.player.x, playerY: state.player.y, tileSize: MAP_TILE_SIZE }));
+  Object.assign(state, window.MapViewport.compute({ width, height, worldWidth: worldW, worldHeight: worldH, viewWidth: MAP_VIEW_WORLD_W, viewHeight: MAP_VIEW_WORLD_H, playerX: state.player.x, playerY: state.player.y, tileSize: MAP_TILE_SIZE, devicePixelRatio: dpr }));
 
   drawMapBackdrop(ctx, width, height);
   drawMapUiDecoration(ctx);
@@ -4009,7 +4009,7 @@ function render(now = performance.now()) {
   const actors = [...localActors, ...peerActors, ...visibleMarkerActors, visiblePet, state.player, visibleBattleMarker]
     .filter((actor) => actor && !state.hiddenOnMap.has(actor))
     .sort((a, b) => a.y - b.y);
-  for (const actor of actors) drawActor(ctx, actor, now, actorMapScale(actor), actor === state.player ? "#fff4a8" : "#e8f4ff");
+  for (const actor of actors) drawActor(ctx, actor, now, actorMapScale(actor), actor === state.player ? "#fff4a8" : "#e8f4ff", dpr);
   drawMapLayer(ctx, "over");
   drawCanvasClickEffects(ctx, now, state.clickEffects, (next) => { state.clickEffects = next; });
   drawMapHud(ctx);
