@@ -1,6 +1,6 @@
 # AI 本地 Git 操作手册（必读）
 
-> 本仓库为**本地 Git**，默认无远程。AI 必须把 Git 当作**可回滚的工程记忆**，而不是「最后随手存个档」。
+> 本仓库使用本地 Git，已连接 GitHub 远程 `heimao-1314/turn-based-game`，日常分支为 `develop`。AI 必须把 Git 当作**可回滚的工程记忆**，而不是「最后随手存个档」。提交与推送是两个独立步骤，推送应在用户授权范围内进行。
 
 配套：[branch-strategy.md](./branch-strategy.md) · [commit-convention.md](./commit-convention.md) · [rollback-guide.md](./rollback-guide.md) · 根目录 [AGENTS.md](../../AGENTS.md)
 
