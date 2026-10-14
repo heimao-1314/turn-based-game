@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>游戏运营控制台</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="brand-mark">DW</div>
+      <p class="eyebrow">GAME OPERATIONS</p>
+      <h1>运营控制台</h1>
+      <p class="login-hint">本机访问仅需口令；外网访问请输入管理员账号和密码。</p>
+      <input id="loginAccount" autocomplete="username" placeholder="管理员账号（本机可留空）" />
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="管理员口令" />
+      <button id="loginBtn" type="button">进入控制台</button>
+      <p id="loginError" class="login-error"></p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <div class="desktop-app">
+      <header class="topbar">
+        <div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="window-title"><span>DW 游戏运营控制台</span><span class="title-badge">LIVE</span></div>
+        <div class="topbar-right"><span id="adminInfo"></span><button id="logoutBtn" type="button" class="btn-sm btn-quiet">退出</button></div>
+      </header>
+
+      <div class="workspace-shell">
+        <aside class="sidebar">
+          <div>
+            <div class="sidebar-brand"><span class="brand-mark small">DW</span><div><strong>DW Studio</strong><small>运营管理</small></div></div>
+            <nav class="menu-groups">
+              <div class="menu-group expanded">
+                <button class="menu-group-toggle expanded" type="button"><span class="nav-glyph">O</span>运营管理<span class="chevron">▾</span></button>
+                <div class="menu-sub">
+                  <button class="tab active" data-tab="players">玩家档案</button>
+                  <button class="tab" data-tab="servers">服务器</button>
+                  <button class="tab" data-tab="rankings">排行榜</button>
+                  <button class="tab" data-tab="anomalies">异常检测</button>
+                </div>
+              </div>
+              <div class="menu-group">
+                <button class="menu-group-toggle" type="button"><span class="nav-glyph">C</span>内容与配置<span class="chevron">▾</span></button>
+                <div class="menu-sub">
+                  <button class="tab" data-tab="changelog">更新日志</button>
+                  <button class="tab" data-tab="system">全局配置</button>
+                  <button class="tab" data-tab="growth">成长配置</button>
+                </div>
+              </div>
+            </nav>
+          </div>
+          <div class="sidebar-user-card"><span class="user-avatar">A</span><div><strong>管理员</strong><small>已验证会话</small></div></div>
+        </aside>
+
+        <main class="main-workspace">
+          <section class="tab-page active" id="page-players">
+            <div class="studio-header"><div><p class="eyebrow">PLAYER OPERATIONS</p><h1>玩家档案控制台</h1><p class="page-description">实时监控并管理游戏服务器玩家数据。</p></div><button id="searchBtn" type="button" class="sync-btn"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>同步数据</button></div>
+            <div class="stats-bar"><div class="metric-card"><div class="metric-icon metric-blue"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div><div class="metric-val" id="metricPlayers">--</div><div class="metric-lbl">总注册角色</div></div></div><div class="metric-card"><div class="metric-icon metric-green"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div><div><div class="metric-val" id="metricOnline">--</div><div class="metric-lbl">当前在线玩家</div></div></div><div class="metric-card"><div class="metric-icon metric-orange"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg></div><div><div class="metric-val" id="metricSilver">--</div><div class="metric-lbl">经济流转银币</div></div></div><div class="metric-card"><div class="metric-icon metric-purple"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div><div><div class="metric-val">99.9%</div><div class="metric-lbl">服务端稳定性</div></div></div></div>
+            <div class="table-toolbar"><div class="search-box"><span>Q</span><input id="searchInput" placeholder="搜索账号或角色名" /></div></div>
+            <div class="table-container"><div class="table-scroll"><table class="pc-table" id="playerTable"><thead><tr><th>状态</th><th>角色昵称</th><th>所属账号</th><th>等级</th><th>龙魂</th><th>银币持有量</th><th>常用 IP</th><th>登录次数</th><th>最近活动时间</th></tr></thead><tbody id="playerList"></tbody></table></div></div>
+          </section>
+
+          <section class="tab-page" id="page-servers">
+            <div class="studio-header"><div><p class="eyebrow">SERVER MANAGEMENT</p><h1>服务器管理</h1><p class="page-description">创建、启用或停用游戏服务器。</p></div></div>
+            <div class="server-create-strip panel"><form id="serverCreateForm" class="server-create-form"><label>服务器名称<input id="serverNameInput" maxlength="40" autocomplete="off" placeholder="例如：企鹅村" required /></label><label>自定义 ID（可选）<input id="serverIdInput" maxlength="40" autocomplete="off" placeholder="留空则由系统生成" /></label><button id="createServerBtn" type="submit">新建服务器</button><button id="loadServersBtn" type="button" class="btn-quiet">刷新列表</button></form><p class="note">服务器 ID 创建后用于隔离角色数据，请保持稳定。在线玩家按已认证角色实时统计，本页每 5 秒自动刷新。</p><p id="serverStatsUpdatedAt" class="note"></p></div><div class="table-container data-table-container"><div class="table-scroll"><table class="pc-table data-table"><thead><tr><th>状态</th><th>服务器名称</th><th>服务器 ID</th><th>角色数量</th><th>在线玩家</th><th>线路数量</th><th>操作</th></tr></thead><tbody id="serverList"><tr class="empty-row"><td colspan="7">正在读取服务器列表...</td></tr></tbody></table></div></div>
+          </section>
+
+          <section class="tab-page" id="page-rankings"><div class="studio-header"><div><p class="eyebrow">GAME INSIGHTS</p><h1>属性排行榜</h1><p class="page-description">按服务端属性聚合的玩家排名。</p></div><div class="inline-row"><select id="rankingStat"><option value="power">综合战力</option><option value="attack">攻击</option><option value="hp">生命</option><option value="defense">防御</option><option value="speed">速度</option><option value="mana">法力</option><option value="crit">致命</option><option value="critDamage">爆伤</option></select><button id="loadRankingsBtn" type="button">刷新排行</button></div></div><div class="table-container data-table-container"><div class="table-scroll"><table class="pc-table data-table"><thead><tr><th>名次</th><th>角色昵称</th><th>所属账号</th><th>等级</th><th>龙魂</th><th>当前指标</th><th>属性摘要</th></tr></thead><tbody id="rankingList"></tbody></table></div></div></section>
+
+          <section class="tab-page" id="page-anomalies"><div class="studio-header"><div><p class="eyebrow">SECURITY REVIEW</p><h1>异常检测</h1><p class="page-description">查看服务端记录的异常事件，并执行受控修复。</p></div><div class="inline-row"><button id="loadAnomaliesBtn" type="button">刷新标记</button><button id="scanAnomaliesBtn" type="button" class="btn-orange">扫描并修复</button><button id="resetAbnormalLevelsBtn" type="button" class="btn-orange">重置异常等级</button></div></div><div class="table-container data-table-container"><div class="table-scroll"><table class="pc-table data-table anomaly-table"><thead><tr><th>等级</th><th>玩家</th><th>账号</th><th>异常类型</th><th>处理动作</th><th>记录时间</th><th>详情</th></tr></thead><tbody id="anomalyList"></tbody></table></div></div></section>
+
+          <section class="tab-page" id="page-changelog"><div class="studio-header"><div><p class="eyebrow">PLAYER COMMUNICATION</p><h1>更新日志</h1><p class="page-description">维护玩家登录后可见的版本信息。</p></div></div><div class="panel single-panel"><div class="form-grid"><label>标题<input id="changelogTitleInput" maxlength="40" /></label><label>版本<input id="changelogVersionInput" maxlength="64" /></label></div><label class="check-label"><input id="changelogEnabledInput" type="checkbox" /> 登录后显示给玩家</label><textarea id="changelogContentInput" rows="14" maxlength="20000" placeholder="输入玩家登录后看到的最近更新内容..."></textarea><button id="saveChangelogBtn" type="button">保存更新日志</button></div></section>
+
+          <section class="tab-page" id="page-system"><div class="studio-header"><div><p class="eyebrow">SYSTEM SETTINGS</p><h1>全局配置</h1><p class="page-description">影响全服数据与视觉设置的高权限操作。</p></div></div><div class="panel single-panel"><fieldset class="field-group"><legend>全服操作</legend><div class="inline-row"><button id="resetArenaBtn" type="button" class="btn-orange">重置竞技场</button><button id="resetAllPhantomBtn" type="button" class="btn-danger">清空全服幻影积分和碎片</button><button id="scanAnomaliesBtn2" type="button" class="btn-orange">扫描异常</button><button id="resetAbnormalLevelsBtn2" type="button" class="btn-orange">重置异常等级</button></div><p class="note">高风险操作会修改全服数据，请在执行前确认影响范围。</p></fieldset><fieldset class="field-group"><legend>地图模型大小</legend><div class="form-grid"><label>自己人物倍率<input id="playerScaleInput" type="number" min="0.5" max="2.5" step="0.05" /></label><label>宠物倍率<input id="petScaleInput" type="number" min="0.5" max="2.5" step="0.05" /></label><label>其他玩家/NPC倍率<input id="otherScaleInput" type="number" min="0.5" max="2.5" step="0.05" /></label></div><div class="inline-row"><button id="saveVisualBtn" type="button">保存模型大小</button><button id="resetVisualBtn" type="button" class="btn-orange">恢复默认 1.0</button></div></fieldset><fieldset class="field-group"><legend>登录界面</legend><div class="login-visual-layout"><div class="login-visual-stage"><div class="login-preview" id="loginPreview" aria-label="登录界面按钮位置预览"><div class="login-preview-media" data-role="media"></div><div class="login-preview-hotspot" data-role="hotspot" title="登录游戏按钮：拖动调位置，右下角调大小"><span class="login-preview-hotspot-label">登录游戏</span><span class="login-preview-handle" data-handle="resize-se" title="拖动调整按钮大小"></span></div><div class="login-preview-arrow" data-role="arrow" title="箭头：水平拖动调整位置">▶</div><div class="login-preview-pos" data-pos-index="0" title="快速进入：垂直拖动调整 Y"><i></i><span>快速进入</span></div><div class="login-preview-pos" data-pos-index="1" title="登录游戏：垂直拖动调整 Y"><i></i><span>登录游戏</span></div><div class="login-preview-pos" data-pos-index="2" title="帮助信息：垂直拖动调整 Y"><i></i><span>帮助信息</span></div><div class="login-preview-pos" data-pos-index="3" title="网络设置：垂直拖动调整 Y"><i></i><span>网络设置</span></div><div class="login-preview-pos" data-pos-index="4" title="退出游戏：垂直拖动调整 Y"><i></i><span>退出游戏</span></div></div><p class="note">在预览图上直接拖动「登录游戏」按钮调整水平位置，右下角手柄调整宽高；拖动箭头与菜单标记微调位置，数值会同步到右侧表单。</p></div><div class="login-visual-controls"><div class="form-grid"><label>登录界面样式<select id="loginVisualModeInput"><option value="cover">封面登录</option><option value="classic">原始登录</option></select></label><label>封面类型<select id="loginMediaTypeInput"><option value="video">视频</option><option value="image">图片</option></select></label><label>封面资源路径<input id="loginMediaSrcInput" type="text" placeholder="资源/图片/视频登录.mp4" /></label><label class="check-label"><input id="loginSkipStartInput" type="checkbox" /> 跳过视频开头</label><label>跳过时长（秒）<input id="loginSkipStartTimeInput" type="number" min="0" max="30" step="0.1" placeholder="0.1" /></label><label>按钮左侧百分比<input id="loginHotspotLeftInput" type="number" min="0" max="100" step="0.1" /></label><label>按钮宽度百分比<input id="loginHotspotWidthInput" type="number" min="5" max="100" step="0.1" /></label><label>按钮高度百分比<input id="loginHotspotHeightInput" type="number" min="2" max="30" step="0.1" /></label><label>箭头左侧百分比<input id="loginArrowLeftInput" type="number" min="0" max="100" step="0.1" /></label><label>快速登录 Y%<input id="loginPos0Input" type="number" min="0" max="100" step="0.1" /></label><label>登录游戏 Y%<input id="loginPos1Input" type="number" min="0" max="100" step="0.1" /></label><label>帮助信息 Y%<input id="loginPos2Input" type="number" min="0" max="100" step="0.1" /></label><label>网络设置 Y%<input id="loginPos3Input" type="number" min="0" max="100" step="0.1" /></label><label>退出游戏 Y%<input id="loginPos4Input" type="number" min="0" max="100" step="0.1" /></label></div><div class="inline-row"><button id="saveLoginVisualBtn" type="button">保存登录界面</button><button id="resetLoginVisualBtn" type="button" class="btn-orange">恢复默认封面</button></div></div></div></fieldset></div></section>
+          <section class="tab-page" id="page-growth">
+            <div class="studio-header"><div><p class="eyebrow">PROGRESSION TUNING</p><h1>成长与经验配置</h1><p class="page-description">调整人物/宠物/佣兵的等级成长属性、基础属性与升级经验曲线。保存后全服即时生效，数值以服务端结算为准。</p></div><div class="inline-row"><button id="loadGrowthBtn" type="button" class="btn-quiet">重新载入</button><button id="saveGrowthBtn" type="button">保存全部配置</button><button id="resetGrowthBtn" type="button" class="btn-orange">恢复默认</button></div></div>
+            <div class="growth-tabs" role="tablist" aria-label="成长配置分类">
+              <button class="growth-tab active" data-growth-pane="character" type="button">人物成长</button>
+              <button class="growth-tab" data-growth-pane="pet" type="button">宠物成长</button>
+              <button class="growth-tab" data-growth-pane="mercenary" type="button">佣兵成长</button>
+              <button class="growth-tab" data-growth-pane="dragonSoul" type="button">龙魂配置</button>
+              <button class="growth-tab" data-growth-pane="careerProgress" type="button">职业经验</button>
+              <button class="growth-tab" data-growth-pane="exp" type="button">升级经验</button>
+            </div>
+            <div class="panel single-panel growth-panel">
+              <div class="growth-pane active" id="growthPaneCharacter">
+                <fieldset class="field-group"><legend>人物成长（所有职业共用）</legend><div class="form-grid growth-grid" id="growthCharacterGrid"></div><p class="note">每项格式为 [1级基础值, 每级成长]。龙魂阶段属性在独立页配置。</p></fieldset>
+              </div>
+              <div class="growth-pane" id="growthPanePet">
+                <fieldset class="field-group"><legend>宠物成长</legend><div class="form-grid growth-grid" id="growthPetGrid"></div><p class="note">宠物等级属性 = 基础值 + 每级成长 × (等级 - 1)。</p></fieldset>
+              </div>
+              <div class="growth-pane" id="growthPaneMercenary">
+                <fieldset class="field-group"><legend>佣兵成长</legend><div class="form-grid growth-grid" id="growthMercenaryGrid"></div><div class="form-grid growth-factor-grid"><label>1级属性系数<input id="mercMinFactorInput" type="number" min="0" max="100" step="0.01" /></label><label>100级属性系数<input id="mercMaxFactorInput" type="number" min="0" max="100" step="0.01" /></label><p class="note" style="grid-column:1/-1">佣兵某等级属性 = 基础属性 × 系数；系数随等级线性变化（默认 1 级 0.1、100 级 1.0）。</p></div></fieldset>
+              </div>
+              <div class="growth-pane" id="growthPaneDragonSoul">
+                <fieldset class="field-group"><legend>龙魂进化规则</legend><div class="form-grid growth-factor-grid" id="dragonSoulRuleGrid"></div><p class="note">暴击概率填写 0～100 的百分比；服务端负责扣除粉末、随机暴击和每日次数结算。</p></fieldset>
+                <fieldset class="field-group"><legend>七阶段满级属性</legend><div class="dragon-soul-config-table-wrap"><table class="pc-table dragon-soul-config-table"><thead id="dragonSoulConfigHead"></thead><tbody id="dragonSoulConfigBody"></tbody></table></div><p class="note">每行是该阶段 10/10 的属性值；阶段内按等级线性增长，角色总属性累计已完成阶段。</p></fieldset>
+              </div>
+              <div class="growth-pane" id="growthPaneCareerProgress">
+                <fieldset class="field-group"><legend>职业经验规则</legend><div class="form-grid growth-factor-grid"><label>每级所需击败数量<input id="careerExpPerLevelInput" type="number" min="1" max="1000000" step="1" /></label></div><p class="note">职业经验只按服务端确认的击败怪物数量增加：击败 1 个获得 1 点经验。</p></fieldset>
+              </div>
+              <div class="growth-pane" id="growthPaneExp">
+                <fieldset class="field-group"><legend>升级经验表（角色/职业/宠物/佣兵共用）</legend><textarea id="growthExpTableInput" rows="12" spellcheck="false" placeholder="每行一个数值，共 99 行：Lv.1→2、Lv.2→3 …… Lv.99→100"></textarea><p class="note">每行一个整数，共 99 行；所有升级经验必须 ≥ 1，否则升级循环会异常。修改后请点击「保存全部配置」。</p></fieldset>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <aside class="inspector-panel">
+          <div class="inspector-heading"><p class="eyebrow">PLAYER INSPECTOR</p><h2>玩家操作</h2></div>
+          <div class="inspector-card profile-card"><div class="inspector-user-header"><div class="profile-avatar" id="inspectorAvatar">P</div><div class="inspector-name" id="inspectorName">未选择玩家</div><div class="inspector-sub" id="inspectorMeta">选择左侧玩家查看详细资料</div></div><div class="info-list"><div class="info-row"><span class="info-key">角色 ID</span><span class="info-val" id="inspectorId">--</span></div><div class="info-row"><span class="info-key">角色等级</span><span class="info-val" id="inspectorLevel">--</span></div><div class="info-row"><span class="info-key">龙魂点数</span><span class="info-val" id="inspectorDragon">--</span></div><div class="info-row"><span class="info-key">银币余额</span><span class="info-val inspector-silver" id="inspectorSilver">--</span></div><div class="info-row"><span class="info-key">常用 IP</span><span class="info-val inspector-ip" id="inspectorIp">--</span></div><div class="info-row"><span class="info-key">登录统计</span><span class="info-val" id="inspectorLogins">--</span></div><div class="info-row"><span class="info-key">最近上线</span><span class="info-val" id="inspectorLastSeen">--</span></div></div></div><div id="selectedPlayer" class="selected-box inspector-legacy-summary">未选择玩家</div>
+          <div class="inspector-scroll">
+          <fieldset class="field-group"><legend>基础属性</legend><div class="form-grid compact-grid"><label>等级<input id="levelInput" type="number" min="1" max="100" /></label><label>经验<input id="expInput" type="number" min="0" /></label><label>职业等级<input id="careerLevelInput" type="number" min="1" max="100" /></label><label>职业经验<input id="careerExpInput" type="number" min="0" /></label><label>龙魂<input id="dragonSoulInput" type="number" min="1" max="100" /></label><label>银币<input id="silverInput" type="number" min="0" /></label><label>元宝<input id="yuanbaoInput" type="number" min="0" /></label><label>宠物等级<input id="petLevelInput" type="number" min="1" max="100" /></label><label>宠物经验<input id="petExpInput" type="number" min="0" /></label></div><div class="form-grid compact-grid"><label>职业<select id="classInput"></select></label><label>性别<select id="genderInput"></select></label><label>分支<select id="subInput"></select></label></div><button id="saveStatsBtn" type="button">保存数值</button></fieldset>
+          <fieldset class="field-group"><legend>物品发放</legend><div class="inline-row"><select id="itemSelect"></select><input id="amountInput" type="number" min="1" value="1" /><button id="grantBtn" type="button">发放</button><button id="grantYuanbaoBtn" type="button">发放元宝</button><button id="clearItemBtn" type="button" class="btn-danger">清空</button></div></fieldset>
+            <fieldset class="field-group"><legend>幻影称号</legend><div class="inline-row"><input id="phantomTitleRankInput" type="number" min="1" max="50" value="1" placeholder="名次" /><input id="phantomTitleDaysInput" type="number" min="1" max="365" value="7" placeholder="天数" /><label class="check-label"><input id="phantomTitleEquipInput" type="checkbox" checked />装备</label><button id="grantPhantomTitleBtn" type="button">发放称号</button></div></fieldset>
+            <fieldset class="field-group"><legend>账号操作</legend><div class="inline-row"><input id="resetPasswordInput" type="text" maxlength="24" placeholder="新密码（4-24位）" /><button id="resetPasswordBtn" type="button">重置密码</button></div><div class="inline-row"><button id="resetPhantomPointsBtn" type="button">重置幻影积分</button><button id="resetItemsBtn" type="button" class="btn-danger">重置物品</button></div><div class="inline-row"><button id="banAccountBtn" type="button" class="btn-danger">封号</button><button id="unbanAccountBtn" type="button" class="btn-green">解封</button></div></fieldset>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div id="message" class="message-bar"></div>
+  </div>
+  <script src="app-config.js"></script>
+  <script src="职业模块/职业树.js"></script>
+  <script src="后台管理ui/login-visual-editor.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

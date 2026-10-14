@@ -1,0 +1,20 @@
+:root {
+  /*
+   * Font module for the game UI.
+   * Prefer clear, rounded UI fonts that fit pixel-art games without using
+   * literal pixel/bitmap lettering.
+   */
+  --font-ui: "Noto Sans SC", "Alibaba PuHuiTi", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-map-label: "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-dialog: "LXGW WenKai", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-accent: "Smiley Sans", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-ui);
+}

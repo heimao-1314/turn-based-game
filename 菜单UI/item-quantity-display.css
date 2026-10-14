@@ -1,0 +1,38 @@
+.item-quantity-icon {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  flex: 0 0 23px;
+  width: 23px;
+  height: 18px;
+}
+
+.item-quantity-icon > .main-menu-icon {
+  position: relative;
+  z-index: 0;
+  flex: 0 0 18px;
+}
+
+.item-quantity-badge {
+  position: absolute;
+  left: calc(50% - 3px);
+  top: 50%;
+  z-index: 3;
+  display: inline-flex;
+  pointer-events: none;
+}
+
+.item-quantity-digit {
+  display: block;
+  width: 7px;
+  height: 10px;
+  background-image: url("item-quantity-digits.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+/* A two-digit badge begins at the icon centre and ends at x=23px. Reserve
+   that space so the following label cannot paint over its second digit. */
+.main-menu-item.submenu-item.has-item-quantity-badge {
+  grid-template-columns: 20px 23px minmax(0, 1fr);
+}

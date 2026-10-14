@@ -1,0 +1,127 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>图片自动拼瓦片工具</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <aside class="panel controls">
+        <section class="field">
+          <label>网格数量</label>
+          <div class="grid2">
+            <label class="inline">列 <input id="gridCols" type="number" min="4" max="128" value="15" /></label>
+            <label class="inline">行 <input id="gridRows" type="number" min="4" max="128" value="20" /></label>
+          </div>
+          <button id="applyGrid" type="button">应用网格</button>
+        </section>
+
+        <section class="field">
+          <label for="sourceImage">参考图片</label>
+          <input id="sourceImage" type="file" accept="image/*" />
+          <div class="grid2">
+            <button id="autoBuild" type="button">自动拼到底层</button>
+            <button id="clearMap" type="button">清空地图</button>
+          </div>
+        </section>
+
+        <section class="field">
+          <label for="baseImage">底层图片</label>
+          <input id="baseImage" type="file" accept="image/*" />
+          <div class="grid2">
+            <button id="fitGridToBaseImage" type="button">按底图设网格</button>
+            <button id="clearBaseImage" type="button">清除底图</button>
+          </div>
+        </section>
+
+        <section class="field">
+          <label>图片对齐</label>
+          <div class="grid2">
+            <label class="inline">X <input id="offsetX" type="number" step="1" value="0" /></label>
+            <label class="inline">Y <input id="offsetY" type="number" step="1" value="0" /></label>
+          </div>
+          <div class="grid2">
+            <label class="inline">缩放 <input id="scale" type="number" min="0.05" step="0.05" value="1" /></label>
+            <label class="inline">透明 <input id="alpha" type="number" min="0" max="1" step="0.05" value="0.45" /></label>
+          </div>
+          <div class="grid2">
+            <button id="fitImage" type="button">适配到网格</button>
+            <button id="resetAlign" type="button">重置对齐</button>
+          </div>
+        </section>
+
+        <section class="field">
+          <label for="layer">当前图层</label>
+          <select id="layer">
+            <option value="base">底层</option>
+            <option value="upper">上层</option>
+          </select>
+        </section>
+
+        <section class="field">
+          <label for="tool">工具</label>
+          <select id="tool">
+            <option value="pan">拖动图片</option>
+            <option value="paint">手动画瓦片</option>
+            <option value="eraseUpper">擦除上层</option>
+            <option value="block">画禁行</option>
+            <option value="eraseBlock">擦除禁行</option>
+          </select>
+        </section>
+
+        <section class="field">
+          <label>显示</label>
+          <div class="toggles">
+            <label><input id="showImage" type="checkbox" checked /> 图片</label>
+            <label><input id="showTiles" type="checkbox" checked /> 底层</label>
+            <label><input id="showUpper" type="checkbox" checked /> 上层</label>
+            <label><input id="showGrid" type="checkbox" checked /> 网格</label>
+            <label><input id="showBlock" type="checkbox" checked /> 禁行</label>
+          </div>
+        </section>
+
+
+        <section class="field">
+          <label>地图浏览器</label>
+          <div class="grid2">
+            <select id="mapCategory">
+              <option value="">选择分类...</option>
+            </select>
+            <button id="refreshMaps" type="button">刷新列表</button>
+          </div>
+          <select id="mapList" size="6" style="width:100%"></select>
+          <button id="loadMapBtn" type="button" style="width:100%">加载选中地图</button>
+        </section>
+        <section class="field">
+          <label>导入/导出</label>
+          <div class="grid2">
+            <button id="exportJson" type="button">生成 JSON</button>
+            <button id="downloadJson" type="button">下载 JSON</button>
+          </div>
+          <div class="grid2">
+            <button id="copyJson" type="button">复制 JSON</button>
+            <button id="importJson" type="button">从 JSON 导入</button>
+          </div>
+          <textarea id="jsonBox" spellcheck="false"></textarea>
+        </section>
+
+        <div class="stats" id="stats"></div>
+      </aside>
+
+      <section class="workspace">
+        <canvas id="editorCanvas" width="240" height="320" aria-label="图片拼瓦片编辑器"></canvas>
+      </section>
+
+      <aside class="panel palette-panel">
+        <section class="field">
+          <label>瓦片选择：普通瓦片和特殊地块都可放到底层或上层</label>
+          <canvas id="paletteCanvas" width="384" height="232" aria-label="瓦片选择"></canvas>
+        </section>
+      </aside>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
